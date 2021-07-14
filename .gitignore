@@ -1,0 +1,12 @@
+*.dll
+*.exe
+*.log
+*.nupkg
+*.suo
+*.user
+
+.idea/
+.vs/
+.vscode/
+[Bb]in/
+[Oo]bj/
