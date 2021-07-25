@@ -103,6 +103,11 @@ UMBRACO__STORAGE__AZUREBLOB__MEDIA__CONTAINERNAME=<CONTAINER_NAME>
 UMBRACO__STORAGE__AZUREBLOB__MEDIA__CDN__URL=<CDN_BASE_URL>
 ```
 
+## Folder structure in the Blob storage container
+The blob container is expected to have a root `/media` folder with the subfolders inside.
+
+Note that this is different than the behavior of other file system providers - i.e. https://github.com/umbraco-community/UmbracoFileSystemProviders.Azure that expect the media contents to be at the root level.
+
 ## Bugs, issues and Pull Requests
 
 If you encounter a bug when using this client library you are welcome to open an issue in the issue tracker of this repository. We always welcome Pull Request and please feel free to open an issue before submitting a Pull Request to discuss what you want to submit.
