@@ -139,7 +139,7 @@ namespace Umbraco.StorageProviders.AzureBlob
                 };
 
             responseHeaders.LastModified = properties.Value.LastModified;
-            responseHeaders.ETag = new EntityTagHeaderValue(properties.Value.ETag.ToString());
+            responseHeaders.ETag = new EntityTagHeaderValue($"\"{properties.Value.ETag}\"");
             responseHeaders.Append(HeaderNames.Vary, "Accept-Encoding");
 
             var requestHeaders = request.GetTypedHeaders();
