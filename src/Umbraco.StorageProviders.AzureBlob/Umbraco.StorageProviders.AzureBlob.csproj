@@ -22,7 +22,7 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Umbraco.Cms.Web.Common" Version="9.0.0-beta004" />
+      <PackageReference Include="Umbraco.Cms.Web.Common" Version="9.0.0-rc002" />
     </ItemGroup>
 
 </Project>

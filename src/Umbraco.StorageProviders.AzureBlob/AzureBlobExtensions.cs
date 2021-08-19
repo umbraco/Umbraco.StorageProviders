@@ -263,7 +263,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// <param name="builder">The <see cref="IUmbracoMiddlewareBuilder"/>.</param>
         /// <returns>The <see cref="IUmbracoMiddlewareBuilder"/>.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="builder"/> or is null.</exception>
-        public static IUmbracoMiddlewareBuilder WithAzureBlobMediaFileSystem(this IUmbracoMiddlewareBuilder builder)
+        public static IUmbracoApplicationBuilderContext WithAzureBlobMediaFileSystem(this IUmbracoApplicationBuilderContext builder)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
