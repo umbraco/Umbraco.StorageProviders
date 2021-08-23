@@ -78,8 +78,8 @@ namespace Umbraco.StorageProviders.AzureBlob
             }
             catch (RequestFailedException ex) when (ex.Status == (int) HttpStatusCode.NotFound)
             {
-                // the blob or file does not exist, attempt to get it from the disk instead
-                response.StatusCode = (int) HttpStatusCode.NotFound;
+                // the blob or file does not exist, let other middleware handle it
+                await next(context).ConfigureAwait(false);
                 return;
             }
             catch (RequestFailedException ex) when (ex.Status == (int) HttpStatusCode.PreconditionFailed)
