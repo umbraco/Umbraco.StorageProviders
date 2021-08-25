@@ -258,12 +258,14 @@ namespace Umbraco.Cms.Core.DependencyInjection
         }
 
         /// <summary>
-        /// Adds the <see cref="AzureBlobMediaMiddleware"/>.
+        /// Adds the <see cref="AzureBlobMediaMiddleware" />.
         /// </summary>
-        /// <param name="builder">The <see cref="IUmbracoMiddlewareBuilder"/>.</param>
-        /// <returns>The <see cref="IUmbracoMiddlewareBuilder"/>.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="builder"/> or is null.</exception>
-        public static IUmbracoMiddlewareBuilder WithAzureBlobMediaFileSystem(this IUmbracoMiddlewareBuilder builder)
+        /// <param name="builder">The <see cref="IUmbracoApplicationBuilderContext" />.</param>
+        /// <returns>
+        /// The <see cref="IUmbracoApplicationBuilderContext" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">builder</exception>
+        public static IUmbracoApplicationBuilderContext UseAzureBlobMediaFileSystem(this IUmbracoApplicationBuilderContext builder)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
