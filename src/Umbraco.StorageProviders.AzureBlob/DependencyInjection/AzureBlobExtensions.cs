@@ -11,6 +11,7 @@ using Umbraco.Cms.Web.Common.ApplicationBuilder;
 using Umbraco.Extensions;
 using Umbraco.StorageProviders.AzureBlob;
 using Umbraco.StorageProviders.AzureBlob.Imaging;
+using Umbraco.StorageProviders.AzureBlob.IO;
 
 // ReSharper disable once CheckNamespace
 // uses same namespace as Umbraco Core for easier discoverability
@@ -38,7 +39,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
             if (string.IsNullOrWhiteSpace(path))
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
 
-            builder.Services.TryAddSingleton<IAzureBlobFileSystemProvider, DefaultAzureBlobFileSystemProvider>();
+            builder.Services.TryAddSingleton<IAzureBlobFileSystemProvider, AzureBlobFileSystemProvider>();
 
             builder.Services
                 .AddOptions<AzureBlobFileSystemOptions>(name)

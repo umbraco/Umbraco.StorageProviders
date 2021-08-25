@@ -6,10 +6,10 @@ using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Extensions;
 
-namespace Umbraco.StorageProviders.AzureBlob
+namespace Umbraco.StorageProviders.AzureBlob.IO
 {
     /// <inheritdoc />
-    public class DefaultAzureBlobFileSystemProvider : IAzureBlobFileSystemProvider
+    public class AzureBlobFileSystemProvider : IAzureBlobFileSystemProvider
     {
         private readonly ConcurrentDictionary<string, IAzureBlobFileSystem> _fileSystems = new();
         private readonly IOptionsMonitor<AzureBlobFileSystemOptions> _optionsMonitor;
@@ -18,13 +18,13 @@ namespace Umbraco.StorageProviders.AzureBlob
         private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider;
 
         /// <summary>
-        /// Creates a new instance of <see cref="DefaultAzureBlobFileSystemProvider"/>.
+        /// Creates a new instance of <see cref="AzureBlobFileSystemProvider"/>.
         /// </summary>
         /// <param name="optionsMonitor"></param>
         /// <param name="hostingEnvironment"></param>
         /// <param name="ioHelper"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public DefaultAzureBlobFileSystemProvider(IOptionsMonitor<AzureBlobFileSystemOptions> optionsMonitor,
+        public AzureBlobFileSystemProvider(IOptionsMonitor<AzureBlobFileSystemOptions> optionsMonitor,
             IHostingEnvironment hostingEnvironment, IIOHelper ioHelper)
         {
             _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));

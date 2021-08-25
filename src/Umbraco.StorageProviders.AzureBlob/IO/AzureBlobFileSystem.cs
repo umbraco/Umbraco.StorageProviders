@@ -12,7 +12,7 @@ using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Extensions;
 
-namespace Umbraco.StorageProviders.AzureBlob
+namespace Umbraco.StorageProviders.AzureBlob.IO
 {
     /// <inheritdoc />
     public class AzureBlobFileSystem : IAzureBlobFileSystem

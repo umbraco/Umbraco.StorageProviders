@@ -5,6 +5,7 @@ using Azure.Storage.Blobs;
 using SixLabors.ImageSharp.Web;
 using SixLabors.ImageSharp.Web.Caching;
 using SixLabors.ImageSharp.Web.Resolvers;
+using Umbraco.StorageProviders.AzureBlob.IO;
 
 namespace Umbraco.StorageProviders.AzureBlob.Imaging
 {

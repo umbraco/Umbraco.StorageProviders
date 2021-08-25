@@ -1,4 +1,4 @@
-namespace Umbraco.StorageProviders.AzureBlob
+namespace Umbraco.StorageProviders.AzureBlob.IO
 {
     /// <summary>
     /// The Azure Blob File System Provider.

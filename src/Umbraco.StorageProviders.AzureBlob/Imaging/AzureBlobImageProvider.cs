@@ -7,6 +7,7 @@ using SixLabors.ImageSharp.Web;
 using SixLabors.ImageSharp.Web.Providers;
 using SixLabors.ImageSharp.Web.Resolvers;
 using Umbraco.Cms.Core.Hosting;
+using Umbraco.StorageProviders.AzureBlob.IO;
 
 namespace Umbraco.StorageProviders.AzureBlob.Imaging
 {
