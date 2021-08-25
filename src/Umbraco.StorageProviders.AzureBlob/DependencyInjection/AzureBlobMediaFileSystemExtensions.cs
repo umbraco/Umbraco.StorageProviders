@@ -43,11 +43,9 @@ namespace Umbraco.Cms.Core.DependencyInjection
 
             builder.Services.TryAddSingleton<AzureBlobMediaMiddleware>();
 
-            builder.Services.AddUnique<IImageProvider, AzureBlobImageProvider>();
-            builder.Services.AddUnique<IImageCache>(provider => new AzureBlobImageCache(provider
-                    .GetRequiredService<IOptionsFactory<AzureBlobFileSystemOptions>>()
-                    .Create(AzureBlobFileSystemOptions.MediaFileSystemName)
-            ));
+            // ImageSharp image provider/cache
+            builder.Services.AddUnique<IImageProvider, AzureBlobFileSystemImageProvider>();
+            builder.Services.AddUnique<IImageCache, AzureBlobFileSystemImageCache>();
 
             builder.SetMediaFileSystem(provider => provider.GetRequiredService<IAzureBlobFileSystemProvider>()
                 .GetFileSystem(AzureBlobFileSystemOptions.MediaFileSystemName));
