@@ -41,7 +41,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
                     options.VirtualPath = globalSettingsOptions.Value.UmbracoMediaPath;
                 });
 
-            builder.Services.TryAddSingleton<AzureBlobMediaMiddleware>();
+            builder.Services.TryAddSingleton<AzureBlobFileSystemMiddleware>();
 
             // ImageSharp image provider/cache
             builder.Services.AddUnique<IImageProvider, AzureBlobFileSystemImageProvider>();
@@ -104,7 +104,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
         }
 
         /// <summary>
-        /// Adds the <see cref="AzureBlobMediaMiddleware" />.
+        /// Adds the <see cref="AzureBlobFileSystemMiddleware" />.
         /// </summary>
         /// <param name="builder">The <see cref="IUmbracoApplicationBuilderContext" />.</param>
         /// <returns>
@@ -121,7 +121,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
         }
 
         /// <summary>
-        /// Adds the <see cref="AzureBlobMediaMiddleware" />.
+        /// Adds the <see cref="AzureBlobFileSystemMiddleware" />.
         /// </summary>
         /// <param name="app">The <see cref="IApplicationBuilder" />.</param>
         /// <returns>
@@ -132,7 +132,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
         {
             if (app == null) throw new ArgumentNullException(nameof(app));
 
-            app.UseMiddleware<AzureBlobMediaMiddleware>();
+            app.UseMiddleware<AzureBlobFileSystemMiddleware>();
 
             return app;
         }
