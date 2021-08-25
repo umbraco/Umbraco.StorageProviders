@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -23,11 +23,13 @@ namespace Umbraco.Cms.Core.DependencyInjection
     public static class AzureBlobMediaFileSystemExtensions
     {
         /// <summary>
-        /// Registers a <see cref="IAzureBlobFileSystem"/> and it's dependencies configured for media.
+        /// Registers an <see cref="IAzureBlobFileSystem" /> and it's dependencies configured for media.
         /// </summary>
-        /// <param name="builder">The <see cref="IUmbracoBuilder"/>.</param>
-        /// <returns>The <see cref="IUmbracoBuilder"/>.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="builder"/> is null.</exception>
+        /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
+        /// <returns>
+        /// The <see cref="IUmbracoBuilder" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">builder</exception>
         public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
@@ -54,12 +56,16 @@ namespace Umbraco.Cms.Core.DependencyInjection
         }
 
         /// <summary>
-        /// Registers a <see cref="IAzureBlobFileSystem"/> and it's dependencies configured for media.
+        /// Registers a <see cref="IAzureBlobFileSystem" /> and it's dependencies configured for media.
         /// </summary>
-        /// <param name="builder">The <see cref="IUmbracoBuilder"/>.</param>
-        /// <param name="configure">An action used to configure the <see cref="AzureBlobFileSystemOptions"/>.</param>
-        /// <returns>The <see cref="IUmbracoBuilder"/>.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="builder"/> or <paramref name="configure"/> is null.</exception>
+        /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
+        /// <param name="configure">An action used to configure the <see cref="AzureBlobFileSystemOptions" />.</param>
+        /// <returns>
+        /// The <see cref="IUmbracoBuilder" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">builder
+        /// or
+        /// configure</exception>
         public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder, Action<AzureBlobFileSystemOptions> configure)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
@@ -75,12 +81,16 @@ namespace Umbraco.Cms.Core.DependencyInjection
         }
 
         /// <summary>
-        /// Registers a <see cref="IAzureBlobFileSystem"/> and it's dependencies configured for media.
+        /// Registers a <see cref="IAzureBlobFileSystem" /> and it's dependencies configured for media.
         /// </summary>
-        /// <param name="builder">The <see cref="IUmbracoBuilder"/>.</param>
-        /// <param name="configure">An action used to configure the <see cref="AzureBlobFileSystemOptions"/>.</param>
-        /// <returns>The <see cref="IUmbracoBuilder"/>.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="builder"/> or <paramref name="configure"/> is null.</exception>
+        /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
+        /// <param name="configure">An action used to configure the <see cref="AzureBlobFileSystemOptions" />.</param>
+        /// <returns>
+        /// The <see cref="IUmbracoBuilder" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">builder
+        /// or
+        /// configure</exception>
         public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder, Action<AzureBlobFileSystemOptions, IServiceProvider> configure)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
@@ -113,11 +123,13 @@ namespace Umbraco.Cms.Core.DependencyInjection
         }
 
         /// <summary>
-        /// Adds the <see cref="AzureBlobMediaMiddleware"/>.
+        /// Adds the <see cref="AzureBlobMediaMiddleware" />.
         /// </summary>
-        /// <param name="app">The <see cref="IApplicationBuilder"/>.</param>
-        /// <returns>The <see cref="IApplicationBuilder"/>.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="app"/> or is null.</exception>
+        /// <param name="app">The <see cref="IApplicationBuilder" />.</param>
+        /// <returns>
+        /// The <see cref="IApplicationBuilder" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">app</exception>
         public static IApplicationBuilder UseAzureBlobMediaFileSystem(this IApplicationBuilder app)
         {
             if (app == null) throw new ArgumentNullException(nameof(app));

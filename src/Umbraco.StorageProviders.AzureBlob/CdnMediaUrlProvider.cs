@@ -7,20 +7,21 @@ using Umbraco.Cms.Core.Routing;
 namespace Umbraco.StorageProviders.AzureBlob
 {
     /// <summary>
-    /// A <see cref="IMediaUrlProvider"/> that returns a CDN url for a media item.
+    /// A <see cref="IMediaUrlProvider" /> that returns a CDN URL for a media item.
     /// </summary>
+    /// <seealso cref="Umbraco.Cms.Core.Routing.DefaultMediaUrlProvider" />
     public class CdnMediaUrlProvider : DefaultMediaUrlProvider
     {
         private bool _removeMediaFromPath;
         private Uri _cdnUrl;
 
         /// <summary>
-        /// Creates a new instance of <see cref="CdnMediaUrlProvider"/>.
+        /// Creates a new instance of <see cref="CdnMediaUrlProvider" />.
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="mediaPathGenerators"></param>
-        /// <param name="uriUtility"></param>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <param name="options">The options.</param>
+        /// <param name="mediaPathGenerators">The media path generators.</param>
+        /// <param name="uriUtility">The URI utility.</param>
+        /// <exception cref="System.ArgumentNullException">options</exception>
         public CdnMediaUrlProvider(IOptionsMonitor<CdnMediaUrlProviderOptions> options,
             MediaUrlGeneratorCollection mediaPathGenerators, UriUtility uriUtility)
             : base(mediaPathGenerators, uriUtility)
@@ -46,8 +47,10 @@ namespace Umbraco.StorageProviders.AzureBlob
             };
         }
 
-        private void OptionsOnChange(CdnMediaUrlProviderOptions options, string _)
+        private void OptionsOnChange(CdnMediaUrlProviderOptions options, string name)
         {
+            if (name != Options.DefaultName) return;
+
             _removeMediaFromPath = options.RemoveMediaFromPath;
             _cdnUrl = options.Url;
         }

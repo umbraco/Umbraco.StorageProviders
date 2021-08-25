@@ -13,21 +13,24 @@ namespace Umbraco.Cms.Core.DependencyInjection
     public static class AzureBlobFileSystemExtensions
     {
         /// <summary>
-        /// Registers a <see cref="IAzureBlobFileSystem"/> in the <see cref="IServiceCollection"/>, with it's configuration
-        /// loaded from <c>Umbraco:Storage:AzureBlob:{name}</c> where {name} is the value of the <paramref name="name"/> parameter.
+        /// Registers a <see cref="IAzureBlobFileSystem" /> in the <see cref="IServiceCollection" />, with it's configuration
+        /// loaded from <c>Umbraco:Storage:AzureBlob:{name}</c> where {name} is the value of the <paramref name="name" /> parameter.
         /// </summary>
-        /// <param name="builder">The <see cref="IUmbracoBuilder"/>.</param>
+        /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
         /// <param name="name">The name of the file system.</param>
         /// <param name="path">The path to map the filesystem to.</param>
-        /// <returns>The <see cref="IUmbracoBuilder"/>.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="builder"/> or <paramref name="name"/> is null.</exception>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="path"/> is null or whitespace.</exception>
+        /// <returns>
+        /// The <see cref="IUmbracoBuilder" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">builder
+        /// or
+        /// name</exception>
+        /// <exception cref="System.ArgumentException">Value cannot be null or whitespace. - path</exception>
         public static IUmbracoBuilder AddAzureBlobFileSystem(this IUmbracoBuilder builder, string name, string path)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (name == null) throw new ArgumentNullException(nameof(name));
-            if (string.IsNullOrWhiteSpace(path))
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
+            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
 
             builder.Services.TryAddSingleton<IAzureBlobFileSystemProvider, AzureBlobFileSystemProvider>();
 
@@ -41,23 +44,28 @@ namespace Umbraco.Cms.Core.DependencyInjection
         }
 
         /// <summary>
-        /// Registers a <see cref="IAzureBlobFileSystem"/> in the <see cref="IServiceCollection"/>, with it's configuration
-        /// loaded from <c>Umbraco:Storage:AzureBlob:{name}</c> where {name} is the value of the <paramref name="name"/> parameter.
+        /// Registers a <see cref="IAzureBlobFileSystem" /> in the <see cref="IServiceCollection" />, with it's configuration
+        /// loaded from <c>Umbraco:Storage:AzureBlob:{name}</c> where {name} is the value of the <paramref name="name" /> parameter.
         /// </summary>
-        /// <param name="builder">The <see cref="IUmbracoBuilder"/>.</param>
+        /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
         /// <param name="name">The name of the file system.</param>
         /// <param name="path">The path to map the filesystem to.</param>
-        /// <param name="configure">An action used to configure the <see cref="AzureBlobFileSystemOptions"/>.</param>
-        /// <returns>The <see cref="IUmbracoBuilder"/>.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="builder"/> or <paramref name="name"/> is null.</exception>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="path"/> is null or whitespace.</exception>
+        /// <param name="configure">An action used to configure the <see cref="AzureBlobFileSystemOptions" />.</param>
+        /// <returns>
+        /// The <see cref="IUmbracoBuilder" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">builder
+        /// or
+        /// name
+        /// or
+        /// configure</exception>
+        /// <exception cref="System.ArgumentException">Value cannot be null or whitespace. - path</exception>
         public static IUmbracoBuilder AddAzureBlobFileSystem(this IUmbracoBuilder builder, string name, string path, Action<AzureBlobFileSystemOptions> configure)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (name == null) throw new ArgumentNullException(nameof(name));
+            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
             if (configure == null) throw new ArgumentNullException(nameof(configure));
-            if (string.IsNullOrWhiteSpace(path))
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
 
             AddAzureBlobFileSystem(builder, name, path);
 
@@ -69,23 +77,28 @@ namespace Umbraco.Cms.Core.DependencyInjection
         }
 
         /// <summary>
-        /// Registers a <see cref="IAzureBlobFileSystem"/> in the <see cref="IServiceCollection"/>, with it's configuration
-        /// loaded from <c>Umbraco:Storage:AzureBlob:{name}</c> where {name} is the value of the <paramref name="name"/> parameter.
+        /// Registers a <see cref="IAzureBlobFileSystem" /> in the <see cref="IServiceCollection" />, with it's configuration
+        /// loaded from <c>Umbraco:Storage:AzureBlob:{name}</c> where {name} is the value of the <paramref name="name" /> parameter.
         /// </summary>
-        /// <param name="builder">The <see cref="IUmbracoBuilder"/>.</param>
+        /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
         /// <param name="name">The name of the file system.</param>
         /// <param name="path">The path to map the filesystem to.</param>
-        /// <param name="configure">An action used to configure the <see cref="AzureBlobFileSystemOptions"/>.</param>
-        /// <returns>The <see cref="IUmbracoBuilder"/>.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="builder"/> or <paramref name="name"/> is null.</exception>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="path"/> is null or whitespace.</exception>
+        /// <param name="configure">An action used to configure the <see cref="AzureBlobFileSystemOptions" />.</param>
+        /// <returns>
+        /// The <see cref="IUmbracoBuilder" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">builder
+        /// or
+        /// name
+        /// or
+        /// configure</exception>
+        /// <exception cref="System.ArgumentException">Value cannot be null or whitespace. - path</exception>
         public static IUmbracoBuilder AddAzureBlobFileSystem(this IUmbracoBuilder builder, string name, string path, Action<AzureBlobFileSystemOptions, IServiceProvider> configure)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (name == null) throw new ArgumentNullException(nameof(name));
+            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
             if (configure == null) throw new ArgumentNullException(nameof(configure));
-            if (string.IsNullOrWhiteSpace(path))
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
 
             AddAzureBlobFileSystem(builder, name, path);
 
