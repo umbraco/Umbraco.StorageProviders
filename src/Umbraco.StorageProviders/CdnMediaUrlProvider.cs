@@ -4,7 +4,7 @@ using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Routing;
 
-namespace Umbraco.StorageProviders.AzureBlob
+namespace Umbraco.StorageProviders
 {
     /// <summary>
     /// A <see cref="IMediaUrlProvider" /> that returns a CDN URL for a media item.
@@ -22,8 +22,7 @@ namespace Umbraco.StorageProviders.AzureBlob
         /// <param name="mediaPathGenerators">The media path generators.</param>
         /// <param name="uriUtility">The URI utility.</param>
         /// <exception cref="System.ArgumentNullException">options</exception>
-        public CdnMediaUrlProvider(IOptionsMonitor<CdnMediaUrlProviderOptions> options,
-            MediaUrlGeneratorCollection mediaPathGenerators, UriUtility uriUtility)
+        public CdnMediaUrlProvider(IOptionsMonitor<CdnMediaUrlProviderOptions> options, MediaUrlGeneratorCollection mediaPathGenerators, UriUtility uriUtility)
             : base(mediaPathGenerators, uriUtility)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));

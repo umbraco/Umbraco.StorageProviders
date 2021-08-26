@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using Umbraco.StorageProviders.AzureBlob;
+using Umbraco.StorageProviders;
 
 // ReSharper disable once CheckNamespace
 // uses same namespace as Umbraco Core for easier discoverability
@@ -23,11 +23,11 @@ namespace Umbraco.Cms.Core.DependencyInjection
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
-            builder.Services.AddOptions<CdnMediaUrlProviderOptions>()
-                .BindConfiguration("Umbraco:Storage:AzureBlob:Media:Cdn")
-                .ValidateDataAnnotations();
-
             builder.MediaUrlProviders().Insert<CdnMediaUrlProvider>();
+
+            builder.Services.AddOptions<CdnMediaUrlProviderOptions>()
+                .BindConfiguration("Umbraco:Storage:Media:Cdn")
+                .ValidateDataAnnotations();
 
             return builder;
         }
