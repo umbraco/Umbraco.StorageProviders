@@ -1,17 +1,19 @@
 using System;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 using SixLabors.ImageSharp.Web.Caching;
 using SixLabors.ImageSharp.Web.Providers;
 using Umbraco.Cms.Core.Configuration.Models;
+using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Infrastructure.DependencyInjection;
 using Umbraco.Cms.Web.Common.ApplicationBuilder;
 using Umbraco.Extensions;
-using Umbraco.StorageProviders.AzureBlob;
 using Umbraco.StorageProviders.AzureBlob.Imaging;
 using Umbraco.StorageProviders.AzureBlob.IO;
+using Umbraco.StorageProviders.IO;
 
 // ReSharper disable once CheckNamespace
 // uses same namespace as Umbraco Core for easier discoverability
@@ -40,8 +42,6 @@ namespace Umbraco.Cms.Core.DependencyInjection
                     var globalSettingsOptions = provider.GetRequiredService<IOptions<GlobalSettings>>();
                     options.VirtualPath = globalSettingsOptions.Value.UmbracoMediaPath;
                 });
-
-            builder.Services.TryAddSingleton<AzureBlobFileSystemMiddleware>();
 
             // ImageSharp image provider/cache
             builder.Services.AddUnique<IImageProvider, AzureBlobFileSystemImageProvider>();
@@ -104,7 +104,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
         }
 
         /// <summary>
-        /// Adds the <see cref="AzureBlobFileSystemMiddleware" />.
+        /// Adds the <see cref="Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware" />.
         /// </summary>
         /// <param name="builder">The <see cref="IUmbracoApplicationBuilderContext" />.</param>
         /// <returns>
@@ -121,7 +121,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
         }
 
         /// <summary>
-        /// Adds the <see cref="AzureBlobFileSystemMiddleware" />.
+        /// Adds the <see cref="Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware" />.
         /// </summary>
         /// <param name="app">The <see cref="IApplicationBuilder" />.</param>
         /// <returns>
@@ -132,7 +132,28 @@ namespace Umbraco.Cms.Core.DependencyInjection
         {
             if (app == null) throw new ArgumentNullException(nameof(app));
 
-            app.UseMiddleware<AzureBlobFileSystemMiddleware>();
+            var fileSystem = app.ApplicationServices.GetRequiredService<IAzureBlobFileSystemProvider>().GetFileSystem(AzureBlobFileSystemOptions.MediaFileSystemName);
+            var options = app.ApplicationServices.GetRequiredService<IOptionsFactory<AzureBlobFileSystemOptions>>().Create(AzureBlobFileSystemOptions.MediaFileSystemName);
+            var hostingEnvironment = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
+
+            var requestPath = hostingEnvironment.ToAbsolute(options.VirtualPath);
+
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new FileSystemFileProvider(fileSystem, requestPath),
+                RequestPath = requestPath,
+                OnPrepareResponse = ctx =>
+                {
+                    // TODO Make this configurable
+                    var headers = ctx.Context.Response.GetTypedHeaders();
+                    headers.CacheControl = new CacheControlHeaderValue
+                    {
+                        Public = true,
+                        MustRevalidate = true,
+                        MaxAge = TimeSpan.FromDays(7)
+                    };
+                }
+            });
 
             return app;
         }
