@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Umbraco.StorageProviders.AzureBlob
+namespace Umbraco.StorageProviders
 {
     /// <summary>
     /// The CDN media URL provider options.

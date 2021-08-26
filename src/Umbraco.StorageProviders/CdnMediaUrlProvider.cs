@@ -4,7 +4,7 @@ using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Routing;
 
-namespace Umbraco.StorageProviders.AzureBlob
+namespace Umbraco.StorageProviders
 {
     /// <summary>
     /// A <see cref="IMediaUrlProvider" /> that returns a CDN URL for a media item.
