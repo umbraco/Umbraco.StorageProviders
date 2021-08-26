@@ -54,7 +54,7 @@ public void Configure(IApplicationBuilder app)
 }
 ```
 
-There's multiple ways to configure the provider, it can be done in code:
+There're multiple ways to configure the provider, it can be done in code:
 
 ```csharp
 services.AddUmbraco(_env, _config)
@@ -98,8 +98,12 @@ UMBRACO__STORAGE__AZUREBLOB__MEDIA__CONTAINERNAME=<CONTAINER_NAME>
 UMBRACO__STORAGE__AZUREBLOB__MEDIA__CDN__URL=<CDN_BASE_URL>
 ```
 
+_Note: you still have to add the provider in the `Startup.cs` file when not configuring the options in code._
+
 ## Folder structure in the Azure Blob Storage container
-The container is expected to have a root `/media` folder with the subfolders inside.
+The container name is expected to exist and uses the following folder structure:
+- `/media` - contains the Umbraco media, stored in the structure defined by the `IMediaPathScheme` registered in Umbraco (the default `UniqueMediaPathScheme` stores files with their original filename in 8 character directories, based on the content and property GUID identifier)
+- `/cache` - contains the ImageSharp image cache, stored as files with a filename defined by the `ICacheHash` registered in ImageSharp (the default `CacheHash` generates SHA256 hashes of the file contents and uses the first characters configured by the `Umbraco:CMS:Imaging:CachedNameLength` setting)
 
 Note that this is different than the behavior of other file system providers - i.e. https://github.com/umbraco-community/UmbracoFileSystemProviders.Azure that expect the media contents to be at the root level.
 
