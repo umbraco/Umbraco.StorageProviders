@@ -1,41 +1,36 @@
 # Umbraco.StorageProviders
 
-Umbraco Azure Storage Providers
+This repository contains Umbraco storage providers that can replace the default physical file storage.
 
-## Azure Blob
+## Umbraco.StorageProviders.AzureBlob
 
-The Azure Blob Storage Provider has an implementation of Umbraco `IFileSystem`
-that connects to an Azure Blob Container instead of the physical filesystem.
+The Azure Blob Storage provider has an implementation of the Umbraco `IFileSystem` that connects to an Azure Blob Storage container.
 
 It also has the following features:
-
-- a middleware for serving media files from the `/media` path
-- ImageSharp Blob image provider
-- ImageSharp Blob image cache
-- a CDN Media UrlProvider
+- middleware for serving media files from the `/media` path
+- ImageSharp image provider/cache
+- a CDN media URL provider
 
 ### Usage
 
-The Media FileSystem, CDN UrlProvider and middleware can be enabled in the `Startup.cs` file:
+This provider can be added in the `Startup.cs` file:
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddUmbraco(Environment, Configuration)
+    services.AddUmbraco(_env, _config)
         .AddBackOffice()
         .AddWebsite()
         .AddComposers()
-
-        .AddAzureBlobMediaFileSystem() // add the Azure Blob Media FileSystem, and the ImageSharp providers
-
-        .AddCdnMediaUrlProvider() // (optional) add the CDN Media UrlProvider
-
+        // Add the Azure Blob Storage file system, ImageSharp image provider/cache and middleware for Media:
+        .AddAzureBlobMediaFileSystem() 
+        // Optionally add the CDN media URL provider:
+        .AddCdnMediaUrlProvider()
         .Build();
 }
 
 public void Configure(IApplicationBuilder app)
 {
-
     if (env.IsDevelopment())
     {
         app.UseDeveloperExceptionPage();
@@ -44,10 +39,10 @@ public void Configure(IApplicationBuilder app)
     app.UseUmbraco()
         .WithMiddleware(u =>
         {
-            u.WithBackOffice();
-            u.WithWebsite();
-
-            u.WithAzureBlobMediaFileSystem(); // enables the Azure Blob Media FileSystem middleware
+            u.UseBackOffice();
+            u.UseWebsite();
+            // Enables the Azure Blob Storage middleware for Media:
+            u.UseAzureBlobMediaFileSystem();
 
         })
         .WithEndpoints(u =>
@@ -59,10 +54,10 @@ public void Configure(IApplicationBuilder app)
 }
 ```
 
-There's multiple ways co configure the blob provider it can be done in code
+There're multiple ways to configure the provider, it can be done in code:
 
 ```csharp
-services.AddUmbraco(Environment, Configuration)
+services.AddUmbraco(_env, _config)
 
     .AddAzureBlobMediaFileSystem(options => {
         options.ConnectionString = "";
@@ -75,7 +70,7 @@ services.AddUmbraco(Environment, Configuration)
 
 ```
 
-or in `appSettings.json`
+In `appsettings.json`:
 
 ```json
 {
@@ -95,7 +90,7 @@ or in `appSettings.json`
 }
 ```
 
-or by environment variables
+Or by environment variables:
 
 ```sh
 UMBRACO__STORAGE__AZUREBLOB__MEDIA__CONNECTIONSTRING=<CONNECTION_STRING>
@@ -103,8 +98,12 @@ UMBRACO__STORAGE__AZUREBLOB__MEDIA__CONTAINERNAME=<CONTAINER_NAME>
 UMBRACO__STORAGE__AZUREBLOB__MEDIA__CDN__URL=<CDN_BASE_URL>
 ```
 
-## Folder structure in the Blob storage container
-The blob container is expected to have a root `/media` folder with the subfolders inside.
+_Note: you still have to add the provider in the `Startup.cs` file when not configuring the options in code._
+
+## Folder structure in the Azure Blob Storage container
+The container name is expected to exist and uses the following folder structure:
+- `/media` - contains the Umbraco media, stored in the structure defined by the `IMediaPathScheme` registered in Umbraco (the default `UniqueMediaPathScheme` stores files with their original filename in 8 character directories, based on the content and property GUID identifier)
+- `/cache` - contains the ImageSharp image cache, stored as files with a filename defined by the `ICacheHash` registered in ImageSharp (the default `CacheHash` generates SHA256 hashes of the file contents and uses the first characters configured by the `Umbraco:CMS:Imaging:CachedNameLength` setting)
 
 Note that this is different than the behavior of other file system providers - i.e. https://github.com/umbraco-community/UmbracoFileSystemProviders.Azure that expect the media contents to be at the root level.
 

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Umbraco.StorageProviders.AzureBlob
+namespace Umbraco.StorageProviders.AzureBlob.IO
 {
     /// <summary>
     /// The Azure Blob File System Options.

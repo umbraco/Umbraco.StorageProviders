@@ -4,20 +4,25 @@ using System.ComponentModel.DataAnnotations;
 namespace Umbraco.StorageProviders.AzureBlob
 {
     /// <summary>
-    /// The Cdn Media Url Provider Options.
+    /// The CDN media URL provider options.
     /// </summary>
     public class CdnMediaUrlProviderOptions
     {
         /// <summary>
-        /// The CDN root url.
+        /// Gets or sets the CDN media root URL.
         /// </summary>
+        /// <value>
+        /// The CDN media root URL.
+        /// </value>
         [Required]
         public Uri Url { get; set; } = null!;
 
         /// <summary>
-        /// If <c>true</c> <c>/media/</c> will be removed from the media path.
+        /// Gets or sets a value indicating whether to remove <c>/media/</c> from the path, defaults to <c>true</c>.
         /// </summary>
-        /// <remarks>Default is <c>true</c>.</remarks>
+        /// <value>
+        ///   <c>true</c> if <c>/media/</c> needs to be removed from the path; otherwise, <c>false</c>.
+        /// </value>
         public bool RemoveMediaFromPath { get; set; } = true;
     }
 }

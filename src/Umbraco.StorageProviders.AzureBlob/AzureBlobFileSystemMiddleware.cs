@@ -13,36 +13,58 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Umbraco.Cms.Core.Hosting;
+using Umbraco.StorageProviders.AzureBlob.IO;
 
 namespace Umbraco.StorageProviders.AzureBlob
 {
     /// <summary>
-    /// The Azure Blob Media Middleware.
+    /// The Azure Blob file system middleware.
     /// </summary>
-    public class AzureBlobMediaMiddleware : IMiddleware
+    /// <seealso cref="Microsoft.AspNetCore.Http.IMiddleware" />
+    public class AzureBlobFileSystemMiddleware : IMiddleware
     {
-        private readonly string _rootPath;
-        private readonly IAzureBlobFileSystem _fileSystem;
+        private readonly string _name;
+        private readonly IAzureBlobFileSystemProvider _fileSystemProvider;
+        private string _rootPath;
         private readonly TimeSpan? _maxAge = TimeSpan.FromDays(7);
 
         /// <summary>
-        /// Creates a new instance of <see cref="AzureBlobMediaMiddleware"/>.
+        /// Creates a new instance of <see cref="AzureBlobFileSystemMiddleware" />.
         /// </summary>
-        /// <param name="fileSystemProvider"></param>
-        /// <param name="hostingEnvironment"></param>
-        /// <param name="optionsFactory"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public AzureBlobMediaMiddleware(IAzureBlobFileSystemProvider fileSystemProvider,
-            IHostingEnvironment hostingEnvironment, IOptionsFactory<AzureBlobFileSystemOptions> optionsFactory)
+        /// <param name="options">The options.</param>
+        /// <param name="fileSystemProvider">The file system provider.</param>
+        /// <param name="hostingEnvironment">The hosting environment.</param>
+
+        public AzureBlobFileSystemMiddleware(IOptionsMonitor<AzureBlobFileSystemOptions> options, IAzureBlobFileSystemProvider fileSystemProvider, IHostingEnvironment hostingEnvironment)
+            : this(AzureBlobFileSystemOptions.MediaFileSystemName, options, fileSystemProvider, hostingEnvironment)
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AzureBlobFileSystemMiddleware" /> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="fileSystemProvider">The file system provider.</param>
+        /// <param name="hostingEnvironment">The hosting environment.</param>
+        /// <exception cref="System.ArgumentNullException">options
+        /// or
+        /// hostingEnvironment
+        /// or
+        /// name
+        /// or
+        /// fileSystemProvider</exception>
+        protected AzureBlobFileSystemMiddleware(string name, IOptionsMonitor<AzureBlobFileSystemOptions> options, IAzureBlobFileSystemProvider fileSystemProvider, IHostingEnvironment hostingEnvironment)
         {
-            if (fileSystemProvider == null) throw new ArgumentNullException(nameof(fileSystemProvider));
+            if (options == null) throw new ArgumentNullException(nameof(options));
             if (hostingEnvironment == null) throw new ArgumentNullException(nameof(hostingEnvironment));
-            if (optionsFactory == null) throw new ArgumentNullException(nameof(optionsFactory));
 
-            var options = optionsFactory.Create(AzureBlobFileSystemOptions.MediaFileSystemName);
+            _name = name ?? throw new ArgumentNullException(nameof(name));
+            _fileSystemProvider = fileSystemProvider ?? throw new ArgumentNullException(nameof(fileSystemProvider));
 
-            _fileSystem = fileSystemProvider.GetFileSystem(AzureBlobFileSystemOptions.MediaFileSystemName);
-            _rootPath = hostingEnvironment.ToAbsolute(options.VirtualPath);
+            var fileSystemOptions = options.Get(name);
+            _rootPath = hostingEnvironment.ToAbsolute(fileSystemOptions.VirtualPath);
+
+            options.OnChange((o, n) => OptionsOnChange(o, n, hostingEnvironment));
         }
 
         /// <inheritdoc />
@@ -65,7 +87,7 @@ namespace Umbraco.StorageProviders.AzureBlob
                 return;
             }
 
-            var blob = _fileSystem.GetBlobClient(request.Path);
+            var blob = _fileSystemProvider.GetFileSystem(_name).GetBlobClient(request.Path);
 
             var blobRequestConditions = GetAccessCondition(context.Request);
 
@@ -349,5 +371,11 @@ namespace Umbraco.StorageProviders.AzureBlob
             }
         }
 
+        private void OptionsOnChange(AzureBlobFileSystemOptions options, string name, IHostingEnvironment hostingEnvironment)
+        {
+            if (name != _name) return;
+
+            _rootPath = hostingEnvironment.ToAbsolute(options.VirtualPath);
+        }
     }
 }

@@ -6,10 +6,10 @@ using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Extensions;
 
-namespace Umbraco.StorageProviders.AzureBlob
+namespace Umbraco.StorageProviders.AzureBlob.IO
 {
     /// <inheritdoc />
-    public class DefaultAzureBlobFileSystemProvider : IAzureBlobFileSystemProvider
+    public class AzureBlobFileSystemProvider : IAzureBlobFileSystemProvider
     {
         private readonly ConcurrentDictionary<string, IAzureBlobFileSystem> _fileSystems = new();
         private readonly IOptionsMonitor<AzureBlobFileSystemOptions> _optionsMonitor;
@@ -18,14 +18,17 @@ namespace Umbraco.StorageProviders.AzureBlob
         private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider;
 
         /// <summary>
-        /// Creates a new instance of <see cref="DefaultAzureBlobFileSystemProvider"/>.
+        /// Creates a new instance of <see cref="AzureBlobFileSystemProvider" />.
         /// </summary>
-        /// <param name="optionsMonitor"></param>
-        /// <param name="hostingEnvironment"></param>
-        /// <param name="ioHelper"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public DefaultAzureBlobFileSystemProvider(IOptionsMonitor<AzureBlobFileSystemOptions> optionsMonitor,
-            IHostingEnvironment hostingEnvironment, IIOHelper ioHelper)
+        /// <param name="optionsMonitor">The options monitor.</param>
+        /// <param name="hostingEnvironment">The hosting environment.</param>
+        /// <param name="ioHelper">The IO helper.</param>
+        /// <exception cref="System.ArgumentNullException">optionsMonitor
+        /// or
+        /// hostingEnvironment
+        /// or
+        /// ioHelper</exception>
+        public AzureBlobFileSystemProvider(IOptionsMonitor<AzureBlobFileSystemOptions> optionsMonitor, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper)
         {
             _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
             _hostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
