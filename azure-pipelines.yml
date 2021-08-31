@@ -88,6 +88,12 @@ stages:
                       TargetFolder: $(build.artifactstagingdirectory)
                       CleanTargetFolder: true
                 
+                - task: PublishBuildArtifacts@1
+                  displayName: Publish NuPkg Files
+                  inputs:
+                      PathtoPublish: $(build.artifactstagingdirectory)
+                      ArtifactName: nupkg
+                      
                 - task: DotNetCoreCLI@2
                   displayName: Push to Internal Nuget feed
                   inputs:
