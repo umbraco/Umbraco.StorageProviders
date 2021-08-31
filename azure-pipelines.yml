@@ -87,11 +87,15 @@ stages:
                       Contents: '*.nupkg'
                       TargetFolder: $(build.artifactstagingdirectory)
                       CleanTargetFolder: true
-                - task: PublishBuildArtifacts@1
-                  displayName: Publish NuPkg Files
+                
+                - task: DotNetCoreCLI@2
+                  displayName: Push to Internal Nuget feed
                   inputs:
-                      PathtoPublish: $(build.artifactstagingdirectory)
-                      ArtifactName: nupkg
+                    command: 'push'
+                    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+                    nuGetFeedType: 'internal'
+                    publishVstsFeed: '886b20ce-f777-4d2a-a34e-704e21ecd94b'
+                    
                 - task: CopyFiles@2
                   displayName: Copy Log Files to Staging
                   inputs:
