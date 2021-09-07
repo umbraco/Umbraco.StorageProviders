@@ -1,6 +1,15 @@
 ﻿<Project>
   <PropertyGroup>
     <InformationalVersion>0.1.3</InformationalVersion>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Company>Umbraco</Company>
+    <Copyright>Copyright © Umbraco 2021</Copyright>
+    <Authors>Umbraco HQ</Authors>
+    <PackageProjectUrl>https://github.com/umbraco/Umbraco.StorageProviders</PackageProjectUrl>
+    <PackageIconUrl>https://umbraco.com/dist/nuget/logo-small.png</PackageIconUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>umbraco storage</PackageTags>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 </Project>
 

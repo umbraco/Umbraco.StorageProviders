@@ -4,6 +4,7 @@
         <Nullable>enable</Nullable>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <description>Azure blob storage plugin for Umbraco CMS</description>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Azure.Storage.Blobs" Version="12.9.1" />
