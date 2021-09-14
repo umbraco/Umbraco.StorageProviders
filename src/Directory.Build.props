@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <InformationalVersion>1.0.0-rc001</InformationalVersion>
+    <InformationalVersion>4.0.0-rc002</InformationalVersion>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Company>Umbraco</Company>
     <Copyright>Copyright © Umbraco 2021</Copyright>
