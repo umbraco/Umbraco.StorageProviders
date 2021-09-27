@@ -1,7 +1,7 @@
 ﻿<Project>
   <PropertyGroup>
     <AssemblyVersion>1.0.0</AssemblyVersion>
-    <InformationalVersion>1.0.0-rc002</InformationalVersion>
+    <InformationalVersion>1.0.0</InformationalVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Company>Umbraco</Company>
