@@ -3,13 +3,13 @@ using System.IO;
 using Microsoft.Extensions.FileProviders;
 using Umbraco.Cms.Core.IO;
 
-namespace Umbraco.StorageProviders.IO
+namespace Umbraco.Extensions.StorageProviders
 {
     /// <summary>
-    /// Represents a directory in an <see cref="IFileSystem" />.
+    /// Represents a file in an <see cref="IFileSystem" />.
     /// </summary>
     /// <seealso cref="Microsoft.Extensions.FileProviders.IFileInfo" />
-    public class FileSystemDirectoryInfo : IFileInfo
+    public class FileSystemFileInfo : IFileInfo
     {
         private readonly IFileSystem _fileSystem;
         private readonly string _subpath;
@@ -18,13 +18,13 @@ namespace Umbraco.StorageProviders.IO
         public bool Exists => true;
 
         /// <inheritdoc />
-        public bool IsDirectory => true;
+        public bool IsDirectory => false;
 
         /// <inheritdoc />
         public DateTimeOffset LastModified => _fileSystem.GetLastModified(_subpath);
 
         /// <inheritdoc />
-        public long Length => -1;
+        public long Length => _fileSystem.GetSize(_subpath);
 
         /// <inheritdoc />
         public string Name => _fileSystem.GetRelativePath(_subpath);
@@ -33,17 +33,17 @@ namespace Umbraco.StorageProviders.IO
         public string PhysicalPath => null!;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FileSystemDirectoryInfo" /> class.
+        /// Initializes a new instance of the <see cref="FileSystemFileInfo" /> class.
         /// </summary>
         /// <param name="fileSystem">The file system.</param>
         /// <param name="subpath">The subpath.</param>
-        public FileSystemDirectoryInfo(IFileSystem fileSystem, string subpath)
+        public FileSystemFileInfo(IFileSystem fileSystem, string subpath)
         {
             _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
             _subpath = subpath ?? throw new ArgumentNullException(nameof(subpath));
         }
 
         /// <inheritdoc />
-        public Stream CreateReadStream() => throw new InvalidOperationException("Cannot create a stream for a directory.");
+        public Stream CreateReadStream() => _fileSystem.OpenFile(_subpath);
     }
 }

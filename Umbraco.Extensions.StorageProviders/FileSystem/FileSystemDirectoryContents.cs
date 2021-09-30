@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.Extensions.FileProviders;
 using Umbraco.Cms.Core.IO;
 
-namespace Umbraco.StorageProviders.IO
+namespace Umbraco.Extensions.StorageProviders
 {
     /// <summary>
     /// Represents the directory contents in an <see cref="IFileSystem" />.
