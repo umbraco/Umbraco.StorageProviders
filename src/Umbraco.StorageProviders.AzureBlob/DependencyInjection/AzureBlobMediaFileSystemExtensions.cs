@@ -1,6 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
@@ -138,10 +139,14 @@ namespace Umbraco.Cms.Core.DependencyInjection
 
             var requestPath = hostingEnvironment.ToAbsolute(options.VirtualPath);
 
-            app.UseStaticFiles(new StaticFileOptions()
+            var sharedOptions = new SharedOptions()
             {
                 FileProvider = new FileSystemFileProvider(fileSystem, requestPath),
-                RequestPath = requestPath,
+                RequestPath = requestPath
+            };
+
+            app.UseStaticFiles(new StaticFileOptions(sharedOptions)
+            {
                 OnPrepareResponse = ctx =>
                 {
                     // TODO Make this configurable
