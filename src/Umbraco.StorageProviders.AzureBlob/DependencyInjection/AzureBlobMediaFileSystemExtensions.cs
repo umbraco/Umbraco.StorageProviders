@@ -43,12 +43,8 @@ namespace Umbraco.Cms.Core.DependencyInjection
 
             builder.Services.TryAddSingleton<AzureBlobFileSystemMiddleware>();
 
-            // ImageSharp image providers (remove all to ensure the correct order, as PhysicalFileSystemProvider matches all requests)
-            builder.Services.RemoveAll<IImageProvider>();
-            builder.Services.AddSingleton<IImageProvider, AzureBlobFileSystemImageProvider>();
-            builder.Services.AddSingleton<IImageProvider, PhysicalFileSystemProvider>();
-
-            // ImageSharp image cache
+            // ImageSharp image provider/cache
+            builder.Services.Insert(0, ServiceDescriptor.Singleton<IImageProvider, AzureBlobFileSystemImageProvider>());
             builder.Services.AddUnique<IImageCache, AzureBlobFileSystemImageCache>();
 
             builder.SetMediaFileSystem(provider => provider.GetRequiredService<IAzureBlobFileSystemProvider>()
