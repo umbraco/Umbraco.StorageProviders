@@ -26,6 +26,7 @@ namespace Umbraco.StorageProviders.AzureBlob
         private readonly string _name;
         private readonly IAzureBlobFileSystemProvider _fileSystemProvider;
         private string _rootPath;
+        private string _containerRootPath;
         private readonly TimeSpan? _maxAge = TimeSpan.FromDays(7);
 
         /// <summary>
@@ -63,6 +64,7 @@ namespace Umbraco.StorageProviders.AzureBlob
 
             var fileSystemOptions = options.Get(name);
             _rootPath = hostingEnvironment.ToAbsolute(fileSystemOptions.VirtualPath);
+            _containerRootPath = fileSystemOptions.ContainerRootPath ?? _rootPath;
 
             options.OnChange((o, n) => OptionsOnChange(o, n, hostingEnvironment));
         }
@@ -87,7 +89,8 @@ namespace Umbraco.StorageProviders.AzureBlob
                 return;
             }
 
-            var blob = _fileSystemProvider.GetFileSystem(_name).GetBlobClient(request.Path);
+            string containerPath = $"{_containerRootPath.TrimEnd('/')}/{(request.Path.Value.Remove(0, _rootPath.Length)).TrimStart('/')}";
+            var blob = _fileSystemProvider.GetFileSystem(_name).GetBlobClient(containerPath);
 
             var blobRequestConditions = GetAccessCondition(context.Request);
 
@@ -98,13 +101,13 @@ namespace Umbraco.StorageProviders.AzureBlob
             {
                 properties = await blob.GetPropertiesAsync(blobRequestConditions, context.RequestAborted).ConfigureAwait(false);
             }
-            catch (RequestFailedException ex) when (ex.Status == (int) HttpStatusCode.NotFound)
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
             {
                 // the blob or file does not exist, let other middleware handle it
                 await next(context).ConfigureAwait(false);
                 return;
             }
-            catch (RequestFailedException ex) when (ex.Status == (int) HttpStatusCode.PreconditionFailed)
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.PreconditionFailed)
             {
                 // If-Range or If-Unmodified-Since is not met
                 // if the resource has been modified, we need to send the whole file back with a 200 OK
@@ -113,12 +116,12 @@ namespace Umbraco.StorageProviders.AzureBlob
                 properties = await blob.GetPropertiesAsync().ConfigureAwait(false);
                 response.Headers.Append("Content-Range", $"bytes */{properties.Value.ContentLength}");
             }
-            catch (RequestFailedException ex) when (ex.Status == (int) HttpStatusCode.NotModified)
+            catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotModified)
             {
                 // If-None-Match or If-Modified-Since is not met
                 // we need to pass the status code back to the client
                 // so it knows it can reuse the cached data
-                response.StatusCode = (int) HttpStatusCode.NotModified;
+                response.StatusCode = (int)HttpStatusCode.NotModified;
                 return;
             }
             // for some reason we get an internal exception type with the message
@@ -140,7 +143,7 @@ namespace Umbraco.StorageProviders.AzureBlob
                     // If-None-Match or If-Modified-Since is not met
                     // we need to pass the status code back to the client
                     // so it knows it can reuse the cached data
-                    response.StatusCode = (int) HttpStatusCode.NotModified;
+                    response.StatusCode = (int)HttpStatusCode.NotModified;
                     return;
                 }
             }
@@ -174,7 +177,7 @@ namespace Umbraco.StorageProviders.AzureBlob
                 {
                     // no ranges could be parsed
                     response.Clear();
-                    response.StatusCode = (int) HttpStatusCode.RequestedRangeNotSatisfiable;
+                    response.StatusCode = (int)HttpStatusCode.RequestedRangeNotSatisfiable;
                     responseHeaders.ContentRange = new ContentRangeHeaderValue(properties.Value.ContentLength);
                     return;
                 }

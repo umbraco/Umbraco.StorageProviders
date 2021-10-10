@@ -39,7 +39,14 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             _ioHelper = ioHelper ?? throw new ArgumentNullException(nameof(ioHelper));
             _contentTypeProvider = contentTypeProvider ?? throw new ArgumentNullException(nameof(contentTypeProvider));
 
-            _rootUrl = EnsureUrlSeparatorChar(hostingEnvironment.ToAbsolute(options.VirtualPath)).TrimEnd('/');
+            if(options.ContainerRootPath != null)
+            {
+                _rootUrl = options.ContainerRootPath.TrimEnd('/');
+            }
+            else
+            {
+                _rootUrl = EnsureUrlSeparatorChar(hostingEnvironment.ToAbsolute(options.VirtualPath)).TrimEnd('/');
+            }
 
             var client = new BlobServiceClient(options.ConnectionString);
             _container = client.GetBlobContainerClient(options.ContainerName);
