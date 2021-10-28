@@ -379,6 +379,7 @@ namespace Umbraco.StorageProviders.AzureBlob
             if (name != _name) return;
 
             _rootPath = hostingEnvironment.ToAbsolute(options.VirtualPath);
+            _containerRootPath = options.ContainerRootPath ?? _rootPath;
         }
     }
 }
