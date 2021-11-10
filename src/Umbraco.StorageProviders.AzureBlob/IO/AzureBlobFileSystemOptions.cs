@@ -25,6 +25,11 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         public string ContainerName { get; set; } = null!;
 
         /// <summary>
+        /// The root path of the container.
+        /// </summary>
+        public string ContainerRootPath { get; set; } = null!;
+
+        /// <summary>
         /// The virtual path.
         /// </summary>
         [Required]
