@@ -29,8 +29,23 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// <returns>
         /// The <see cref="IUmbracoBuilder" />.
         /// </returns>
+        /// <remarks>
+        /// This will also configure the ImageSharp.Web middleware to use Azure Blob Storage to retrieve the original and cache the processed images.
+        /// </remarks>
         /// <exception cref="System.ArgumentNullException">builder</exception>
         public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder)
+            => builder.AddAzureBlobMediaFileSystem(true);
+
+        /// <summary>
+        /// Registers an <see cref="IAzureBlobFileSystem" /> and it's dependencies configured for media.
+        /// </summary>
+        /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
+        /// <param name="useAzureBlobImageCache">If set to <c>true</c> also configures Azure Blob Storage for the image cache.</param>
+        /// <returns>
+        /// The <see cref="IUmbracoBuilder" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">builder</exception>
+        public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder, bool useAzureBlobImageCache)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
 
@@ -45,7 +60,10 @@ namespace Umbraco.Cms.Core.DependencyInjection
 
             // ImageSharp image provider/cache
             builder.Services.Insert(0, ServiceDescriptor.Singleton<IImageProvider, AzureBlobFileSystemImageProvider>());
-            builder.Services.AddUnique<IImageCache, AzureBlobFileSystemImageCache>();
+            if (useAzureBlobImageCache)
+            {
+                builder.Services.AddUnique<IImageCache, AzureBlobFileSystemImageCache>();
+            }
 
             builder.SetMediaFileSystem(provider => provider.GetRequiredService<IAzureBlobFileSystemProvider>()
                 .GetFileSystem(AzureBlobFileSystemOptions.MediaFileSystemName));
@@ -61,15 +79,33 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// <returns>
         /// The <see cref="IUmbracoBuilder" />.
         /// </returns>
+        /// <remarks>
+        /// This will also configure the ImageSharp.Web middleware to use Azure Blob Storage to retrieve the original and cache the processed images.
+        /// </remarks>
         /// <exception cref="System.ArgumentNullException">builder
         /// or
         /// configure</exception>
         public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder, Action<AzureBlobFileSystemOptions> configure)
+            => builder.AddAzureBlobMediaFileSystem(true, configure);
+
+        /// <summary>
+        /// Registers a <see cref="IAzureBlobFileSystem" /> and it's dependencies configured for media.
+        /// </summary>
+        /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
+        /// <param name="useAzureBlobImageCache">If set to <c>true</c> also configures Azure Blob Storage for the image cache.</param>
+        /// <param name="configure">An action used to configure the <see cref="AzureBlobFileSystemOptions" />.</param>
+        /// <returns>
+        /// The <see cref="IUmbracoBuilder" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">builder
+        /// or
+        /// configure</exception>
+        public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder, bool useAzureBlobImageCache, Action<AzureBlobFileSystemOptions> configure)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-            AddAzureBlobMediaFileSystem(builder);
+            AddAzureBlobMediaFileSystem(builder, useAzureBlobImageCache);
 
             builder.Services
                 .AddOptions<AzureBlobFileSystemOptions>(AzureBlobFileSystemOptions.MediaFileSystemName)
@@ -86,15 +122,33 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// <returns>
         /// The <see cref="IUmbracoBuilder" />.
         /// </returns>
+        /// <remarks>
+        /// This will also configure the ImageSharp.Web middleware to use Azure Blob Storage to retrieve the original and cache the processed images.
+        /// </remarks>
         /// <exception cref="System.ArgumentNullException">builder
         /// or
         /// configure</exception>
         public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder, Action<AzureBlobFileSystemOptions, IServiceProvider> configure)
+            => builder.AddAzureBlobMediaFileSystem(true, configure);
+
+        /// <summary>
+        /// Registers a <see cref="IAzureBlobFileSystem" /> and it's dependencies configured for media.
+        /// </summary>
+        /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
+        /// <param name="useAzureBlobImageCache">If set to <c>true</c> also configures Azure Blob Storage for the image cache.</param>
+        /// <param name="configure">An action used to configure the <see cref="AzureBlobFileSystemOptions" />.</param>
+        /// <returns>
+        /// The <see cref="IUmbracoBuilder" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">builder
+        /// or
+        /// configure</exception>
+        public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder, bool useAzureBlobImageCache, Action<AzureBlobFileSystemOptions, IServiceProvider> configure)
         {
             if (builder == null) throw new ArgumentNullException(nameof(builder));
             if (configure == null) throw new ArgumentNullException(nameof(configure));
 
-            AddAzureBlobMediaFileSystem(builder);
+            AddAzureBlobMediaFileSystem(builder, useAzureBlobImageCache);
 
             builder.Services
                 .AddOptions<AzureBlobFileSystemOptions>(AzureBlobFileSystemOptions.MediaFileSystemName)
