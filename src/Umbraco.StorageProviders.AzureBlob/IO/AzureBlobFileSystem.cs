@@ -21,6 +21,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         private readonly IContentTypeProvider _contentTypeProvider;
         private readonly IIOHelper _ioHelper;
         private readonly string _rootUrl;
+        private readonly string _containerRootPath;
 
         /// <summary>
         ///     Creates a new instance of <see cref="AzureBlobFileSystem" />.
@@ -40,6 +41,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             _contentTypeProvider = contentTypeProvider ?? throw new ArgumentNullException(nameof(contentTypeProvider));
 
             _rootUrl = EnsureUrlSeparatorChar(hostingEnvironment.ToAbsolute(options.VirtualPath)).TrimEnd('/');
+            _containerRootPath = options.ContainerRootPath ?? _rootUrl;
 
             var client = new BlobServiceClient(options.ConnectionString);
             _container = client.GetBlobContainerClient(options.ContainerName);
@@ -106,7 +108,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             if (_contentTypeProvider.TryGetContentType(path, out var contentType)) headers.ContentType = contentType;
 
             blob.Upload(stream, headers,
-                conditions: overrideIfExists ? null : new BlobRequestConditions {IfNoneMatch = new ETag("*")});
+                conditions: overrideIfExists ? null : new BlobRequestConditions { IfNoneMatch = new ETag("*") });
         }
 
         /// <inheritdoc />
@@ -124,7 +126,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             var copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri,
                 destinationConditions: overrideIfExists
                     ? null
-                    : new BlobRequestConditions {IfNoneMatch = new ETag("*")});
+                    : new BlobRequestConditions { IfNoneMatch = new ETag("*") });
 
             if (copyFromUriOperation?.HasCompleted == false)
                 Task.Run(async () => await copyFromUriOperation.WaitForCompletionAsync().ConfigureAwait(false))
@@ -255,7 +257,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         {
             if (path == null) throw new ArgumentNullException(nameof(path));
 
-            return _container.GetBlobClient(GetFullPath(path));
+            return _container.GetBlobClient(GetBlobPath(path));
         }
 
         /// <inheritdoc />
@@ -281,6 +283,26 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             if (path == null) throw new ArgumentNullException(nameof(path));
 
             return _container.GetBlobsByHierarchy(prefix: path);
+        }
+
+        private string GetBlobPath(string path)
+        {
+            if (path == null) throw new ArgumentNullException(nameof(path));
+
+            path = EnsureUrlSeparatorChar(path);
+
+            if (_ioHelper.PathStartsWith(path, _containerRootPath, '/'))
+            {
+                return path;
+            }
+
+            if (_ioHelper.PathStartsWith(path, _rootUrl, '/'))
+            {
+                path = path[_rootUrl.Length..];
+            }
+
+            path = $"{_containerRootPath}/{path.TrimStart('/')}";
+            return path.Trim('/');
         }
     }
 }

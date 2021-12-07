@@ -21,6 +21,11 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         private readonly FormatUtilities _formatUtilities;
 
         /// <summary>
+        /// A match function used by the resolver to identify itself as the correct resolver to use.
+        /// </summary>
+        private Func<HttpContext, bool>? _match;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AzureBlobFileSystemImageProvider" /> class.
         /// </summary>
         /// <param name="options">The options.</param>
@@ -68,8 +73,7 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            return context.Request.Path.StartsWithSegments(_rootPath, StringComparison.InvariantCultureIgnoreCase)
-                   && _formatUtilities.GetExtensionFromUri(context.Request.GetDisplayUrl()) != null;
+            return _formatUtilities.GetExtensionFromUri(context.Request.GetDisplayUrl()) != null;
         }
 
         /// <inheritdoc />
@@ -95,8 +99,19 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         /// <inheritdoc />
         public ProcessingBehavior ProcessingBehavior => ProcessingBehavior.CommandOnly;
 
-        /// <inheritdoc />
-        public Func<HttpContext, bool> Match { get; set; } = _ => true;
+        /// <inheritdoc/>
+        public Func<HttpContext, bool> Match
+        {
+            get => this._match ?? IsMatch;
+            set => this._match = value;
+        }
+
+        private bool IsMatch(HttpContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+
+            return context.Request.Path.StartsWithSegments(_rootPath, StringComparison.InvariantCultureIgnoreCase);
+        }
 
         private void OptionsOnChange(AzureBlobFileSystemOptions options, string name, IHostingEnvironment hostingEnvironment)
         {
