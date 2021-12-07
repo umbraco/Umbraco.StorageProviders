@@ -12,9 +12,9 @@ using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Infrastructure.DependencyInjection;
 using Umbraco.Cms.Web.Common.ApplicationBuilder;
 using Umbraco.Extensions;
+using Umbraco.Extensions.StorageProviders;
 using Umbraco.StorageProviders.AzureBlob.Imaging;
 using Umbraco.StorageProviders.AzureBlob.IO;
-using Umbraco.StorageProviders.IO;
 
 // ReSharper disable once CheckNamespace
 // uses same namespace as Umbraco Core for easier discoverability
@@ -45,7 +45,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
                 });
 
             // ImageSharp image provider/cache
-            builder.Services.AddUnique<IImageProvider, AzureBlobFileSystemImageProvider>();
+            builder.Services.Insert(0, ServiceDescriptor.Singleton<IImageProvider, AzureBlobFileSystemImageProvider>());
             builder.Services.AddUnique<IImageCache, AzureBlobFileSystemImageCache>();
 
             builder.SetMediaFileSystem(provider => provider.GetRequiredService<IAzureBlobFileSystemProvider>()

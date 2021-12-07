@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Umbraco.StorageProviders", "src\Umbraco.StorageProviders\Umbraco.StorageProviders.csproj", "{5EC38982-2C9A-4D8D-AAE2-743A690FCD71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.Extensions.StorageProviders", "Umbraco.Extensions.StorageProviders\Umbraco.Extensions.StorageProviders.csproj", "{505FBC05-8EC0-47B9-9051-5704D9329091}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.Extensions.StorageProviders", "src\Umbraco.Extensions.StorageProviders\Umbraco.Extensions.StorageProviders.csproj", "{505FBC05-8EC0-47B9-9051-5704D9329091}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
