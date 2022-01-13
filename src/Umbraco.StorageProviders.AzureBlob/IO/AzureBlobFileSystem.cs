@@ -304,5 +304,24 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             path = $"{_containerRootPath}/{path.TrimStart('/')}";
             return path.Trim('/');
         }
+
+        /// <summary>
+        /// Creates a new container under the specified account if a container with the same name does not already exist.
+        /// </summary>
+        /// <param name="options">The Azure Blob Storage file system options.</param>
+        /// <param name="accessType">Optionally specifies whether data in the container may be accessed publicly and the level of access.
+        /// <see cref="PublicAccessType.BlobContainer" /> specifies full public read access for container and blob data. Clients can enumerate blobs within the container via anonymous request, but cannot enumerate containers within the storage account.
+        /// <see cref="PublicAccessType.Blob" /> specifies public read access for blobs. Blob data within this container can be read via anonymous request, but container data is not available. Clients cannot enumerate blobs within the container via anonymous request.
+        /// <see cref="PublicAccessType.None" /> specifies that the container data is private to the account owner.</param>
+        /// <returns>
+        /// If the container does not already exist, a <see cref="Response{T}" /> describing the newly created container. If the container already exists, <see langword="null" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">options</exception>
+        public static Response<BlobContainerInfo> CreateIfNotExists(AzureBlobFileSystemOptions options, PublicAccessType accessType = PublicAccessType.None)
+        {
+            if (options == null) throw new ArgumentNullException(nameof(options));
+
+            return new BlobContainerClient(options.ConnectionString, options.ContainerName).CreateIfNotExists(accessType);
+        }
     }
 }
