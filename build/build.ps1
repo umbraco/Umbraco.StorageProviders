@@ -44,11 +44,6 @@
     $src = "$($this.SolutionRoot)\src"
     $log = "$($this.BuildTemp)\dotnet.build.umbraco.log"
 
-    if ($this.BuildEnv.VisualStudio -eq $null)
-    {
-      throw "Build environment does not provide VisualStudio."
-    }
-
     Write-Host "Compile Umbraco.StorageProviders.AzureBlob"
     Write-Host "Logging to $log"
 
