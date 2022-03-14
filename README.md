@@ -102,7 +102,7 @@ _Note: you still have to add the provider in the `Startup.cs` file when not conf
 
 ## Using the file system provider
 
-Please refer to our documentation on [Using Custom FileSystem providers](https://our.umbraco.com/documentation/Extending/FileSystemProviders/).
+Please refer to our documentation on [using custom file systems](https://our.umbraco.com/documentation/Extending/FileSystemProviders/).
 
 ## Folder structure in the Azure Blob Storage container
 The container name is expected to exist and uses the following folder structure:
