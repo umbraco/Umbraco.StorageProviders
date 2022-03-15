@@ -108,7 +108,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             if (_contentTypeProvider.TryGetContentType(path, out var contentType)) headers.ContentType = contentType;
 
             blob.Upload(stream, headers,
-                conditions: overrideIfExists ? null : new BlobRequestConditions { IfNoneMatch = new ETag("*") });
+                conditions: overrideIfExists ? null : new BlobRequestConditions { IfNoneMatch = ETag.All });
         }
 
         /// <inheritdoc />
@@ -126,7 +126,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             var copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri,
                 destinationConditions: overrideIfExists
                     ? null
-                    : new BlobRequestConditions { IfNoneMatch = new ETag("*") });
+                    : new BlobRequestConditions { IfNoneMatch = ETag.All });
 
             if (copyFromUriOperation?.HasCompleted == false)
                 Task.Run(async () => await copyFromUriOperation.WaitForCompletionAsync().ConfigureAwait(false))
