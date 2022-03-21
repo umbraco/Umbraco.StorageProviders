@@ -53,10 +53,12 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         {
             var blob = _container.GetBlobClient(_cachePath + key);
 
-            if (await blob.ExistsAsync().ConfigureAwait(false))
-                return new AzureBlobStorageCacheResolver(blob);
+            if (!await blob.ExistsAsync().ConfigureAwait(false))
+            {
+                return null;
+            }
 
-            return null;
+            return new AzureBlobStorageCacheResolver(blob);
         }
 
         /// <inheritdoc />
