@@ -8,6 +8,7 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
 using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Extensions;
@@ -15,7 +16,7 @@ using Umbraco.Extensions;
 namespace Umbraco.StorageProviders.AzureBlob.IO
 {
     /// <inheritdoc />
-    public class AzureBlobFileSystem : IAzureBlobFileSystem
+    public class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFactory
     {
         private readonly BlobContainerClient _container;
         private readonly IContentTypeProvider _contentTypeProvider;
@@ -323,5 +324,8 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
 
             return new BlobContainerClient(options.ConnectionString, options.ContainerName).CreateIfNotExists(accessType);
         }
+
+        /// <inheritdoc />
+        public IFileProvider Create() => new AzureBlobFileProvider(_container, _containerRootPath);
     }
 }

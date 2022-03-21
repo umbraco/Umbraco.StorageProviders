@@ -1,15 +1,11 @@
 using System;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp.Web.Caching;
 using SixLabors.ImageSharp.Web.Providers;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Infrastructure.DependencyInjection;
-using Umbraco.Cms.Web.Common.ApplicationBuilder;
 using Umbraco.Extensions;
-using Umbraco.StorageProviders.AzureBlob;
 using Umbraco.StorageProviders.AzureBlob.Imaging;
 using Umbraco.StorageProviders.AzureBlob.IO;
 
@@ -55,8 +51,6 @@ namespace Umbraco.Cms.Core.DependencyInjection
                     var globalSettingsOptions = provider.GetRequiredService<IOptions<GlobalSettings>>();
                     options.VirtualPath = globalSettingsOptions.Value.UmbracoMediaPath;
                 });
-
-            builder.Services.TryAddSingleton<AzureBlobFileSystemMiddleware>();
 
             // ImageSharp image provider/cache
             builder.Services.Insert(0, ServiceDescriptor.Singleton<IImageProvider, AzureBlobFileSystemImageProvider>());
@@ -155,40 +149,6 @@ namespace Umbraco.Cms.Core.DependencyInjection
                 .Configure(configure);
 
             return builder;
-        }
-
-        /// <summary>
-        /// Adds the <see cref="AzureBlobFileSystemMiddleware" />.
-        /// </summary>
-        /// <param name="builder">The <see cref="IUmbracoApplicationBuilderContext" />.</param>
-        /// <returns>
-        /// The <see cref="IUmbracoApplicationBuilderContext" />.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">builder</exception>
-        public static IUmbracoApplicationBuilderContext UseAzureBlobMediaFileSystem(this IUmbracoApplicationBuilderContext builder)
-        {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-
-            UseAzureBlobMediaFileSystem(builder.AppBuilder);
-
-            return builder;
-        }
-
-        /// <summary>
-        /// Adds the <see cref="AzureBlobFileSystemMiddleware" />.
-        /// </summary>
-        /// <param name="app">The <see cref="IApplicationBuilder" />.</param>
-        /// <returns>
-        /// The <see cref="IApplicationBuilder" />.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">app</exception>
-        public static IApplicationBuilder UseAzureBlobMediaFileSystem(this IApplicationBuilder app)
-        {
-            if (app == null) throw new ArgumentNullException(nameof(app));
-
-            app.UseMiddleware<AzureBlobFileSystemMiddleware>();
-
-            return app;
         }
     }
 }

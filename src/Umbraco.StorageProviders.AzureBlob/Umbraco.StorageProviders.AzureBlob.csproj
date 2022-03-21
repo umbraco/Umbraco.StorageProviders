@@ -8,7 +8,7 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="Umbraco.Cms.Web.Common" Version="9.0.0" />
+        <PackageReference Include="Umbraco.Cms.Web.Common" Version="9.3.0" />
         <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.5" />
         <PackageReference Include="Azure.Storage.Blobs" Version="12.11.0" />
     </ItemGroup>
