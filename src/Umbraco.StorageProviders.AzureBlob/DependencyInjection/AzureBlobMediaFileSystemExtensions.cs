@@ -52,8 +52,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
                     options.VirtualPath = globalSettingsOptions.Value.UmbracoMediaPath;
                 });
 
-            // ImageSharp image provider/cache
-            builder.Services.Insert(0, ServiceDescriptor.Singleton<IImageProvider, AzureBlobFileSystemImageProvider>());
+            // ImageSharp image cache
             if (useAzureBlobImageCache)
             {
                 builder.Services.AddUnique<IImageCache, AzureBlobFileSystemImageCache>();
