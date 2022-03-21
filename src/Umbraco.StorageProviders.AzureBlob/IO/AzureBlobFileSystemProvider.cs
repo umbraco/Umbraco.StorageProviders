@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
-using Umbraco.Extensions;
 
 namespace Umbraco.StorageProviders.AzureBlob.IO
 {
@@ -43,24 +42,17 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
 
-            return _fileSystems.GetOrAdd(name, CreateInstance);
-        }
+            return _fileSystems.GetOrAdd(name, name =>
+            {
+                var options = _optionsMonitor.Get(name);
 
-        private IAzureBlobFileSystem CreateInstance(string name)
-        {
-            var options = _optionsMonitor.Get(name);
-
-            return CreateInstance(options);
-        }
-
-        private IAzureBlobFileSystem CreateInstance(AzureBlobFileSystemOptions options)
-        {
-            return new AzureBlobFileSystem(options, _hostingEnvironment, _ioHelper, _fileExtensionContentTypeProvider);
+                return new AzureBlobFileSystem(options, _hostingEnvironment, _ioHelper, _fileExtensionContentTypeProvider);
+            });
         }
 
         private void OptionsOnChange(AzureBlobFileSystemOptions options, string name)
         {
-            _fileSystems.TryUpdate(name, _ => CreateInstance(options));
+            _fileSystems.TryRemove(name, out _);
         }
     }
 }
