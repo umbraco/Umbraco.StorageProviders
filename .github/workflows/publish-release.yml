@@ -1,0 +1,34 @@
+name: Publish release
+
+on:
+  workflow_dispatch:
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_GENERATE_ASPNET_CERTIFICATE: false
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  publish-release:
+    name: Publish release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      - name: Setup Nerdbank.GitVersioning
+        run: dotnet tool install --tool-path . nbgv
+
+      - name: Tag release
+        run: ./nbgv tag -p src
+
+      - name: Push git tags
+        run: git push --tags

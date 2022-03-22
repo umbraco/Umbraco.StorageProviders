@@ -1,33 +1,38 @@
 ﻿<Project>   
     <PropertyGroup>
-        <Version>1.1.0</Version>
-        <AssemblyVersion>1.1.0</AssemblyVersion>
-        <InformationalVersion>1.1.0</InformationalVersion>
-        <FileVersion>1.1.0.0</FileVersion>
-        <LangVersion Condition="'$(LangVersion)' == ''">9.0</LangVersion>
         <NeutralLanguage>en-US</NeutralLanguage>
         <Company>Umbraco</Company>
         <Copyright>Copyright © Umbraco 2022</Copyright>
         <Authors>Umbraco HQ</Authors>
         <PackageProjectUrl>https://github.com/umbraco/Umbraco.StorageProviders</PackageProjectUrl>
         <PackageIconUrl>https://umbraco.com/dist/nuget/logo-small.png</PackageIconUrl>
-        <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
-        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageTags>umbraco storage</PackageTags>
-        <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/umbraco/Umbraco.StorageProviders</RepositoryUrl>
     </PropertyGroup>
+    <ItemGroup>
+        <None Include="../../icon.png" Pack="true" PackagePath="/" />
+    </ItemGroup>
 
+    <!-- SourceLink -->
     <PropertyGroup>
-        <!-- SourceLink: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element)-->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
-
-        <!-- SourceLink: Embed source files that are not tracked by the source control manager in the PDB -->
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
-
-        <!-- SourceLink: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    </ItemGroup>
+
+    <!-- GitVersioning -->
+    <PropertyGroup>
+        <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.255" PrivateAssets="All" />
+    </ItemGroup>
 </Project>
 

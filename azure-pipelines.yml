@@ -1,108 +1,36 @@
 variables:
-    buildConfiguration: Release
-    slnFilename: Umbraco.StorageProviders.sln
+  solution: Umbraco.StorageProviders.sln
+  buildConfiguration: Release
+  NUGET_PACKAGES: ''
+  DOTNET_NOLOGO: true
+  DOTNET_GENERATE_ASPNET_CERTIFICATE: false
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
 stages:
-    - stage: Artifacts
-      dependsOn: []
-      jobs:
-          - job: Build_Artifacts
-            displayName: Build Artifacts
-            pool:
-                vmImage: windows-latest
-            steps:
-                - task: UseDotNet@2
-                  displayName: Use .Net Core sdk 5.x
-                  inputs:
-                      version: 5.x
-                - task: NuGetToolInstaller@1
-                  displayName: Use NuGet Latest
-                - task: NuGetCommand@2
-                  displayName: Restore NuGet Packages
-                  inputs:
-                      restoreSolution: $(slnFilename)
-                      feedsToUse: config
-                - task: PowerShell@1
-                  displayName: Update Version and Artifact Name
-                  inputs:
-                      scriptType: inlineScript
-                      inlineScript: >
-                        Write-Host "Working folder: $pwd"
+  - stage: Artifacts
+    jobs:
+      - job: Build
+        pool:
+          vmImage: windows-latest
+        steps:
+          - task: Cache@2
+            displayName: Cache NuGet packages
+            inputs:
+              key: 'nuget | "$(Agent.OS)" | **/packages.lock.json'
+              path: '$(NUGET_PACKAGES)'
+              cacheHitVar: 'CACHE_RESTORED'
 
-                        $ubuild = build/build.ps1 -get -continue
+          - script: dotnet restore $(solution) --locked-mode
+            displayName: Restore NuGet packages
+            condition: ne(variables.CACHE_RESTORED, true)
 
+          - script: dotnet build $(solution) -c $(buildConfiguration) -p:ContinuousIntegrationBuild=true --no-restore
+            displayName: Build
 
-                        $version = $ubuild.GetUmbracoVersion()
+          - script: dotnet pack $(solution) -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory) --no-restore --no-build
+            displayName: Pack
 
-                        $isRelease = [regex]::matches($env:BUILD_SOURCEBRANCH,"v\d+\/\d+.\d+.*")
-
-
-                        if ($isRelease.Count -gt 0){
-                          $continuous = $version.Semver
-                          Write-Host "##vso[build.addbuildtag]Release build"
-                        }
-                        else
-                        {
-                            $date = (Get-Date).ToString("yyyyMMdd")
-                            $continuous = "$($version.release)-preview$date.$(Build.BuildId)"
-                            $ubuild.SetUmbracoVersion($continuous)
-
-                            Write-Host "##vso[build.addbuildtag]Continuous build"
-                          }
-
-                        Write-Host "##vso[build.updatebuildnumber]$continuous.$(Build.BuildId)"
-
-                        Write-Host "Building: $continuous"
-                - task: PowerShell@1
-                  displayName: Prepare Build
-                  inputs:
-                      scriptType: inlineScript
-                      inlineScript: |
-                          Write-Host "Working folder: $pwd"
-                          $ubuild = build\build.ps1 -get
-
-                          $ubuild.PrepareBuild("vso")
-                - task: PowerShell@1
-                  displayName: Prepare Packages & Zip
-                  inputs:
-                      scriptType: inlineScript
-                      inlineScript: |
-                          Write-Host "Working folder: $pwd"
-                          $ubuild = build\build.ps1 -get -continue
-
-                          $ubuild.CompileUmbracoStorageProviders()
-                          $ubuild.PreparePackages()
-                - task: PowerShell@1
-                  displayName: Verify & Package NuGet
-                  inputs:
-                      scriptType: inlineScript
-                      inlineScript: |
-                          Write-Host "Working folder: $pwd"
-                          $ubuild = build\build.ps1 -get -continue
-
-                          $ubuild.PackageNuGet()
-                - task: CopyFiles@2
-                  displayName: Copy NuPkg Files to Staging
-                  inputs:
-                      SourceFolder: build.out
-                      Contents: '*.nupkg'
-                      TargetFolder: $(build.artifactstagingdirectory)
-                      CleanTargetFolder: true
-                - task: PublishBuildArtifacts@1
-                  displayName: Publish NuPkg Files
-                  inputs:
-                      PathtoPublish: $(build.artifactstagingdirectory)
-                      ArtifactName: nupkg
-                - task: CopyFiles@2
-                  displayName: Copy Log Files to Staging
-                  inputs:
-                      SourceFolder: build.tmp
-                      Contents: '*.log'
-                      TargetFolder: $(build.artifactstagingdirectory)
-                      CleanTargetFolder: true
-                  condition: succeededOrFailed()
-                - task: PublishBuildArtifacts@1
-                  displayName: Publish Log Files
-                  inputs:
-                      PathtoPublish: $(build.artifactstagingdirectory)
-                      ArtifactName: logs
-                  condition: succeededOrFailed()
+          - task: PublishBuildArtifacts@1
+            displayName: Publish NuGet packages
+            inputs:
+                ArtifactName: nupkg

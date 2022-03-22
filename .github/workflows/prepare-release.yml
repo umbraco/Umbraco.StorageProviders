@@ -1,0 +1,53 @@
+name: Prepare release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The prerelease tag to apply on the release branch (if any). If not specified, any existing prerelease tag will be removed.'
+        required: false
+        default: ''
+        type: choice
+        options:
+        - ''
+        - 'beta'
+        - 'rc'
+      versionIncrement:
+        description: 'Specifies which part of the version on the current branch is incremented.'
+        required: true
+        default: 'minor'
+        type: choice
+        options:
+        - 'major'
+        - 'minor'
+        - 'build'
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_GENERATE_ASPNET_CERTIFICATE: false
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  prepare-release:
+    name: Prepare release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      - name: Setup Nerdbank.GitVersioning
+        run: dotnet tool install --tool-path . nbgv
+
+      - name: Prepare release
+        run: ./nbgv prepare-release ${{ github.event.inputs.tag }} -p src --versionIncrement ${{ github.event.inputs.versionIncrement }}
+
+      - name: Push commit (and new branch)
+        run: git push --all
