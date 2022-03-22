@@ -26,7 +26,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
             builder.MediaUrlProviders().Insert<CdnMediaUrlProvider>();
 
             builder.Services.AddOptions<CdnMediaUrlProviderOptions>()
-                .BindConfiguration("Umbraco:Storage:Media:Cdn")
+                .BindConfiguration("Umbraco:Storage:Cdn")
                 .ValidateDataAnnotations();
 
             return builder;
