@@ -18,34 +18,51 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
     /// <inheritdoc />
     public class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFactory
     {
-        private readonly BlobContainerClient _container;
-        private readonly IContentTypeProvider _contentTypeProvider;
-        private readonly IIOHelper _ioHelper;
         private readonly string _rootUrl;
         private readonly string _containerRootPath;
+        private readonly BlobContainerClient _container;
+        private readonly IIOHelper _ioHelper;
+        private readonly IContentTypeProvider _contentTypeProvider;
 
         /// <summary>
-        ///     Creates a new instance of <see cref="AzureBlobFileSystem" />.
+        /// Creates a new instance of <see cref="AzureBlobFileSystem" />.
         /// </summary>
-        /// <param name="options"></param>
-        /// <param name="hostingEnvironment"></param>
-        /// <param name="ioHelper"></param>
-        /// <param name="contentTypeProvider"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public AzureBlobFileSystem(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment,
-            IIOHelper ioHelper, IContentTypeProvider contentTypeProvider)
+        /// <param name="options">The options.</param>
+        /// <param name="hostingEnvironment">The hosting environment.</param>
+        /// <param name="ioHelper">The I/O helper.</param>
+        /// <param name="contentTypeProvider">The content type provider.</param>
+        public AzureBlobFileSystem(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
             if (hostingEnvironment == null) throw new ArgumentNullException(nameof(hostingEnvironment));
 
-            _ioHelper = ioHelper ?? throw new ArgumentNullException(nameof(ioHelper));
-            _contentTypeProvider = contentTypeProvider ?? throw new ArgumentNullException(nameof(contentTypeProvider));
-
             _rootUrl = EnsureUrlSeparatorChar(hostingEnvironment.ToAbsolute(options.VirtualPath)).TrimEnd('/');
             _containerRootPath = options.ContainerRootPath ?? _rootUrl;
+            _container = new BlobContainerClient(options.ConnectionString, options.ContainerName);
+            _ioHelper = ioHelper ?? throw new ArgumentNullException(nameof(ioHelper));
+            _contentTypeProvider = contentTypeProvider ?? throw new ArgumentNullException(nameof(contentTypeProvider));
+        }
 
-            var client = new BlobServiceClient(options.ConnectionString);
-            _container = client.GetBlobContainerClient(options.ContainerName);
+        /// <summary>
+        /// Creates a new instance of <see cref="AzureBlobFileSystem" />.
+        /// </summary>
+        /// <param name="rootUrl">The root URL.</param>
+        /// <param name="blobContainerClient">The blob container client.</param>
+        /// <param name="ioHelper">The I/O helper.</param>
+        /// <param name="contentTypeProvider">The content type provider.</param>
+        /// <param name="containerRootPath">The container root path (uses the root URL if not set).</param>
+        public AzureBlobFileSystem(string rootUrl, BlobContainerClient blobContainerClient, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider, string? containerRootPath = null)
+        {
+            if (rootUrl is null)
+            {
+                throw new ArgumentNullException(nameof(rootUrl));
+            }
+
+            _rootUrl = EnsureUrlSeparatorChar(rootUrl).TrimEnd('/');
+            _containerRootPath = containerRootPath ?? _rootUrl;
+            _container = blobContainerClient ?? throw new ArgumentNullException(nameof(blobContainerClient));
+            _ioHelper = ioHelper ?? throw new ArgumentNullException(nameof(ioHelper));
+            _contentTypeProvider = contentTypeProvider ?? throw new ArgumentNullException(nameof(contentTypeProvider));
         }
 
         /// <inheritdoc />
