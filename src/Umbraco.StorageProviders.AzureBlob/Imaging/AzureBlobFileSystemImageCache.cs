@@ -17,7 +17,6 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
     public class AzureBlobFileSystemImageCache : IImageCache
     {
         private const string _cachePath = "cache/";
-        private readonly string _name;
         private BlobContainerClient _container;
 
         /// <summary>
@@ -33,19 +32,28 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="options">The options.</param>
-        /// <exception cref="System.ArgumentNullException">options
-        /// or
-        /// name</exception>
         protected AzureBlobFileSystemImageCache(string name, IOptionsMonitor<AzureBlobFileSystemOptions> options)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
 
-            _name = name ?? throw new ArgumentNullException(nameof(name));
-
             var fileSystemOptions = options.Get(name);
             _container = new BlobContainerClient(fileSystemOptions.ConnectionString, fileSystemOptions.ContainerName);
 
-            options.OnChange(OptionsOnChange);
+            options.OnChange((options, changedName) =>
+            {
+                if (changedName != name) return;
+
+                _container = new BlobContainerClient(options.ConnectionString, options.ContainerName);
+            });
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AzureBlobFileSystemImageCache" /> class.
+        /// </summary>
+        /// <param name="blobContainerClient">The blob container client.</param>
+        public AzureBlobFileSystemImageCache(BlobContainerClient blobContainerClient)
+        {
+            _container = blobContainerClient ?? throw new ArgumentNullException(nameof(blobContainerClient));
         }
 
         /// <inheritdoc />
@@ -67,13 +75,6 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
             var blob = _container.GetBlobClient(_cachePath + key);
 
             await blob.UploadAsync(stream, metadata: metadata.ToDictionary()).ConfigureAwait(false);
-        }
-
-        private void OptionsOnChange(AzureBlobFileSystemOptions options, string name)
-        {
-            if (name != _name) return;
-
-            _container = new BlobContainerClient(options.ConnectionString, options.ContainerName);
         }
     }
 }
