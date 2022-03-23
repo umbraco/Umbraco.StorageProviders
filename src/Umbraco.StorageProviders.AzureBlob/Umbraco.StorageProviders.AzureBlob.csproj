@@ -4,7 +4,8 @@
         <Nullable>enable</Nullable>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Description>Azure Blob Storage file system provider for Umbraco CMS</Description>
+        <Description>Azure Blob Storage provider for Umbraco CMS</Description>
+        <PackageTags>umbraco storage azure blob</PackageTags>
     </PropertyGroup>
     
     <ItemGroup>

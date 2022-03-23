@@ -1,4 +1,4 @@
-# Umbraco.StorageProviders
+# Umbraco storage providers
 
 This repository contains Umbraco storage providers that can replace the default physical file storage.
 
@@ -100,16 +100,16 @@ UMBRACO__STORAGE__AZUREBLOB__MEDIA__CDN__URL=<CDN_BASE_URL>
 
 _Note: you still have to add the provider in the `Startup.cs` file when not configuring the options in code._
 
-## Using the file system provider
-
-Please refer to our documentation on [using custom file systems](https://our.umbraco.com/documentation/Extending/FileSystemProviders/).
-
-## Folder structure in the Azure Blob Storage container
+### Folder structure in the Azure Blob Storage container
 The container name is expected to exist and uses the following folder structure:
 - `/media` - contains the Umbraco media, stored in the structure defined by the `IMediaPathScheme` registered in Umbraco (the default `UniqueMediaPathScheme` stores files with their original filename in 8 character directories, based on the content and property GUID identifier)
 - `/cache` - contains the ImageSharp image cache, stored as files with a filename defined by the `ICacheHash` registered in ImageSharp (the default `CacheHash` generates SHA256 hashes of the file contents and uses the first characters configured by the `Umbraco:CMS:Imaging:CachedNameLength` setting)
 
 Note that this is different than the behavior of other file system providers - i.e. https://github.com/umbraco-community/UmbracoFileSystemProviders.Azure that expect the media contents to be at the root level.
+
+## Using the file system providers
+
+Please refer to our documentation on [using custom file systems](https://our.umbraco.com/documentation/Extending/FileSystemProviders/).
 
 ## Bugs, issues and Pull Requests
 
