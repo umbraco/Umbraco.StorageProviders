@@ -1,7 +1,3 @@
-*.dll
-*.exe
-*.log
-*.nupkg
 *.suo
 *.user
 
@@ -10,7 +6,3 @@
 .vscode/
 [Bb]in/
 [Oo]bj/
-
-Build/temp
-build.out/
-build.tmp/

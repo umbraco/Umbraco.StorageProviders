@@ -13,8 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		azure-pipelines.yml = azure-pipelines.yml
 		src\Directory.Build.props = src\Directory.Build.props
 		LICENSE = LICENSE
-		NuGet.config = NuGet.config
 		README.md = README.md
+		src\version.json = src\version.json
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Umbraco.StorageProviders", "src\Umbraco.StorageProviders\Umbraco.StorageProviders.csproj", "{5EC38982-2C9A-4D8D-AAE2-743A690FCD71}"

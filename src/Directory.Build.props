@@ -11,7 +11,7 @@
         <PackageTags>umbraco storage</PackageTags>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="../../icon.png" Pack="true" PackagePath="" />
+        <None Include="../../icon.png" Pack="true" PackagePath="/" />
     </ItemGroup>
 
     <!-- SourceLink -->
@@ -23,6 +23,16 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    </ItemGroup>
+
+    <!-- GitVersioning -->
+    <PropertyGroup>
+        <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.255" PrivateAssets="All" />
     </ItemGroup>
 </Project>
 

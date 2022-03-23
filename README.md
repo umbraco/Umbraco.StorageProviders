@@ -4,7 +4,7 @@ This repository contains Umbraco storage providers that can replace the default 
 
 ## Umbraco.StorageProviders
 
-This contains a CDN media URL provider.
+Contains shared storage providers infrastructure, like a CDN media URL provider.
 
 ### Usage
 
