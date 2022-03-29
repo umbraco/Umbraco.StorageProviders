@@ -11,7 +11,7 @@
         <PackageTags>umbraco storage</PackageTags>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="../../icon.png" Pack="true" PackagePath="/" />
+        <None Include="$(MSBuildThisFileDirectory)/../icon.png" Pack="true" PackagePath="/" Visible="false" />
     </ItemGroup>
 
     <!-- SourceLink -->
