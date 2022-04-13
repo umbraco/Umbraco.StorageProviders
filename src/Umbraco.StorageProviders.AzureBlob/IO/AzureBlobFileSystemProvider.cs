@@ -8,7 +8,7 @@ using Umbraco.Cms.Core.IO;
 namespace Umbraco.StorageProviders.AzureBlob.IO
 {
     /// <inheritdoc />
-    public class AzureBlobFileSystemProvider : IAzureBlobFileSystemProvider
+    public sealed class AzureBlobFileSystemProvider : IAzureBlobFileSystemProvider
     {
         private readonly ConcurrentDictionary<string, IAzureBlobFileSystem> _fileSystems = new();
         private readonly IOptionsMonitor<AzureBlobFileSystemOptions> _optionsMonitor;
@@ -40,7 +40,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public IAzureBlobFileSystem GetFileSystem(string name)
         {
-            if (name == null) throw new ArgumentNullException(nameof(name));
+            ArgumentNullException.ThrowIfNull(name);
 
             return _fileSystems.GetOrAdd(name, name =>
             {
@@ -51,8 +51,6 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         private void OptionsOnChange(AzureBlobFileSystemOptions options, string name)
-        {
-            _fileSystems.TryRemove(name, out _);
-        }
+            => _fileSystems.TryRemove(name, out _);
     }
 }

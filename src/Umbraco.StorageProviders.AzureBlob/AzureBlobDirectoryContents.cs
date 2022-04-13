@@ -12,10 +12,10 @@ namespace Umbraco.StorageProviders.AzureBlob
     /// Represents a virtual hierarchy of Azure Blob Storage blobs.
     /// </summary>
     /// <seealso cref="Microsoft.Extensions.FileProviders.IDirectoryContents" />
-    public class AzureBlobDirectoryContents : IDirectoryContents
+    public sealed class AzureBlobDirectoryContents : IDirectoryContents
     {
         private readonly BlobContainerClient _containerClient;
-        private readonly IList<BlobHierarchyItem> _items;
+        private readonly IReadOnlyCollection<BlobHierarchyItem> _items;
 
         /// <inheritdoc />
         public bool Exists { get; }
@@ -28,12 +28,12 @@ namespace Umbraco.StorageProviders.AzureBlob
         /// <exception cref="System.ArgumentNullException">containerClient
         /// or
         /// items</exception>
-        public AzureBlobDirectoryContents(BlobContainerClient containerClient, IList<BlobHierarchyItem> items)
+        public AzureBlobDirectoryContents(BlobContainerClient containerClient, IReadOnlyCollection<BlobHierarchyItem> items)
         {
             _containerClient = containerClient ?? throw new ArgumentNullException(nameof(containerClient));
             _items = items ?? throw new ArgumentNullException(nameof(items));
 
-            Exists = _items.Count > 0;
+            Exists = items.Count > 0;
         }
 
         /// <inheritdoc />

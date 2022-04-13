@@ -14,7 +14,7 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
     /// <summary>
     /// Implements an Azure Blob Storage based cache storing files in a <c>cache</c> subfolder.
     /// </summary>
-    public class AzureBlobFileSystemImageCache : IImageCache
+    public sealed class AzureBlobFileSystemImageCache : IImageCache
     {
         private const string _cachePath = "cache/";
         private BlobContainerClient _container;
@@ -32,18 +32,19 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="options">The options.</param>
-        protected AzureBlobFileSystemImageCache(string name, IOptionsMonitor<AzureBlobFileSystemOptions> options)
+        public AzureBlobFileSystemImageCache(string name, IOptionsMonitor<AzureBlobFileSystemOptions> options)
         {
-            if (options == null) throw new ArgumentNullException(nameof(options));
+            ArgumentNullException.ThrowIfNull(options);
 
             var fileSystemOptions = options.Get(name);
             _container = new BlobContainerClient(fileSystemOptions.ConnectionString, fileSystemOptions.ContainerName);
 
             options.OnChange((options, changedName) =>
             {
-                if (changedName != name) return;
-
-                _container = new BlobContainerClient(options.ConnectionString, options.ContainerName);
+                if (changedName == name)
+                {
+                    _container = new BlobContainerClient(options.ConnectionString, options.ContainerName);
+                }
             });
         }
 
@@ -52,21 +53,16 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         /// </summary>
         /// <param name="blobContainerClient">The blob container client.</param>
         public AzureBlobFileSystemImageCache(BlobContainerClient blobContainerClient)
-        {
-            _container = blobContainerClient ?? throw new ArgumentNullException(nameof(blobContainerClient));
-        }
+            => _container = blobContainerClient ?? throw new ArgumentNullException(nameof(blobContainerClient));
 
         /// <inheritdoc />
         public async Task<IImageCacheResolver?> GetAsync(string key)
         {
             var blob = _container.GetBlobClient(_cachePath + key);
 
-            if (!await blob.ExistsAsync().ConfigureAwait(false))
-            {
-                return null;
-            }
-
-            return new AzureBlobStorageCacheResolver(blob);
+            return !await blob.ExistsAsync().ConfigureAwait(false)
+                ? null
+                : new AzureBlobStorageCacheResolver(blob);
         }
 
         /// <inheritdoc />

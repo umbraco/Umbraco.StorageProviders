@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Azure;
 using Azure.Storage.Blobs;
@@ -16,7 +16,7 @@ namespace Umbraco.StorageProviders.AzureBlob
     /// Represents a read-only Azure Blob Storage file provider.
     /// </summary>
     /// <seealso cref="Microsoft.Extensions.FileProviders.IFileProvider" />
-    public class AzureBlobFileProvider : IFileProvider
+    public sealed class AzureBlobFileProvider : IFileProvider
     {
         private readonly BlobContainerClient _containerClient;
         private readonly string? _containerRootPath;
@@ -40,10 +40,7 @@ namespace Umbraco.StorageProviders.AzureBlob
         /// <exception cref="System.ArgumentNullException">options</exception>
         public AzureBlobFileProvider(AzureBlobFileSystemOptions options)
         {
-            if (options is null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+            ArgumentNullException.ThrowIfNull(options);
 
             _containerClient = new BlobContainerClient(options.ConnectionString, options.ContainerName);
             _containerRootPath = options.ContainerRootPath?.Trim(Constants.CharArrays.ForwardSlash);
@@ -55,18 +52,11 @@ namespace Umbraco.StorageProviders.AzureBlob
             var path = GetFullPath(subpath);
 
             // Get all blobs and iterate to fetch all pages
-            var blobs = new List<BlobHierarchyItem>();
-            foreach (var item in _containerClient.GetBlobsByHierarchy(delimiter: "/", prefix: path))
-            {
-                blobs.Add(item);
-            }
+            var blobs = _containerClient.GetBlobsByHierarchy(delimiter: "/", prefix: path).ToList();
 
-            if (blobs.Count == 0)
-            {
-                return NotFoundDirectoryContents.Singleton;
-            }
-
-            return new AzureBlobDirectoryContents(_containerClient, blobs);
+            return blobs.Count == 0
+                ? NotFoundDirectoryContents.Singleton
+                : new AzureBlobDirectoryContents(_containerClient, blobs);
         }
 
         /// <inheritdoc />

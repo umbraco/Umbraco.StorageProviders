@@ -16,7 +16,7 @@ using Umbraco.Extensions;
 namespace Umbraco.StorageProviders.AzureBlob.IO
 {
     /// <inheritdoc />
-    public class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFactory
+    public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFactory
     {
         private readonly string _rootUrl;
         private readonly string _containerRootPath;
@@ -33,8 +33,8 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <param name="contentTypeProvider">The content type provider.</param>
         public AzureBlobFileSystem(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider)
         {
-            if (options == null) throw new ArgumentNullException(nameof(options));
-            if (hostingEnvironment == null) throw new ArgumentNullException(nameof(hostingEnvironment));
+            ArgumentNullException.ThrowIfNull(options);
+            ArgumentNullException.ThrowIfNull(hostingEnvironment);
 
             _rootUrl = EnsureUrlSeparatorChar(hostingEnvironment.ToAbsolute(options.VirtualPath)).TrimEnd('/');
             _containerRootPath = options.ContainerRootPath ?? _rootUrl;
@@ -53,10 +53,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <param name="containerRootPath">The container root path (uses the root URL if not set).</param>
         public AzureBlobFileSystem(string rootUrl, BlobContainerClient blobContainerClient, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider, string? containerRootPath = null)
         {
-            if (rootUrl is null)
-            {
-                throw new ArgumentNullException(nameof(rootUrl));
-            }
+            ArgumentNullException.ThrowIfNull(rootUrl);
 
             _rootUrl = EnsureUrlSeparatorChar(rootUrl).TrimEnd('/');
             _containerRootPath = containerRootPath ?? _rootUrl;
@@ -68,7 +65,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public IEnumerable<string> GetDirectories(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             return ListBlobs(GetDirectoryPath(path))
                 .Where(x => x.IsPrefix)
@@ -78,7 +75,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public void DeleteDirectory(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             DeleteDirectory(path, true);
         }
@@ -86,18 +83,25 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public void DeleteDirectory(string path, bool recursive)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             foreach (var blob in ListBlobs(GetDirectoryPath(path)))
+            {
                 if (blob.IsPrefix)
+                {
                     DeleteDirectory(blob.Prefix, true);
-                else if (blob.IsBlob) _container.GetBlobClient(blob.Blob.Name).DeleteIfExists();
+                }
+                else if (blob.IsBlob)
+                {
+                    _container.GetBlobClient(blob.Blob.Name).DeleteIfExists();
+                }
+            }
         }
 
         /// <inheritdoc />
         public bool DirectoryExists(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             return GetBlobClient(GetDirectoryPath(path)).Exists();
         }
@@ -105,8 +109,8 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public void AddFile(string path, Stream stream)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
-            if (stream == null) throw new ArgumentNullException(nameof(stream));
+            ArgumentNullException.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(stream);
 
             AddFile(path, stream, true);
         }
@@ -114,50 +118,64 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public void AddFile(string path, Stream stream, bool overrideIfExists)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
-            if (stream == null) throw new ArgumentNullException(nameof(stream));
+            ArgumentNullException.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(stream);
 
             var blob = GetBlobClient(path);
             if (!overrideIfExists && blob.Exists())
+            {
                 throw new InvalidOperationException($"A file at path '{path}' already exists");
+            }
 
             var headers = new BlobHttpHeaders();
+            if (_contentTypeProvider.TryGetContentType(path, out var contentType))
+            {
+                headers.ContentType = contentType;
+            }
 
-            if (_contentTypeProvider.TryGetContentType(path, out var contentType)) headers.ContentType = contentType;
+            var conditions = overrideIfExists ? null : new BlobRequestConditions
+            {
+                IfNoneMatch = ETag.All
+            };
 
-            blob.Upload(stream, headers,
-                conditions: overrideIfExists ? null : new BlobRequestConditions { IfNoneMatch = ETag.All });
+            blob.Upload(stream, headers, conditions: conditions);
         }
 
         /// <inheritdoc />
         public void AddFile(string path, string physicalPath, bool overrideIfExists = true, bool copy = false)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
-            if (physicalPath == null) throw new ArgumentNullException(nameof(physicalPath));
+            ArgumentNullException.ThrowIfNull(path);
+            ArgumentNullException.ThrowIfNull(physicalPath);
 
             var destinationBlob = GetBlobClient(path);
             if (!overrideIfExists && destinationBlob.Exists())
+            {
                 throw new InvalidOperationException($"A file at path '{path}' already exists");
+            }
 
             var sourceBlob = GetBlobClient(physicalPath);
-
-            var copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri,
-                destinationConditions: overrideIfExists
-                    ? null
-                    : new BlobRequestConditions { IfNoneMatch = ETag.All });
-
+            var destinationConditions = overrideIfExists ? null : new BlobRequestConditions
+            {
+                IfNoneMatch = ETag.All
+            };
+            var copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri, destinationConditions: destinationConditions);
             if (copyFromUriOperation?.HasCompleted == false)
+            {
                 Task.Run(async () => await copyFromUriOperation.WaitForCompletionAsync().ConfigureAwait(false))
                     .GetAwaiter()
                     .GetResult();
+            }
 
-            if (!copy) sourceBlob.DeleteIfExists();
+            if (!copy)
+            {
+                sourceBlob.DeleteIfExists();
+            }
         }
 
         /// <inheritdoc />
         public IEnumerable<string> GetFiles(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             return GetFiles(path, null);
         }
@@ -165,13 +183,9 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public IEnumerable<string> GetFiles(string path, string? filter)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
-            if (filter == null) throw new ArgumentNullException(nameof(filter));
+            ArgumentNullException.ThrowIfNull(path);
 
-            var files = ListBlobs(GetDirectoryPath(path))
-                .Where(x => x.IsBlob)
-                .Select(x => x.Blob.Name);
-
+            var files = ListBlobs(GetDirectoryPath(path)).Where(x => x.IsBlob).Select(x => x.Blob.Name);
             if (!string.IsNullOrEmpty(filter) && filter != "*.*")
             {
                 // TODO: Might be better to use a globbing library
@@ -185,7 +199,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public Stream OpenFile(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             return GetBlobClient(path).OpenRead();
         }
@@ -193,7 +207,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public void DeleteFile(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             GetBlobClient(path).DeleteIfExists();
         }
@@ -201,18 +215,16 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public bool FileExists(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             return GetBlobClient(path).Exists();
         }
 
         /// <inheritdoc />
-        [SuppressMessage("Design",
-            "CA1054: Change the type of parameter 'fullPathOrUrl' of method 'AzureBlobFileSystem.GetRelativePath(string)' from 'string' to 'System.Uri', or provide an overload to 'AzureBlobFileSystem.GetRelativePath(string)' that allows 'fullPathOrUrl' to be passed as a 'System.Uri' object",
-            Justification = "Interface implementation")]
+        [SuppressMessage("Design", "CA1054: Change the type of parameter 'fullPathOrUrl' of method 'AzureBlobFileSystem.GetRelativePath(string)' from 'string' to 'System.Uri', or provide an overload to 'AzureBlobFileSystem.GetRelativePath(string)' that allows 'fullPathOrUrl' to be passed as a 'System.Uri' object", Justification = "Interface implementation")]
         public string GetRelativePath(string fullPathOrUrl)
         {
-            if (fullPathOrUrl == null) throw new ArgumentNullException(nameof(fullPathOrUrl));
+            ArgumentNullException.ThrowIfNull(fullPathOrUrl);
 
             // test url
             var path = EnsureUrlSeparatorChar(fullPathOrUrl); // ensure url separator char
@@ -220,7 +232,9 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             // if it starts with the root url, strip it and trim the starting slash to make it relative
             // eg "/Media/1234/img.jpg" => "1234/img.jpg"
             if (_ioHelper.PathStartsWith(path, _rootUrl, '/'))
+            {
                 path = path[_rootUrl.Length..].TrimStart('/');
+            }
 
             // unchanged - what else?
             return path;
@@ -229,19 +243,17 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public string GetFullPath(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             path = EnsureUrlSeparatorChar(path);
             return (_ioHelper.PathStartsWith(path, _rootUrl, '/') ? path : $"{_rootUrl}/{path}").Trim('/');
         }
 
         /// <inheritdoc />
-        [SuppressMessage("Design",
-            "CA1055: Change the return type of method 'AzureBlobFileSystem.GetUrl(string)' from 'string' to 'System.Uri'",
-            Justification = "Interface implementation")]
+        [SuppressMessage("Design", "CA1055: Change the return type of method 'AzureBlobFileSystem.GetUrl(string)' from 'string' to 'System.Uri'", Justification = "Interface implementation")]
         public string GetUrl(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             return $"{_rootUrl}/{EnsureUrlSeparatorChar(path).Trim('/')}";
         }
@@ -249,7 +261,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public DateTimeOffset GetLastModified(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             return GetBlobClient(path).GetProperties().Value.LastModified;
         }
@@ -257,7 +269,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public DateTimeOffset GetCreated(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             return GetBlobClient(path).GetProperties().Value.CreatedOn;
         }
@@ -265,7 +277,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public long GetSize(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             return GetBlobClient(path).GetProperties().Value.ContentLength;
         }
@@ -273,7 +285,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public BlobClient GetBlobClient(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             return _container.GetBlobClient(GetBlobPath(path));
         }
@@ -283,29 +295,30 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
 
         private static string EnsureUrlSeparatorChar(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             return path.Replace("\\", "/", StringComparison.InvariantCultureIgnoreCase);
         }
 
         private string GetDirectoryPath(string fullPathOrUrl)
         {
-            if (fullPathOrUrl == null) throw new ArgumentNullException(nameof(fullPathOrUrl));
+            ArgumentNullException.ThrowIfNull(fullPathOrUrl);
 
             var path = GetFullPath(fullPathOrUrl);
+
             return path.Length == 0 ? path : path.EnsureEndsWith('/');
         }
 
         private IEnumerable<BlobHierarchyItem> ListBlobs(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             return _container.GetBlobsByHierarchy(prefix: path);
         }
 
         private string GetBlobPath(string path)
         {
-            if (path == null) throw new ArgumentNullException(nameof(path));
+            ArgumentNullException.ThrowIfNull(path);
 
             path = EnsureUrlSeparatorChar(path);
 
@@ -320,6 +333,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             }
 
             path = $"{_containerRootPath}/{path.TrimStart('/')}";
+            
             return path.Trim('/');
         }
 
@@ -337,7 +351,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <exception cref="System.ArgumentNullException">options</exception>
         public static Response<BlobContainerInfo> CreateIfNotExists(AzureBlobFileSystemOptions options, PublicAccessType accessType = PublicAccessType.None)
         {
-            if (options == null) throw new ArgumentNullException(nameof(options));
+            ArgumentNullException.ThrowIfNull(options);
 
             return new BlobContainerClient(options.ConnectionString, options.ContainerName).CreateIfNotExists(accessType);
         }

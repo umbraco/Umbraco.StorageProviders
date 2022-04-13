@@ -5,7 +5,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
     /// <summary>
     /// The Azure Blob File System Options.
     /// </summary>
-    public class AzureBlobFileSystemOptions
+    public sealed class AzureBlobFileSystemOptions
     {
         /// <summary>
         /// The media filesystem name.

@@ -8,7 +8,7 @@ namespace Umbraco.StorageProviders.AzureBlob
     /// Represents an Azure Blob Storage prefix.
     /// </summary>
     /// <seealso cref="Microsoft.Extensions.FileProviders.IFileInfo" />
-    public class AzureBlobPrefixInfo : IFileInfo
+    public sealed class AzureBlobPrefixInfo : IFileInfo
     {
         /// <inheritdoc />
         public bool Exists => true;
@@ -34,10 +34,7 @@ namespace Umbraco.StorageProviders.AzureBlob
         /// <param name="prefix">The prefix.</param>
         public AzureBlobPrefixInfo(string prefix)
         {
-            if (prefix == null)
-            {
-                throw new ArgumentNullException(nameof(prefix));
-            }
+            ArgumentNullException.ThrowIfNull(prefix);
 
             Name = ParseName(prefix);
         }

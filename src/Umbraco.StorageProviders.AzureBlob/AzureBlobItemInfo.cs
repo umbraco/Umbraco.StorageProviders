@@ -10,7 +10,7 @@ namespace Umbraco.StorageProviders.AzureBlob
     /// Represents an Azure Blob Storage blob item.
     /// </summary>
     /// <seealso cref="Microsoft.Extensions.FileProviders.IFileInfo" />
-    public class AzureBlobItemInfo : IFileInfo
+    public sealed class AzureBlobItemInfo : IFileInfo
     {
         private readonly BlobClient _blobClient;
 
@@ -37,7 +37,7 @@ namespace Umbraco.StorageProviders.AzureBlob
         /// </summary>
         /// <param name="blobClient">The blob client.</param>
         /// <exception cref="System.ArgumentNullException">blobClient</exception>
-        protected AzureBlobItemInfo(BlobClient blobClient)
+        private AzureBlobItemInfo(BlobClient blobClient)
         {
             _blobClient = blobClient ?? throw new ArgumentNullException(nameof(blobClient));
 
@@ -53,10 +53,7 @@ namespace Umbraco.StorageProviders.AzureBlob
         public AzureBlobItemInfo(BlobClient blobClient, BlobProperties properties)
             : this(blobClient)
         {
-            if (properties == null)
-            {
-                throw new ArgumentNullException(nameof(properties));
-            }
+            ArgumentNullException.ThrowIfNull(properties);
 
             LastModified = properties.LastModified;
             Length = properties.ContentLength;
@@ -71,10 +68,7 @@ namespace Umbraco.StorageProviders.AzureBlob
         public AzureBlobItemInfo(BlobClient blobClient, BlobItemProperties properties)
             : this(blobClient)
         {
-            if (properties == null)
-            {
-                throw new ArgumentNullException(nameof(properties));
-            }
+            ArgumentNullException.ThrowIfNull(properties);
 
             LastModified = properties.LastModified.GetValueOrDefault();
             Length = properties.ContentLength.GetValueOrDefault(-1);
