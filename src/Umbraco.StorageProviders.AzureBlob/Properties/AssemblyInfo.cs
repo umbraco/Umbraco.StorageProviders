@@ -1,3 +1,4 @@
 using System;
 
-[assembly:CLSCompliant(false)]
+// This assembly exposes types that are not CLS-compliant
+[assembly: CLSCompliant(false)]
