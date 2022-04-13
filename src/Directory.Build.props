@@ -11,8 +11,13 @@
         <PackageTags>umbraco storage</PackageTags>
     </PropertyGroup>
     <ItemGroup>
+        <Content Include="packages.lock.json" Visible="false" />
         <None Include="$(MSBuildThisFileDirectory)/../icon.png" Pack="true" PackagePath="/" Visible="false" />
     </ItemGroup>
+
+    <PropertyGroup>
+        <RestoreAdditionalProjectSources>https://www.myget.org/F/umbraconightly/api/v3/index.json</RestoreAdditionalProjectSources>
+    </PropertyGroup>
 
     <!-- SourceLink -->
     <PropertyGroup>

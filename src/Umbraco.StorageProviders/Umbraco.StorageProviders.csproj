@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Description>Shared storage providers infrastructure for Umbraco CMS</Description>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Umbraco.Cms.Web.Common" Version="9.3.0" />
+        <PackageReference Include="Umbraco.Cms.Web.Common" Version="10.0.0-preview20220405.88864" />
     </ItemGroup>
 </Project>
