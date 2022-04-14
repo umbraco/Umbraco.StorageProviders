@@ -11,8 +11,11 @@
         <PackageTags>umbraco storage</PackageTags>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <DefaultItemExcludes>$(DefaultItemExcludes);packages.lock.json</DefaultItemExcludes>
+    </PropertyGroup>
+
     <ItemGroup>
-        <Content Include="packages.lock.json" Visible="false" />
         <None Include="$(MSBuildThisFileDirectory)/../icon.png" Pack="true" PackagePath="/" Visible="false" />
     </ItemGroup>
 
@@ -39,7 +42,6 @@
         <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.103" PrivateAssets="All" />
+        <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.104" PrivateAssets="All" />
     </ItemGroup>
 </Project>
-
