@@ -77,6 +77,6 @@ namespace Umbraco.StorageProviders.AzureBlob
         /// <inheritdoc />
         public Stream CreateReadStream() => _blobClient.OpenRead();
 
-        internal static string ParseName(string path) => path.Substring(path.LastIndexOf('/') + 1);
+        internal static string ParseName(string path) => path[(path.LastIndexOf('/') + 1)..];
     }
 }

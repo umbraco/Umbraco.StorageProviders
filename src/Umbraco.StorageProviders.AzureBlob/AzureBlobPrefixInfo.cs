@@ -46,7 +46,7 @@ namespace Umbraco.StorageProviders.AzureBlob
         {
             var name = prefix.TrimEnd('/');
 
-            return name.Substring(name.LastIndexOf('/') + 1);
+            return name[(name.LastIndexOf('/') + 1)..];
         }
     }
 }

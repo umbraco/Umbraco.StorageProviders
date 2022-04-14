@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+        <AnalysisMode>All</AnalysisMode>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Description>Azure Blob Storage provider for Umbraco CMS</Description>
         <PackageTags>umbraco storage azure blob</PackageTags>

@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
-        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+        <AnalysisMode>All</AnalysisMode>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Description>Shared storage providers infrastructure for Umbraco CMS</Description>
     </PropertyGroup>
