@@ -17,17 +17,13 @@ namespace Umbraco.StorageProviders.AzureBlob
         private readonly BlobContainerClient _containerClient;
         private readonly IReadOnlyCollection<BlobHierarchyItem> _items;
 
-        /// <inheritdoc />
-        public bool Exists { get; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureBlobDirectoryContents" /> class.
         /// </summary>
         /// <param name="containerClient">The container client.</param>
         /// <param name="items">The items.</param>
-        /// <exception cref="System.ArgumentNullException">containerClient
-        /// or
-        /// items</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="containerClient"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="items"/> is <c>null</c>.</exception>
         public AzureBlobDirectoryContents(BlobContainerClient containerClient, IReadOnlyCollection<BlobHierarchyItem> items)
         {
             _containerClient = containerClient ?? throw new ArgumentNullException(nameof(containerClient));
@@ -37,11 +33,15 @@ namespace Umbraco.StorageProviders.AzureBlob
         }
 
         /// <inheritdoc />
+        public bool Exists { get; }
+
+        /// <inheritdoc />
         public IEnumerator<IFileInfo> GetEnumerator()
             => _items.Select<BlobHierarchyItem, IFileInfo>(x => x.IsPrefix
                     ? new AzureBlobPrefixInfo(x.Prefix)
                     : new AzureBlobItemInfo(_containerClient.GetBlobClient(x.Blob.Name), x.Blob.Properties)).GetEnumerator();
 
+        /// <inheritdoc/>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

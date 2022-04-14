@@ -26,7 +26,7 @@ namespace Umbraco.StorageProviders.AzureBlob
         /// </summary>
         /// <param name="containerClient">The container client.</param>
         /// <param name="containerRootPath">The container root path.</param>
-        /// <exception cref="System.ArgumentNullException">containerClient</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="containerClient" /> is <c>null</c>.</exception>
         public AzureBlobFileProvider(BlobContainerClient containerClient, string? containerRootPath = null)
         {
             _containerClient = containerClient ?? throw new ArgumentNullException(nameof(containerClient));
@@ -37,7 +37,7 @@ namespace Umbraco.StorageProviders.AzureBlob
         /// Initializes a new instance of the <see cref="AzureBlobFileProvider" /> class.
         /// </summary>
         /// <param name="options">The options.</param>
-        /// <exception cref="System.ArgumentNullException">options</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
         public AzureBlobFileProvider(AzureBlobFileSystemOptions options)
         {
             ArgumentNullException.ThrowIfNull(options);

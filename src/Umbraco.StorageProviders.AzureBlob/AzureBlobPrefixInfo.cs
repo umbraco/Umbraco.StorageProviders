@@ -10,6 +10,18 @@ namespace Umbraco.StorageProviders.AzureBlob
     /// <seealso cref="Microsoft.Extensions.FileProviders.IFileInfo" />
     public sealed class AzureBlobPrefixInfo : IFileInfo
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AzureBlobPrefixInfo"/> class.
+        /// </summary>
+        /// <param name="prefix">The prefix.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="prefix"/> is <c>null</c>.</exception>
+        public AzureBlobPrefixInfo(string prefix)
+        {
+            ArgumentNullException.ThrowIfNull(prefix);
+
+            Name = ParseName(prefix);
+        }
+
         /// <inheritdoc />
         public bool Exists => true;
 
@@ -27,17 +39,6 @@ namespace Umbraco.StorageProviders.AzureBlob
 
         /// <inheritdoc />
         public string PhysicalPath => null!;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AzureBlobPrefixInfo"/> class.
-        /// </summary>
-        /// <param name="prefix">The prefix.</param>
-        public AzureBlobPrefixInfo(string prefix)
-        {
-            ArgumentNullException.ThrowIfNull(prefix);
-
-            Name = ParseName(prefix);
-        }
 
         /// <inheritdoc />
         public Stream CreateReadStream() => throw new InvalidOperationException();

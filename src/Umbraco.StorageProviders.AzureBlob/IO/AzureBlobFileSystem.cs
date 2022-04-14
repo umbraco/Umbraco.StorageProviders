@@ -25,12 +25,16 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         private readonly IContentTypeProvider _contentTypeProvider;
 
         /// <summary>
-        /// Creates a new instance of <see cref="AzureBlobFileSystem" />.
+        /// Initializes a new instance of the <see cref="AzureBlobFileSystem"/> class.
         /// </summary>
         /// <param name="options">The options.</param>
         /// <param name="hostingEnvironment">The hosting environment.</param>
         /// <param name="ioHelper">The I/O helper.</param>
         /// <param name="contentTypeProvider">The content type provider.</param>
+        /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="hostingEnvironment" /> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
         public AzureBlobFileSystem(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider)
         {
             ArgumentNullException.ThrowIfNull(options);
@@ -44,13 +48,17 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="AzureBlobFileSystem" />.
+        /// Initializes a new instance of the <see cref="AzureBlobFileSystem"/> class.
         /// </summary>
         /// <param name="rootUrl">The root URL.</param>
         /// <param name="blobContainerClient">The blob container client.</param>
         /// <param name="ioHelper">The I/O helper.</param>
         /// <param name="contentTypeProvider">The content type provider.</param>
         /// <param name="containerRootPath">The container root path (uses the root URL if not set).</param>
+        /// <exception cref="System.ArgumentNullException"><paramref name="rootUrl" /> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="blobContainerClient" /> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
         public AzureBlobFileSystem(string rootUrl, BlobContainerClient blobContainerClient, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider, string? containerRootPath = null)
         {
             ArgumentNullException.ThrowIfNull(rootUrl);
@@ -63,6 +71,29 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        public bool CanAddPhysical => false;
+
+        /// <summary>
+        /// Creates a new container under the specified account if a container with the same name does not already exist.
+        /// </summary>
+        /// <param name="options">The Azure Blob Storage file system options.</param>
+        /// <param name="accessType">Optionally specifies whether data in the container may be accessed publicly and the level of access.
+        /// <see cref="PublicAccessType.BlobContainer" /> specifies full public read access for container and blob data. Clients can enumerate blobs within the container via anonymous request, but cannot enumerate containers within the storage account.
+        /// <see cref="PublicAccessType.Blob" /> specifies public read access for blobs. Blob data within this container can be read via anonymous request, but container data is not available. Clients cannot enumerate blobs within the container via anonymous request.
+        /// <see cref="PublicAccessType.None" /> specifies that the container data is private to the account owner.</param>
+        /// <returns>
+        /// If the container does not already exist, a <see cref="Response{T}" /> describing the newly created container. If the container already exists, <see langword="null" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
+        public static Response<BlobContainerInfo> CreateIfNotExists(AzureBlobFileSystemOptions options, PublicAccessType accessType = PublicAccessType.None)
+        {
+            ArgumentNullException.ThrowIfNull(options);
+
+            return new BlobContainerClient(options.ConnectionString, options.ContainerName).CreateIfNotExists(accessType);
+        }
+
+        /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public IEnumerable<string> GetDirectories(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -73,6 +104,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public void DeleteDirectory(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -81,6 +113,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public void DeleteDirectory(string path, bool recursive)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -99,6 +132,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public bool DirectoryExists(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -107,6 +141,8 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="stream" /> is <c>null</c>.</exception>
         public void AddFile(string path, Stream stream)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -116,6 +152,8 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="stream" /> is <c>null</c>.</exception>
         public void AddFile(string path, Stream stream, bool overrideIfExists)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -142,6 +180,8 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="physicalPath" /> is <c>null</c>.</exception>
         public void AddFile(string path, string physicalPath, bool overrideIfExists = true, bool copy = false)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -173,6 +213,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public IEnumerable<string> GetFiles(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -181,6 +222,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public IEnumerable<string> GetFiles(string path, string? filter)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -197,6 +239,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public Stream OpenFile(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -205,6 +248,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public void DeleteFile(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -213,6 +257,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public bool FileExists(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -221,7 +266,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
-        [SuppressMessage("Design", "CA1054: Change the type of parameter 'fullPathOrUrl' of method 'AzureBlobFileSystem.GetRelativePath(string)' from 'string' to 'System.Uri', or provide an overload to 'AzureBlobFileSystem.GetRelativePath(string)' that allows 'fullPathOrUrl' to be passed as a 'System.Uri' object", Justification = "Interface implementation")]
+        /// <exception cref="System.ArgumentNullException"><paramref name="fullPathOrUrl" /> is <c>null</c>.</exception>
         public string GetRelativePath(string fullPathOrUrl)
         {
             ArgumentNullException.ThrowIfNull(fullPathOrUrl);
@@ -241,6 +286,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public string GetFullPath(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -250,7 +296,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
-        [SuppressMessage("Design", "CA1055: Change the return type of method 'AzureBlobFileSystem.GetUrl(string)' from 'string' to 'System.Uri'", Justification = "Interface implementation")]
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public string GetUrl(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -259,6 +305,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public DateTimeOffset GetLastModified(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -267,6 +314,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public DateTimeOffset GetCreated(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -275,6 +323,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public long GetSize(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -283,6 +332,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
+        /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
         public BlobClient GetBlobClient(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
@@ -291,19 +341,13 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         }
 
         /// <inheritdoc />
-        public bool CanAddPhysical => false;
+        public IFileProvider Create() => new AzureBlobFileProvider(_container, _containerRootPath);
 
         private static string EnsureUrlSeparatorChar(string path)
-        {
-            ArgumentNullException.ThrowIfNull(path);
-
-            return path.Replace("\\", "/", StringComparison.InvariantCultureIgnoreCase);
-        }
+            => path.Replace("\\", "/", StringComparison.InvariantCultureIgnoreCase);
 
         private string GetDirectoryPath(string fullPathOrUrl)
         {
-            ArgumentNullException.ThrowIfNull(fullPathOrUrl);
-
             var path = GetFullPath(fullPathOrUrl);
 
             return path.Length == 0 ? path : path.EnsureEndsWith('/');
@@ -311,15 +355,11 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
 
         private IEnumerable<BlobHierarchyItem> ListBlobs(string path)
         {
-            ArgumentNullException.ThrowIfNull(path);
-
             return _container.GetBlobsByHierarchy(prefix: path);
         }
 
         private string GetBlobPath(string path)
         {
-            ArgumentNullException.ThrowIfNull(path);
-
             path = EnsureUrlSeparatorChar(path);
 
             if (_ioHelper.PathStartsWith(path, _containerRootPath, '/'))
@@ -333,30 +373,8 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             }
 
             path = $"{_containerRootPath}/{path.TrimStart('/')}";
-            
+
             return path.Trim('/');
         }
-
-        /// <summary>
-        /// Creates a new container under the specified account if a container with the same name does not already exist.
-        /// </summary>
-        /// <param name="options">The Azure Blob Storage file system options.</param>
-        /// <param name="accessType">Optionally specifies whether data in the container may be accessed publicly and the level of access.
-        /// <see cref="PublicAccessType.BlobContainer" /> specifies full public read access for container and blob data. Clients can enumerate blobs within the container via anonymous request, but cannot enumerate containers within the storage account.
-        /// <see cref="PublicAccessType.Blob" /> specifies public read access for blobs. Blob data within this container can be read via anonymous request, but container data is not available. Clients cannot enumerate blobs within the container via anonymous request.
-        /// <see cref="PublicAccessType.None" /> specifies that the container data is private to the account owner.</param>
-        /// <returns>
-        /// If the container does not already exist, a <see cref="Response{T}" /> describing the newly created container. If the container already exists, <see langword="null" />.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">options</exception>
-        public static Response<BlobContainerInfo> CreateIfNotExists(AzureBlobFileSystemOptions options, PublicAccessType accessType = PublicAccessType.None)
-        {
-            ArgumentNullException.ThrowIfNull(options);
-
-            return new BlobContainerClient(options.ConnectionString, options.ContainerName).CreateIfNotExists(accessType);
-        }
-
-        /// <inheritdoc />
-        public IFileProvider Create() => new AzureBlobFileProvider(_container, _containerRootPath);
     }
 }

@@ -24,6 +24,15 @@
         "resolved": "3.4.255",
         "contentHash": "7aJa6+VzdKNDVJqGIWGtvIDh2HsIx8DIDfUg4yWViXc798awhSohPMk1oiAZqSntnrKThKJtn4vAMRdsCj8dtg=="
       },
+      "StyleCop.Analyzers": {
+        "type": "Direct",
+        "requested": "[1.2.0-beta.406, )",
+        "resolved": "1.2.0-beta.406",
+        "contentHash": "YbsYoczQPZyz+4nmQ7bBiU9uQkk7Q2KUizQWEv01S4/ImCdJFiHvJfm8HAINNS0cvSLOA7xM9Y+KWQ2FOYjgkA==",
+        "dependencies": {
+          "StyleCop.Analyzers.Unstable": "1.2.0.406"
+        }
+      },
       "Umbraco.Cms.Web.Common": {
         "type": "Direct",
         "requested": "[10.0.0-preview20220405.88864, )",
@@ -1072,6 +1081,11 @@
           "Nuglify": "1.13.12",
           "Smidge": "4.0.3"
         }
+      },
+      "StyleCop.Analyzers.Unstable": {
+        "type": "Transitive",
+        "resolved": "1.2.0.406",
+        "contentHash": "FclNdBR81ynIo9l1QNlo+l0I/PaFIYaPQPlMram8XVIMh6G6G43KTa1aCxfwTj13uKlAJS/LhLy6KjOPOeAU4w=="
       },
       "System.Buffers": {
         "type": "Transitive",

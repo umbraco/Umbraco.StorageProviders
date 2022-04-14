@@ -102,5 +102,26 @@ dotnet_style_require_accessibility_modifiers = for_non_interface_members:silent
 # CA1054: URI parameters should not be strings
 dotnet_diagnostic.CA1054.severity = suggestion
 
+# CA1055: URI-like return values should not be strings
+dotnet_diagnostic.CA1055.severity = none
+
 # RS0048: Missing shipped or unshipped public API file
 dotnet_public_api_analyzer.require_api_files = true
+
+# SA1101: Prefix local calls with this
+dotnet_diagnostic.SA1101.severity = none
+
+# SA1309: Field names should not begin with underscore
+dotnet_diagnostic.SA1309.severity = none
+
+# SA1413: Use trailing comma in multi-line initializers
+dotnet_diagnostic.SA1413.severity = none
+
+# SA1502: Element should not be on a single line
+dotnet_diagnostic.SA1502.severity = none
+
+# SA1625: Element documentation should not be copied and pasted
+dotnet_diagnostic.SA1625.severity = none
+
+# SA1633: File should have header
+dotnet_diagnostic.SA1633.severity = none
