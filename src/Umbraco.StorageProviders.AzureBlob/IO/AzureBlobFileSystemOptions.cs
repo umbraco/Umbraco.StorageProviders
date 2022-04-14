@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Umbraco.StorageProviders.AzureBlob.IO
 {
     /// <summary>
-    /// The Azure Blob File System Options.
+    /// The Azure Blob File System options.
     /// </summary>
     public class AzureBlobFileSystemOptions
     {
@@ -13,24 +13,24 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         public const string MediaFileSystemName = "Media";
 
         /// <summary>
-        /// The storage account connection string.
+        /// Gets or sets the storage account connection string.
         /// </summary>
         [Required]
         public string ConnectionString { get; set; } = null!;
 
         /// <summary>
-        /// The container name.
+        /// Gets or sets the container name.
         /// </summary>
         [Required]
         public string ContainerName { get; set; } = null!;
 
         /// <summary>
-        /// The root path of the container.
+        /// Gets or sets the root path of the container.
         /// </summary>
         public string ContainerRootPath { get; set; } = null!;
 
         /// <summary>
-        /// The virtual path.
+        /// Gets or sets the virtual path.
         /// </summary>
         [Required]
         public string VirtualPath { get; set; } = null!;

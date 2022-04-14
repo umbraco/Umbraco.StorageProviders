@@ -32,7 +32,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// <remarks>
         /// This will also configure the ImageSharp.Web middleware to use Azure Blob Storage to retrieve the original and cache the processed images.
         /// </remarks>
-        /// <exception cref="System.ArgumentNullException">builder</exception>
+        /// <exception cref="System.ArgumentNullException">builder.</exception>
         public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder)
             => builder.AddAzureBlobMediaFileSystem(true);
 
@@ -44,17 +44,19 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// <returns>
         /// The <see cref="IUmbracoBuilder" />.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">builder</exception>
+        /// <exception cref="System.ArgumentNullException">builder.</exception>
         public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder, bool useAzureBlobImageCache)
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
 
-            builder.AddAzureBlobFileSystem(AzureBlobFileSystemOptions.MediaFileSystemName, "~/media",
-                (options, provider) =>
-                {
-                    var globalSettingsOptions = provider.GetRequiredService<IOptions<GlobalSettings>>();
-                    options.VirtualPath = globalSettingsOptions.Value.UmbracoMediaPath;
-                });
+            builder.AddAzureBlobFileSystem(AzureBlobFileSystemOptions.MediaFileSystemName, "~/media", (options, provider) =>
+            {
+                var globalSettingsOptions = provider.GetRequiredService<IOptions<GlobalSettings>>();
+                options.VirtualPath = globalSettingsOptions.Value.UmbracoMediaPath;
+            });
 
             builder.Services.TryAddSingleton<AzureBlobFileSystemMiddleware>();
 
@@ -84,7 +86,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// </remarks>
         /// <exception cref="System.ArgumentNullException">builder
         /// or
-        /// configure</exception>
+        /// configure.</exception>
         public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder, Action<AzureBlobFileSystemOptions> configure)
             => builder.AddAzureBlobMediaFileSystem(true, configure);
 
@@ -99,11 +101,18 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// </returns>
         /// <exception cref="System.ArgumentNullException">builder
         /// or
-        /// configure</exception>
+        /// configure.</exception>
         public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder, bool useAzureBlobImageCache, Action<AzureBlobFileSystemOptions> configure)
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (configure == null) throw new ArgumentNullException(nameof(configure));
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (configure == null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
 
             AddAzureBlobMediaFileSystem(builder, useAzureBlobImageCache);
 
@@ -127,7 +136,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// </remarks>
         /// <exception cref="System.ArgumentNullException">builder
         /// or
-        /// configure</exception>
+        /// configure.</exception>
         public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder, Action<AzureBlobFileSystemOptions, IServiceProvider> configure)
             => builder.AddAzureBlobMediaFileSystem(true, configure);
 
@@ -142,11 +151,18 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// </returns>
         /// <exception cref="System.ArgumentNullException">builder
         /// or
-        /// configure</exception>
+        /// configure.</exception>
         public static IUmbracoBuilder AddAzureBlobMediaFileSystem(this IUmbracoBuilder builder, bool useAzureBlobImageCache, Action<AzureBlobFileSystemOptions, IServiceProvider> configure)
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (configure == null) throw new ArgumentNullException(nameof(configure));
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (configure == null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
 
             AddAzureBlobMediaFileSystem(builder, useAzureBlobImageCache);
 
@@ -164,10 +180,13 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// <returns>
         /// The <see cref="IUmbracoApplicationBuilderContext" />.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">builder</exception>
+        /// <exception cref="System.ArgumentNullException">builder.</exception>
         public static IUmbracoApplicationBuilderContext UseAzureBlobMediaFileSystem(this IUmbracoApplicationBuilderContext builder)
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
 
             UseAzureBlobMediaFileSystem(builder.AppBuilder);
 
@@ -181,10 +200,13 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// <returns>
         /// The <see cref="IApplicationBuilder" />.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">app</exception>
+        /// <exception cref="System.ArgumentNullException">app.</exception>
         public static IApplicationBuilder UseAzureBlobMediaFileSystem(this IApplicationBuilder app)
         {
-            if (app == null) throw new ArgumentNullException(nameof(app));
+            if (app == null)
+            {
+                throw new ArgumentNullException(nameof(app));
+            }
 
             app.UseMiddleware<AzureBlobFileSystemMiddleware>();
 

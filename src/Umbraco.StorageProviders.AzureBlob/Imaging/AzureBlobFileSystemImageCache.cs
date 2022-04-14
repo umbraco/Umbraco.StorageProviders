@@ -29,16 +29,20 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         { }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="AzureBlobFileSystemImageCache"/> class.
         /// Creates a new instance of <see cref="AzureBlobFileSystemImageCache" />.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="options">The options.</param>
         /// <exception cref="System.ArgumentNullException">options
         /// or
-        /// name</exception>
+        /// name.</exception>
         protected AzureBlobFileSystemImageCache(string name, IOptionsMonitor<AzureBlobFileSystemOptions> options)
         {
-            if (options == null) throw new ArgumentNullException(nameof(options));
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
 
             _name = name ?? throw new ArgumentNullException(nameof(name));
 
@@ -54,7 +58,9 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
             var blob = _container.GetBlobClient(_cachePath + key);
 
             if (await blob.ExistsAsync().ConfigureAwait(false))
+            {
                 return new AzureBlobStorageCacheResolver(blob);
+            }
 
             return null;
         }
@@ -69,7 +75,10 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
 
         private void OptionsOnChange(AzureBlobFileSystemOptions options, string name)
         {
-            if (name != _name) return;
+            if (name != _name)
+            {
+                return;
+            }
 
             _container = new BlobContainerClient(options.ConnectionString, options.ContainerName);
         }

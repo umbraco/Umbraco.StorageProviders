@@ -24,13 +24,24 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// </returns>
         /// <exception cref="System.ArgumentNullException">builder
         /// or
-        /// name</exception>
-        /// <exception cref="System.ArgumentException">Value cannot be null or whitespace. - path</exception>
+        /// name.</exception>
+        /// <exception cref="System.ArgumentException">Value cannot be null or whitespace. - path.</exception>
         public static IUmbracoBuilder AddAzureBlobFileSystem(this IUmbracoBuilder builder, string name, string path)
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
+            }
 
             builder.Services.TryAddSingleton<IAzureBlobFileSystemProvider, AzureBlobFileSystemProvider>();
 
@@ -58,14 +69,29 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// or
         /// name
         /// or
-        /// configure</exception>
-        /// <exception cref="System.ArgumentException">Value cannot be null or whitespace. - path</exception>
+        /// configure.</exception>
+        /// <exception cref="System.ArgumentException">Value cannot be null or whitespace. - path.</exception>
         public static IUmbracoBuilder AddAzureBlobFileSystem(this IUmbracoBuilder builder, string name, string path, Action<AzureBlobFileSystemOptions> configure)
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
-            if (configure == null) throw new ArgumentNullException(nameof(configure));
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
+            }
+
+            if (configure == null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
 
             AddAzureBlobFileSystem(builder, name, path);
 
@@ -91,14 +117,29 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// or
         /// name
         /// or
-        /// configure</exception>
-        /// <exception cref="System.ArgumentException">Value cannot be null or whitespace. - path</exception>
+        /// configure.</exception>
+        /// <exception cref="System.ArgumentException">Value cannot be null or whitespace. - path.</exception>
         public static IUmbracoBuilder AddAzureBlobFileSystem(this IUmbracoBuilder builder, string name, string path, Action<AzureBlobFileSystemOptions, IServiceProvider> configure)
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
-            if (configure == null) throw new ArgumentNullException(nameof(configure));
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(path));
+            }
+
+            if (configure == null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
 
             AddAzureBlobFileSystem(builder, name, path);
 

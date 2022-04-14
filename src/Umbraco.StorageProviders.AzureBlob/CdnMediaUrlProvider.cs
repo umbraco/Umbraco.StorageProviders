@@ -16,17 +16,20 @@ namespace Umbraco.StorageProviders.AzureBlob
         private Uri _cdnUrl;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="CdnMediaUrlProvider"/> class.
         /// Creates a new instance of <see cref="CdnMediaUrlProvider" />.
         /// </summary>
         /// <param name="options">The options.</param>
         /// <param name="mediaPathGenerators">The media path generators.</param>
         /// <param name="uriUtility">The URI utility.</param>
-        /// <exception cref="System.ArgumentNullException">options</exception>
-        public CdnMediaUrlProvider(IOptionsMonitor<CdnMediaUrlProviderOptions> options,
-            MediaUrlGeneratorCollection mediaPathGenerators, UriUtility uriUtility)
+        /// <exception cref="System.ArgumentNullException">options.</exception>
+        public CdnMediaUrlProvider(IOptionsMonitor<CdnMediaUrlProviderOptions> options, MediaUrlGeneratorCollection mediaPathGenerators, UriUtility uriUtility)
             : base(mediaPathGenerators, uriUtility)
         {
-            if (options == null) throw new ArgumentNullException(nameof(options));
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
 
             _cdnUrl = options.CurrentValue.Url;
             _removeMediaFromPath = options.CurrentValue.RemoveMediaFromPath;
@@ -38,7 +41,10 @@ namespace Umbraco.StorageProviders.AzureBlob
         public override UrlInfo? GetMediaUrl(IPublishedContent content, string propertyAlias, UrlMode mode, string culture, Uri current)
         {
             var mediaUrl = base.GetMediaUrl(content, propertyAlias, UrlMode.Relative, culture, current);
-            if (mediaUrl == null) return null;
+            if (mediaUrl == null)
+            {
+                return null;
+            }
 
             return mediaUrl.IsUrl switch
             {
@@ -49,7 +55,10 @@ namespace Umbraco.StorageProviders.AzureBlob
 
         private void OptionsOnChange(CdnMediaUrlProviderOptions options, string name)
         {
-            if (name != Options.DefaultName) return;
+            if (name != Options.DefaultName)
+            {
+                return;
+            }
 
             _removeMediaFromPath = options.RemoveMediaFromPath;
             _cdnUrl = options.Url;

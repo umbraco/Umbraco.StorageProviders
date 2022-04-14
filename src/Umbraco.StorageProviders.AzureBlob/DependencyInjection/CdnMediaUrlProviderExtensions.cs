@@ -18,10 +18,13 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// <returns>
         /// The <see cref="IUmbracoBuilder" />.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">builder</exception>
+        /// <exception cref="System.ArgumentNullException">builder.</exception>
         public static IUmbracoBuilder AddCdnMediaUrlProvider(this IUmbracoBuilder builder)
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
 
             builder.Services.AddOptions<CdnMediaUrlProviderOptions>()
                 .BindConfiguration("Umbraco:Storage:AzureBlob:Media:Cdn")
@@ -42,11 +45,18 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// </returns>
         /// <exception cref="System.ArgumentNullException">builder
         /// or
-        /// configure</exception>
+        /// configure.</exception>
         public static IUmbracoBuilder AddCdnMediaUrlProvider(this IUmbracoBuilder builder, Action<CdnMediaUrlProviderOptions> configure)
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (configure == null) throw new ArgumentNullException(nameof(configure));
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (configure == null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
 
             AddCdnMediaUrlProvider(builder);
 
@@ -67,11 +77,18 @@ namespace Umbraco.Cms.Core.DependencyInjection
         /// </returns>
         /// <exception cref="System.ArgumentNullException">builder
         /// or
-        /// configure</exception>
+        /// configure.</exception>
         public static IUmbracoBuilder AddCdnMediaUrlProvider(this IUmbracoBuilder builder, Action<CdnMediaUrlProviderOptions, IServiceProvider> configure)
         {
-            if (builder == null) throw new ArgumentNullException(nameof(builder));
-            if (configure == null) throw new ArgumentNullException(nameof(configure));
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (configure == null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
 
             AddCdnMediaUrlProvider(builder);
 

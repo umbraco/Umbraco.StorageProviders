@@ -17,8 +17,8 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
     {
         private readonly string _name;
         private readonly IAzureBlobFileSystemProvider _fileSystemProvider;
-        private string _rootPath;
         private readonly FormatUtilities _formatUtilities;
+        private string _rootPath;
 
         /// <summary>
         /// A match function used by the resolver to identify itself as the correct resolver to use.
@@ -37,6 +37,7 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         { }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="AzureBlobFileSystemImageProvider"/> class.
         /// Creates a new instance of <see cref="AzureBlobFileSystemImageProvider" />.
         /// </summary>
         /// <param name="name">The name.</param>
@@ -52,11 +53,18 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         /// or
         /// fileSystemProvider
         /// or
-        /// formatUtilities</exception>
+        /// formatUtilities.</exception>
         protected AzureBlobFileSystemImageProvider(string name, IOptionsMonitor<AzureBlobFileSystemOptions> options, IAzureBlobFileSystemProvider fileSystemProvider, IHostingEnvironment hostingEnvironment, FormatUtilities formatUtilities)
         {
-            if (options == null) throw new ArgumentNullException(nameof(options));
-            if (hostingEnvironment == null) throw new ArgumentNullException(nameof(hostingEnvironment));
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+
+            if (hostingEnvironment == null)
+            {
+                throw new ArgumentNullException(nameof(hostingEnvironment));
+            }
 
             _name = name ?? throw new ArgumentNullException(nameof(name));
             _fileSystemProvider = fileSystemProvider ?? throw new ArgumentNullException(nameof(fileSystemProvider));
@@ -69,9 +77,22 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         }
 
         /// <inheritdoc />
+        public ProcessingBehavior ProcessingBehavior => ProcessingBehavior.CommandOnly;
+
+        /// <inheritdoc/>
+        public Func<HttpContext, bool> Match
+        {
+            get => this._match ?? IsMatch;
+            set => this._match = value;
+        }
+
+        /// <inheritdoc />
         public bool IsValidRequest(HttpContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             return _formatUtilities.GetExtensionFromUri(context.Request.GetDisplayUrl()) != null;
         }
@@ -79,7 +100,10 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         /// <inheritdoc />
         public Task<IImageResolver?> GetAsync(HttpContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             return GetResolverAsync(context);
         }
@@ -91,31 +115,29 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
                 .GetBlobClient(context.Request.Path);
 
             if (await blob.ExistsAsync().ConfigureAwait(false))
+            {
                 return new AzureBlobStorageImageResolver(blob);
+            }
 
             return null;
         }
 
-        /// <inheritdoc />
-        public ProcessingBehavior ProcessingBehavior => ProcessingBehavior.CommandOnly;
-
-        /// <inheritdoc/>
-        public Func<HttpContext, bool> Match
-        {
-            get => this._match ?? IsMatch;
-            set => this._match = value;
-        }
-
         private bool IsMatch(HttpContext context)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
 
             return context.Request.Path.StartsWithSegments(_rootPath, StringComparison.InvariantCultureIgnoreCase);
         }
 
         private void OptionsOnChange(AzureBlobFileSystemOptions options, string name, IHostingEnvironment hostingEnvironment)
         {
-            if (name != _name) return;
+            if (name != _name)
+            {
+                return;
+            }
 
             _rootPath = hostingEnvironment.ToAbsolute(options.VirtualPath);
         }

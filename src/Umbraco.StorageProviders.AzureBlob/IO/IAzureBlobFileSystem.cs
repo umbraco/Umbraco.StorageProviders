@@ -12,7 +12,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// Get the <see cref="BlobClient"/>.
         /// </summary>
         /// <param name="path">The relative path to the blob.</param>
-        /// <returns>A <see cref="BlobClient"/></returns>
+        /// <returns>A <see cref="BlobClient"/>.</returns>
         BlobClient GetBlobClient(string path);
     }
 }

@@ -18,6 +18,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="AzureBlobFileSystemProvider"/> class.
         /// Creates a new instance of <see cref="AzureBlobFileSystemProvider" />.
         /// </summary>
         /// <param name="optionsMonitor">The options monitor.</param>
@@ -27,7 +28,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// or
         /// hostingEnvironment
         /// or
-        /// ioHelper</exception>
+        /// ioHelper.</exception>
         public AzureBlobFileSystemProvider(IOptionsMonitor<AzureBlobFileSystemOptions> optionsMonitor, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper)
         {
             _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
@@ -41,7 +42,10 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <inheritdoc />
         public IAzureBlobFileSystem GetFileSystem(string name)
         {
-            if (name == null) throw new ArgumentNullException(nameof(name));
+            if (name == null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
 
             return _fileSystems.GetOrAdd(name, CreateInstance);
         }
