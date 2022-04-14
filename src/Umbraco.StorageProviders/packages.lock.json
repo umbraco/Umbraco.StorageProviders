@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     "net6.0": {
+      "Microsoft.CodeAnalysis.PublicApiAnalyzers": {
+        "type": "Direct",
+        "requested": "[3.3.3, )",
+        "resolved": "3.3.3",
+        "contentHash": "DWLeZtw2jszmzAh/MZXVo/Dy8fD9vcRaCIRZTaf2ppqaug8BGIV81dQdZfaYFlNuw7FyuZLVC5SZPZsCcePZhQ=="
+      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[1.1.1, )",

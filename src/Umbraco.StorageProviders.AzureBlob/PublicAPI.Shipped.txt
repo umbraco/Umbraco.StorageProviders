@@ -1,0 +1,89 @@
+﻿#nullable enable
+const Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions.MediaFileSystemName = "Media" -> string!
+static Umbraco.Cms.Core.DependencyInjection.AzureBlobFileSystemExtensions.AddAzureBlobFileSystem(this Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder! builder, string! name) -> Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder!
+static Umbraco.Cms.Core.DependencyInjection.AzureBlobFileSystemExtensions.AddAzureBlobFileSystem(this Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder! builder, string! name, System.Action<Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions!, System.IServiceProvider!>! configure) -> Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder!
+static Umbraco.Cms.Core.DependencyInjection.AzureBlobFileSystemExtensions.AddAzureBlobFileSystem(this Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder! builder, string! name, System.Action<Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions!>! configure) -> Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder!
+static Umbraco.Cms.Core.DependencyInjection.AzureBlobFileSystemExtensions.AddAzureBlobFileSystem<TDep>(this Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder! builder, string! name, System.Action<Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions!, TDep!>! configure) -> Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder!
+static Umbraco.Cms.Core.DependencyInjection.AzureBlobMediaFileSystemExtensions.AddAzureBlobFileSystem(this Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder! builder, System.Action<Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions!, System.IServiceProvider!>! configure, bool useAzureBlobImageCache = true) -> Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder!
+static Umbraco.Cms.Core.DependencyInjection.AzureBlobMediaFileSystemExtensions.AddAzureBlobFileSystem<TDep>(this Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder! builder, System.Action<Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions!, TDep!>! configure, bool useAzureBlobImageCache = true) -> Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder!
+static Umbraco.Cms.Core.DependencyInjection.AzureBlobMediaFileSystemExtensions.AddAzureBlobMediaFileSystem(this Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder! builder, bool useAzureBlobImageCache = true) -> Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder!
+static Umbraco.Cms.Core.DependencyInjection.AzureBlobMediaFileSystemExtensions.AddAzureBlobMediaFileSystem(this Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder! builder, System.Action<Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions!>! configure, bool useAzureBlobImageCache = true) -> Umbraco.Cms.Core.DependencyInjection.IUmbracoBuilder!
+static Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.CreateIfNotExists(Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions! options, Azure.Storage.Blobs.Models.PublicAccessType accessType = Azure.Storage.Blobs.Models.PublicAccessType.None) -> Azure.Response<Azure.Storage.Blobs.Models.BlobContainerInfo!>!
+Umbraco.Cms.Core.DependencyInjection.AzureBlobFileSystemExtensions
+Umbraco.Cms.Core.DependencyInjection.AzureBlobMediaFileSystemExtensions
+Umbraco.StorageProviders.AzureBlob.AzureBlobDirectoryContents
+Umbraco.StorageProviders.AzureBlob.AzureBlobDirectoryContents.AzureBlobDirectoryContents(Azure.Storage.Blobs.BlobContainerClient! containerClient, System.Collections.Generic.IReadOnlyCollection<Azure.Storage.Blobs.Models.BlobHierarchyItem!>! items) -> void
+Umbraco.StorageProviders.AzureBlob.AzureBlobDirectoryContents.Exists.get -> bool
+Umbraco.StorageProviders.AzureBlob.AzureBlobDirectoryContents.GetEnumerator() -> System.Collections.Generic.IEnumerator<Microsoft.Extensions.FileProviders.IFileInfo!>!
+Umbraco.StorageProviders.AzureBlob.AzureBlobFileProvider
+Umbraco.StorageProviders.AzureBlob.AzureBlobFileProvider.AzureBlobFileProvider(Azure.Storage.Blobs.BlobContainerClient! containerClient, string? containerRootPath = null) -> void
+Umbraco.StorageProviders.AzureBlob.AzureBlobFileProvider.AzureBlobFileProvider(Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions! options) -> void
+Umbraco.StorageProviders.AzureBlob.AzureBlobFileProvider.GetDirectoryContents(string! subpath) -> Microsoft.Extensions.FileProviders.IDirectoryContents!
+Umbraco.StorageProviders.AzureBlob.AzureBlobFileProvider.GetFileInfo(string! subpath) -> Microsoft.Extensions.FileProviders.IFileInfo!
+Umbraco.StorageProviders.AzureBlob.AzureBlobFileProvider.Watch(string! filter) -> Microsoft.Extensions.Primitives.IChangeToken!
+Umbraco.StorageProviders.AzureBlob.AzureBlobItemInfo
+Umbraco.StorageProviders.AzureBlob.AzureBlobItemInfo.AzureBlobItemInfo(Azure.Storage.Blobs.BlobClient! blobClient, Azure.Storage.Blobs.Models.BlobItemProperties! properties) -> void
+Umbraco.StorageProviders.AzureBlob.AzureBlobItemInfo.AzureBlobItemInfo(Azure.Storage.Blobs.BlobClient! blobClient, Azure.Storage.Blobs.Models.BlobProperties! properties) -> void
+Umbraco.StorageProviders.AzureBlob.AzureBlobItemInfo.CreateReadStream() -> System.IO.Stream!
+Umbraco.StorageProviders.AzureBlob.AzureBlobItemInfo.Exists.get -> bool
+Umbraco.StorageProviders.AzureBlob.AzureBlobItemInfo.IsDirectory.get -> bool
+Umbraco.StorageProviders.AzureBlob.AzureBlobItemInfo.LastModified.get -> System.DateTimeOffset
+Umbraco.StorageProviders.AzureBlob.AzureBlobItemInfo.Length.get -> long
+Umbraco.StorageProviders.AzureBlob.AzureBlobItemInfo.Name.get -> string!
+Umbraco.StorageProviders.AzureBlob.AzureBlobItemInfo.PhysicalPath.get -> string!
+Umbraco.StorageProviders.AzureBlob.AzureBlobPrefixInfo
+Umbraco.StorageProviders.AzureBlob.AzureBlobPrefixInfo.AzureBlobPrefixInfo(string! prefix) -> void
+Umbraco.StorageProviders.AzureBlob.AzureBlobPrefixInfo.CreateReadStream() -> System.IO.Stream!
+Umbraco.StorageProviders.AzureBlob.AzureBlobPrefixInfo.Exists.get -> bool
+Umbraco.StorageProviders.AzureBlob.AzureBlobPrefixInfo.IsDirectory.get -> bool
+Umbraco.StorageProviders.AzureBlob.AzureBlobPrefixInfo.LastModified.get -> System.DateTimeOffset
+Umbraco.StorageProviders.AzureBlob.AzureBlobPrefixInfo.Length.get -> long
+Umbraco.StorageProviders.AzureBlob.AzureBlobPrefixInfo.Name.get -> string!
+Umbraco.StorageProviders.AzureBlob.AzureBlobPrefixInfo.PhysicalPath.get -> string!
+Umbraco.StorageProviders.AzureBlob.Imaging.AzureBlobFileSystemImageCache
+Umbraco.StorageProviders.AzureBlob.Imaging.AzureBlobFileSystemImageCache.AzureBlobFileSystemImageCache(Azure.Storage.Blobs.BlobContainerClient! blobContainerClient) -> void
+Umbraco.StorageProviders.AzureBlob.Imaging.AzureBlobFileSystemImageCache.AzureBlobFileSystemImageCache(Microsoft.Extensions.Options.IOptionsMonitor<Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions!>! options) -> void
+Umbraco.StorageProviders.AzureBlob.Imaging.AzureBlobFileSystemImageCache.AzureBlobFileSystemImageCache(string! name, Microsoft.Extensions.Options.IOptionsMonitor<Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions!>! options) -> void
+Umbraco.StorageProviders.AzureBlob.Imaging.AzureBlobFileSystemImageCache.GetAsync(string! key) -> System.Threading.Tasks.Task<SixLabors.ImageSharp.Web.Resolvers.IImageCacheResolver?>!
+Umbraco.StorageProviders.AzureBlob.Imaging.AzureBlobFileSystemImageCache.SetAsync(string! key, System.IO.Stream! stream, SixLabors.ImageSharp.Web.ImageCacheMetadata metadata) -> System.Threading.Tasks.Task!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.AddFile(string! path, string! physicalPath, bool overrideIfExists = true, bool copy = false) -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.AddFile(string! path, System.IO.Stream! stream) -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.AddFile(string! path, System.IO.Stream! stream, bool overrideIfExists) -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.AzureBlobFileSystem(string! rootUrl, Azure.Storage.Blobs.BlobContainerClient! blobContainerClient, Umbraco.Cms.Core.IO.IIOHelper! ioHelper, Microsoft.AspNetCore.StaticFiles.IContentTypeProvider! contentTypeProvider, string? containerRootPath = null) -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.AzureBlobFileSystem(Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions! options, Umbraco.Cms.Core.Hosting.IHostingEnvironment! hostingEnvironment, Umbraco.Cms.Core.IO.IIOHelper! ioHelper, Microsoft.AspNetCore.StaticFiles.IContentTypeProvider! contentTypeProvider) -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.CanAddPhysical.get -> bool
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.Create() -> Microsoft.Extensions.FileProviders.IFileProvider!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.DeleteDirectory(string! path) -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.DeleteDirectory(string! path, bool recursive) -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.DeleteFile(string! path) -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.DirectoryExists(string! path) -> bool
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.FileExists(string! path) -> bool
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetBlobClient(string! path) -> Azure.Storage.Blobs.BlobClient!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetCreated(string! path) -> System.DateTimeOffset
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetDirectories(string! path) -> System.Collections.Generic.IEnumerable<string!>!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetFiles(string! path) -> System.Collections.Generic.IEnumerable<string!>!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetFiles(string! path, string? filter) -> System.Collections.Generic.IEnumerable<string!>!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetFullPath(string! path) -> string!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetLastModified(string! path) -> System.DateTimeOffset
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetRelativePath(string! fullPathOrUrl) -> string!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetSize(string! path) -> long
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetUrl(string! path) -> string!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.OpenFile(string! path) -> System.IO.Stream!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions.AzureBlobFileSystemOptions() -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions.ConnectionString.get -> string!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions.ConnectionString.set -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions.ContainerName.get -> string!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions.ContainerName.set -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions.ContainerRootPath.get -> string?
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions.ContainerRootPath.set -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions.VirtualPath.get -> string!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions.VirtualPath.set -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemProvider
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemProvider.AzureBlobFileSystemProvider(Microsoft.Extensions.Options.IOptionsMonitor<Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions!>! optionsMonitor, Umbraco.Cms.Core.Hosting.IHostingEnvironment! hostingEnvironment, Umbraco.Cms.Core.IO.IIOHelper! ioHelper) -> void
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemProvider.GetFileSystem(string! name) -> Umbraco.StorageProviders.AzureBlob.IO.IAzureBlobFileSystem!
+Umbraco.StorageProviders.AzureBlob.IO.IAzureBlobFileSystem
+Umbraco.StorageProviders.AzureBlob.IO.IAzureBlobFileSystem.GetBlobClient(string! path) -> Azure.Storage.Blobs.BlobClient!
+Umbraco.StorageProviders.AzureBlob.IO.IAzureBlobFileSystemProvider
+Umbraco.StorageProviders.AzureBlob.IO.IAzureBlobFileSystemProvider.GetFileSystem(string! name) -> Umbraco.StorageProviders.AzureBlob.IO.IAzureBlobFileSystem!

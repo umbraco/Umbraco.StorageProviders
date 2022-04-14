@@ -15,6 +15,10 @@
         <None Include="$(MSBuildThisFileDirectory)/../icon.png" Pack="true" PackagePath="/" Visible="false" />
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.3.3" PrivateAssets="All" />
+    </ItemGroup>
+
     <PropertyGroup>
         <RestoreAdditionalProjectSources>https://www.myget.org/F/umbraconightly/api/v3/index.json</RestoreAdditionalProjectSources>
     </PropertyGroup>
