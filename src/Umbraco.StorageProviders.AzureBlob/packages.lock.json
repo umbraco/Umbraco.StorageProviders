@@ -28,6 +28,12 @@
           "Microsoft.SourceLink.Common": "1.1.1"
         }
       },
+      "Nerdbank.GitVersioning": {
+        "type": "Direct",
+        "requested": "[3.5.103, )",
+        "resolved": "3.5.103",
+        "contentHash": "gMzXNdd/cQWBTp+zaYmHaoTVSOQwOuFKGD26wJJSdJ95aQeMcNYzKW5KGlZj/HnyHJSMMa2xAO+7Y0FKdZuv0g=="
+      },
       "SixLabors.ImageSharp.Web.Providers.Azure": {
         "type": "Direct",
         "requested": "[2.0.0, )",
