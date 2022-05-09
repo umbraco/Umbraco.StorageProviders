@@ -72,7 +72,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
         {
             ArgumentNullException.ThrowIfNull(builder);
 
-            builder.MediaUrlProviders().Insert<CdnMediaUrlProvider>();
+            builder.MediaUrlProviders()?.Insert<CdnMediaUrlProvider>();
 
             var optionsBuilder = builder.Services.AddOptions<CdnMediaUrlProviderOptions>()
                 .BindConfiguration("Umbraco:Storage:Cdn")

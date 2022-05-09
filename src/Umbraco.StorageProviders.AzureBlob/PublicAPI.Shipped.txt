@@ -68,7 +68,7 @@ Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetFullPath(string! pa
 Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetLastModified(string! path) -> System.DateTimeOffset
 Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetRelativePath(string! fullPathOrUrl) -> string!
 Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetSize(string! path) -> long
-Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetUrl(string! path) -> string!
+Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.GetUrl(string? path) -> string!
 Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystem.OpenFile(string! path) -> System.IO.Stream!
 Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions
 Umbraco.StorageProviders.AzureBlob.IO.AzureBlobFileSystemOptions.AzureBlobFileSystemOptions() -> void

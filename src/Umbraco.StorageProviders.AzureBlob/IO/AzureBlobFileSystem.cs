@@ -297,7 +297,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
 
         /// <inheritdoc />
         /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
-        public string GetUrl(string path)
+        public string GetUrl(string? path)
         {
             ArgumentNullException.ThrowIfNull(path);
 

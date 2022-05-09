@@ -7,6 +7,6 @@
         <Description>Shared storage providers infrastructure for Umbraco CMS</Description>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Umbraco.Cms.Web.Common" Version="10.0.0-preview20220405.88864" />
+        <PackageReference Include="Umbraco.Cms.Web.Common" Version="10.0.0-rc1" />
     </ItemGroup>
 </Project>
