@@ -21,7 +21,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-There're multiple ways to configure the CDN provider, it can be done in code:
+There are multiple ways to configure the CDN provider. It can be done in code:
 
 ```csharp
 .AddCdnMediaUrlProvider(options => {
@@ -72,7 +72,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-There're multiple ways to configure the provider, it can be done in code:
+There are multiple ways to configure the provider. It can be done in code:
 
 ```csharp
 .AddAzureBlobMediaFileSystem(options => {
