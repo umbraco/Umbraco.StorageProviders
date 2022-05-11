@@ -1,33 +1,40 @@
-﻿<Project>   
+﻿<Project>
     <PropertyGroup>
-        <Version>1.1.0</Version>
-        <AssemblyVersion>1.1.0</AssemblyVersion>
-        <InformationalVersion>1.1.0</InformationalVersion>
-        <FileVersion>1.1.0.0</FileVersion>
-        <LangVersion Condition="'$(LangVersion)' == ''">9.0</LangVersion>
+        <Version>2.0.0-alpha</Version>
         <NeutralLanguage>en-US</NeutralLanguage>
         <Company>Umbraco</Company>
         <Copyright>Copyright © Umbraco 2022</Copyright>
         <Authors>Umbraco HQ</Authors>
         <PackageProjectUrl>https://github.com/umbraco/Umbraco.StorageProviders</PackageProjectUrl>
         <PackageIconUrl>https://umbraco.com/dist/nuget/logo-small.png</PackageIconUrl>
-        <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
-        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageTags>umbraco storage</PackageTags>
-        <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/umbraco/Umbraco.StorageProviders</RepositoryUrl>
     </PropertyGroup>
 
     <PropertyGroup>
-        <!-- SourceLink: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element)-->
+        <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <DefaultItemExcludes>$(DefaultItemExcludes);packages.lock.json</DefaultItemExcludes>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)/../icon.png" Pack="true" PackagePath="/" Visible="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435" PrivateAssets="All" />
+    </ItemGroup>
+
+    <!-- SourceLink -->
+    <PropertyGroup>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
-
-        <!-- SourceLink: Embed source files that are not tracked by the source control manager in the PDB -->
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
-
-        <!-- SourceLink: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    </ItemGroup>
 </Project>
 

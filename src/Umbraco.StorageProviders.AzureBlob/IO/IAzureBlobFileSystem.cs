@@ -4,15 +4,17 @@ using Umbraco.Cms.Core.IO;
 namespace Umbraco.StorageProviders.AzureBlob.IO
 {
     /// <summary>
-    /// The Azure Blob File System.
+    /// Represents an Azure Blob Storage file system.
     /// </summary>
     public interface IAzureBlobFileSystem : IFileSystem
     {
         /// <summary>
-        /// Get the <see cref="BlobClient"/>.
+        /// Get the <see cref="BlobClient" />.
         /// </summary>
         /// <param name="path">The relative path to the blob.</param>
-        /// <returns>A <see cref="BlobClient"/></returns>
+        /// <returns>
+        /// A <see cref="BlobClient" />.
+        /// </returns>
         BlobClient GetBlobClient(string path);
     }
 }
