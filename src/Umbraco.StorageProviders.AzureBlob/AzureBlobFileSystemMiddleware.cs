@@ -114,7 +114,7 @@ namespace Umbraco.StorageProviders.AzureBlob
                 // a Content-Range header is needed with the new length
                 ignoreRange = true;
                 properties = await blob.GetPropertiesAsync().ConfigureAwait(false);
-                response.Headers.Append("Content-Range", $"bytes */{properties.Value.ContentLength}");
+                response.Headers.Append(HeaderNames.ContentRange, $"bytes */{properties.Value.ContentLength}");
             }
             catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotModified)
             {
@@ -128,15 +128,15 @@ namespace Umbraco.StorageProviders.AzureBlob
             // and not a request failed with status NotModified :(
             catch (Exception ex) when (ex.Message == "The condition specified using HTTP conditional header(s) is not met.")
             {
-                if (blobRequestConditions != null
-                    && (blobRequestConditions.IfMatch.HasValue || blobRequestConditions.IfUnmodifiedSince.HasValue))
+                if (blobRequestConditions != null &&
+                    (blobRequestConditions.IfMatch.HasValue || blobRequestConditions.IfUnmodifiedSince.HasValue))
                 {
                     // If-Range or If-Unmodified-Since is not met
                     // if the resource has been modified, we need to send the whole file back with a 200 OK
                     // a Content-Range header is needed with the new length
                     ignoreRange = true;
                     properties = await blob.GetPropertiesAsync().ConfigureAwait(false);
-                    response.Headers.Append("Content-Range", $"bytes */{properties.Value.ContentLength}");
+                    response.Headers.Append(HeaderNames.ContentRange, $"bytes */{properties.Value.ContentLength}");
                 }
                 else
                 {
@@ -155,13 +155,12 @@ namespace Umbraco.StorageProviders.AzureBlob
 
             var responseHeaders = response.GetTypedHeaders();
 
-            responseHeaders.CacheControl =
-                new CacheControlHeaderValue
-                {
-                    Public = true,
-                    MustRevalidate = true,
-                    MaxAge = _maxAge,
-                };
+            responseHeaders.CacheControl = new CacheControlHeaderValue
+            {
+                Public = true,
+                MustRevalidate = true,
+                MaxAge = _maxAge,
+            };
 
             responseHeaders.LastModified = properties.Value.LastModified;
 
@@ -170,12 +169,10 @@ namespace Umbraco.StorageProviders.AzureBlob
                 responseHeaders.ETag = entityTagHeaderValue;
             }
 
-            responseHeaders.Append(HeaderNames.Vary, "Accept-Encoding");
+            responseHeaders.Append(HeaderNames.Vary, HeaderNames.AcceptEncoding);
 
             var requestHeaders = request.GetTypedHeaders();
-
             var rangeHeader = requestHeaders.Range;
-
             if (!ignoreRange && rangeHeader != null)
             {
                 if (!ValidateRanges(rangeHeader.Ranges, properties.Value.ContentLength))
@@ -228,6 +225,7 @@ namespace Umbraco.StorageProviders.AzureBlob
                     return;
                 }
             }
+
             response.StatusCode = (int)HttpStatusCode.OK;
             response.ContentType = properties.Value.ContentType;
             responseHeaders.ContentLength = properties.Value.ContentLength;
@@ -239,11 +237,11 @@ namespace Umbraco.StorageProviders.AzureBlob
 
         private static BlobRequestConditions? GetAccessCondition(HttpRequest request)
         {
-            var range = request.Headers["Range"];
+            var range = request.Headers[HeaderNames.Range];
             if (string.IsNullOrEmpty(range))
             {
                 // etag
-                var ifNoneMatch = request.Headers["If-None-Match"];
+                var ifNoneMatch = request.Headers[HeaderNames.IfNoneMatch];
                 if (!string.IsNullOrEmpty(ifNoneMatch))
                 {
                     return new BlobRequestConditions
@@ -252,7 +250,7 @@ namespace Umbraco.StorageProviders.AzureBlob
                     };
                 }
 
-                var ifModifiedSince = request.Headers["If-Modified-Since"];
+                var ifModifiedSince = request.Headers[HeaderNames.IfModifiedSince];
                 if (!string.IsNullOrEmpty(ifModifiedSince) &&
                     DateTimeOffset.TryParse(ifModifiedSince, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset ifModifiedSinceDate))
                 {
@@ -266,7 +264,7 @@ namespace Umbraco.StorageProviders.AzureBlob
             {
                 // handle If-Range header, it can be either an etag or a date
                 // see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Range and https://tools.ietf.org/html/rfc7233#section-3.2
-                var ifRange = request.Headers["If-Range"];
+                var ifRange = request.Headers[HeaderNames.IfRange];
                 if (!string.IsNullOrEmpty(ifRange))
                 {
                     if (DateTimeOffset.TryParse(ifRange, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset ifRangeDate))
@@ -285,7 +283,7 @@ namespace Umbraco.StorageProviders.AzureBlob
                     }
                 }
 
-                var ifUnmodifiedSince = request.Headers["If-Unmodified-Since"];
+                var ifUnmodifiedSince = request.Headers[HeaderNames.IfUnmodifiedSince];
                 if (!string.IsNullOrEmpty(ifUnmodifiedSince) &&
                     DateTimeOffset.TryParse(ifUnmodifiedSince, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset ifUnmodifiedSinceDate))
                 {
@@ -302,14 +300,21 @@ namespace Umbraco.StorageProviders.AzureBlob
         private static bool ValidateRanges(ICollection<RangeItemHeaderValue> ranges, long length)
         {
             if (ranges.Count == 0)
+            {
                 return false;
+            }
 
             foreach (var range in ranges)
             {
                 if (range.From > range.To)
+                {
                     return false;
+                }
+
                 if (range.To >= length)
+                {
                     return false;
+                }
             }
 
             return true;
@@ -348,8 +353,7 @@ namespace Umbraco.StorageProviders.AzureBlob
             return new ContentRangeHeaderValue(from, to, properties.ContentLength);
         }
 
-        private static async Task DownloadRangeToStreamAsync(BlobClient blob, BlobProperties properties,
-            Stream outputStream, ContentRangeHeaderValue contentRange, CancellationToken cancellationToken)
+        private static async Task DownloadRangeToStreamAsync(BlobClient blob, BlobProperties properties, Stream outputStream, ContentRangeHeaderValue contentRange, CancellationToken cancellationToken)
         {
             var offset = contentRange.From.GetValueOrDefault(0L);
             var length = properties.ContentLength;
@@ -370,8 +374,7 @@ namespace Umbraco.StorageProviders.AzureBlob
             await DownloadRangeToStreamAsync(blob, outputStream, offset, length, cancellationToken).ConfigureAwait(false);
         }
 
-        private static async Task DownloadRangeToStreamAsync(BlobClient blob, Stream outputStream,
-            long offset, long length, CancellationToken cancellationToken)
+        private static async Task DownloadRangeToStreamAsync(BlobClient blob, Stream outputStream, long offset, long length, CancellationToken cancellationToken)
         {
             try
             {
