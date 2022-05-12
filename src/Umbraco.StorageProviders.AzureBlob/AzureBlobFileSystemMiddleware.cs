@@ -253,11 +253,12 @@ namespace Umbraco.StorageProviders.AzureBlob
                 }
 
                 var ifModifiedSince = request.Headers["If-Modified-Since"];
-                if (!string.IsNullOrEmpty(ifModifiedSince))
+                if (!string.IsNullOrEmpty(ifModifiedSince) &&
+                    DateTimeOffset.TryParse(ifModifiedSince, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset ifModifiedSinceDate))
                 {
                     return new BlobRequestConditions
                     {
-                        IfModifiedSince = DateTimeOffset.Parse(ifModifiedSince, CultureInfo.InvariantCulture)
+                        IfModifiedSince = ifModifiedSinceDate
                     };
                 }
             }
@@ -268,24 +269,29 @@ namespace Umbraco.StorageProviders.AzureBlob
                 var ifRange = request.Headers["If-Range"];
                 if (!string.IsNullOrEmpty(ifRange))
                 {
-                    var conditions = new BlobRequestConditions();
-
-                    if (DateTimeOffset.TryParse(ifRange, out var date))
+                    if (DateTimeOffset.TryParse(ifRange, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset ifRangeDate))
                     {
-                        conditions.IfUnmodifiedSince = date;
+                        return new BlobRequestConditions()
+                        {
+                            IfUnmodifiedSince = ifRangeDate
+                        };
                     }
                     else
                     {
-                        conditions.IfMatch = new ETag(ifRange);
+                        return new BlobRequestConditions()
+                        {
+                            IfMatch = new ETag(ifRange)
+                        };
                     }
                 }
 
                 var ifUnmodifiedSince = request.Headers["If-Unmodified-Since"];
-                if (!string.IsNullOrEmpty(ifUnmodifiedSince))
+                if (!string.IsNullOrEmpty(ifUnmodifiedSince) &&
+                    DateTimeOffset.TryParse(ifUnmodifiedSince, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset ifUnmodifiedSinceDate))
                 {
                     return new BlobRequestConditions
                     {
-                        IfUnmodifiedSince = DateTimeOffset.Parse(ifUnmodifiedSince, CultureInfo.InvariantCulture)
+                        IfUnmodifiedSince = ifUnmodifiedSinceDate
                     };
                 }
             }
