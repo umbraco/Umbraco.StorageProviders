@@ -83,13 +83,13 @@ namespace Umbraco.StorageProviders.AzureBlob
             var request = context.Request;
             var response = context.Response;
 
-            if (!context.Request.Path.StartsWithSegments(_rootPath, StringComparison.InvariantCultureIgnoreCase))
+            if (!context.Request.Path.StartsWithSegments(_rootPath, StringComparison.InvariantCultureIgnoreCase, out PathString path))
             {
                 await next(context).ConfigureAwait(false);
                 return;
             }
 
-            string containerPath = $"{_containerRootPath.TrimEnd('/')}/{(request.Path.Value.Remove(0, _rootPath.Length)).TrimStart('/')}";
+            string containerPath = $"{_containerRootPath.TrimEnd('/')}/{path.Value?.TrimStart('/')}";
             var blob = _fileSystemProvider.GetFileSystem(_name).GetBlobClient(containerPath);
 
             var blobRequestConditions = GetAccessCondition(context.Request);
