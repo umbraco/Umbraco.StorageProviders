@@ -8,7 +8,7 @@
         <PackageTags>umbraco storage azure blob</PackageTags>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Umbraco.Cms.Web.Common" Version="10.0.0-rc1" />
+        <PackageReference Include="Umbraco.Cms.Web.Common" Version="10.0.0-rc2" />
         <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="2.0.0" />
         <PackageReference Include="Azure.Storage.Blobs" Version="12.12.0" />
 		<ProjectReference Include="..\Umbraco.StorageProviders\Umbraco.StorageProviders.csproj" />
