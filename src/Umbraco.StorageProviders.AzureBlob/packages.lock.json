@@ -45,7 +45,7 @@
         "type": "Direct",
         "requested": "[10.0.0-rc2, )",
         "resolved": "10.0.0-rc2",
-        "contentHash": "ygbcPoD1H+GheuFJTknhtFK6sDWaIxEeRGdP3GQAmgOuEuPstKu5flua9zBKSNKO6OiiZMUKUxvMD20w0w0SAQ==",
+        "contentHash": "iVSe+/CK3RghDQn9MpsX4DSjAp9T3qpsIiHuUk9Vi4bems/ZuPg3IVCWnR3RV4eicGb0AYQtZiTCesgNp64DHA==",
         "dependencies": {
           "Dazinator.Extensions.FileProviders": "2.0.0",
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "6.0.4",
@@ -2216,7 +2216,7 @@
       "Umbraco.Cms.Core": {
         "type": "Transitive",
         "resolved": "10.0.0-rc2",
-        "contentHash": "H0FI+Q2FMMbY1eQF34OLSGjbkbWB/Qtpp1K4OSJsKNgPEkl0/pGfJJckN42DfiazxNEByldABifjcnKZVCIryg==",
+        "contentHash": "bt15dNLCQJXMprMBb9137KDT6x8u+cLga6pfG87SKyWogFSAk4n5N0wOPBJCJVmpI9oQ11SyWAieMG2cvNhvng==",
         "dependencies": {
           "Microsoft.Extensions.Configuration.Abstractions": "6.0.0",
           "Microsoft.Extensions.FileProviders.Embedded": "6.0.4",
@@ -2235,7 +2235,7 @@
       "Umbraco.Cms.Examine.Lucene": {
         "type": "Transitive",
         "resolved": "10.0.0-rc2",
-        "contentHash": "KUOo+6Tx9vXWvobIEDCsMY6KftV5WrgdwZlOywcPN2HFKboOo6LSiE2JPOrXML4sTQzpNHNsl+ycqs6mm006Zw==",
+        "contentHash": "BLYj6zFntahyREZk9fPogu+0TB7LsXzY/pc4h4MxaAoWbgf38moA/MD6cNFBkVuwFZlGRPsndtQMCHOQ2ciBTw==",
         "dependencies": {
           "Examine": "3.0.0-beta.9",
           "Umbraco.Cms.Core": "10.0.0-rc2",
@@ -2245,7 +2245,7 @@
       "Umbraco.Cms.Infrastructure": {
         "type": "Transitive",
         "resolved": "10.0.0-rc2",
-        "contentHash": "KSDA0yZYlkcVJ4FulKm3JXlNk1oBsqWHxRu2vkld5FJIxQqKZvaAf7H2RnZ5qVsBT4Ilfo4xzPIDP045eF120w==",
+        "contentHash": "mYS/HF1jkAieUYY0wU6lar6g7o1ct6BpoRF3wuYIE+/O89P57hyVlF/3f666+AeV5CnRgVxnUGbseWprJEkLkA==",
         "dependencies": {
           "Examine.Core": "3.0.0-beta.9",
           "HtmlAgilityPack": "1.11.42",
@@ -2285,7 +2285,7 @@
       "Umbraco.Cms.PublishedCache.NuCache": {
         "type": "Transitive",
         "resolved": "10.0.0-rc2",
-        "contentHash": "cdHgQnfiTkEImWtN5bVqvyEsBtaBWb/CU36x7uXusC4RxIm1lFbtgAL3mx+RYkdjxdxXYFQrXJJyPN8JHXvutw==",
+        "contentHash": "91aKmmT9PTW/kSy+zZ1Pjre1eM+Tmrt9SnQTe9aiX9kurnr0ifgS5gGoiN/gSpMDeanS/eb3GgAlyaDnZw1umA==",
         "dependencies": {
           "CSharpTest.Net.Collections-NetStd2": "14.906.1403.1084",
           "K4os.Compression.LZ4": "1.2.16",
