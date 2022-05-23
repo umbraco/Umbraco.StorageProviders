@@ -23,9 +23,9 @@
       },
       "Umbraco.Cms.Web.Common": {
         "type": "Direct",
-        "requested": "[10.0.0-rc2, )",
-        "resolved": "10.0.0-rc2",
-        "contentHash": "iVSe+/CK3RghDQn9MpsX4DSjAp9T3qpsIiHuUk9Vi4bems/ZuPg3IVCWnR3RV4eicGb0AYQtZiTCesgNp64DHA==",
+        "requested": "[10.0.0-rc3, )",
+        "resolved": "10.0.0-rc3",
+        "contentHash": "4QPGDrRi8DJ4/Lj49rrlLTs0mcwceaWoqA0LhGHX/CqFoFNkIHEaHHegVnKNRyXGgmZZuccxDbz46Cxyoj2wFA==",
         "dependencies": {
           "Dazinator.Extensions.FileProviders": "2.0.0",
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "6.0.4",
@@ -35,10 +35,10 @@
           "SixLabors.ImageSharp.Web": "2.0.0",
           "Smidge.InMemory": "4.0.4",
           "Smidge.Nuglify": "4.0.4",
-          "Umbraco.Cms.Core": "10.0.0-rc2",
-          "Umbraco.Cms.Examine.Lucene": "10.0.0-rc2",
-          "Umbraco.Cms.Infrastructure": "10.0.0-rc2",
-          "Umbraco.Cms.PublishedCache.NuCache": "10.0.0-rc2"
+          "Umbraco.Cms.Core": "10.0.0-rc3",
+          "Umbraco.Cms.Examine.Lucene": "10.0.0-rc3",
+          "Umbraco.Cms.Infrastructure": "10.0.0-rc3",
+          "Umbraco.Cms.PublishedCache.NuCache": "10.0.0-rc3"
         }
       },
       "Azure.Core": {
@@ -2172,8 +2172,8 @@
       },
       "Umbraco.Cms.Core": {
         "type": "Transitive",
-        "resolved": "10.0.0-rc2",
-        "contentHash": "bt15dNLCQJXMprMBb9137KDT6x8u+cLga6pfG87SKyWogFSAk4n5N0wOPBJCJVmpI9oQ11SyWAieMG2cvNhvng==",
+        "resolved": "10.0.0-rc3",
+        "contentHash": "lRHTUgUtfrjoGkpDV/zgoYVCFs5wHhzti08WxrYjycNEmqBf/12BuBuZ2/b+aD3uacfIIzjaG7Igem5+PLUUsA==",
         "dependencies": {
           "Microsoft.Extensions.Configuration.Abstractions": "6.0.0",
           "Microsoft.Extensions.FileProviders.Embedded": "6.0.4",
@@ -2191,18 +2191,18 @@
       },
       "Umbraco.Cms.Examine.Lucene": {
         "type": "Transitive",
-        "resolved": "10.0.0-rc2",
-        "contentHash": "BLYj6zFntahyREZk9fPogu+0TB7LsXzY/pc4h4MxaAoWbgf38moA/MD6cNFBkVuwFZlGRPsndtQMCHOQ2ciBTw==",
+        "resolved": "10.0.0-rc3",
+        "contentHash": "Rt8dov4wpYm2DJ/N7U4D7ceGORzjAPJyNhBGSRNTqoXrNB46r0+xV8fh0xeG4DwMxo0v8CpGN6IJMEFNe93lNg==",
         "dependencies": {
           "Examine": "3.0.0-beta.9",
-          "Umbraco.Cms.Core": "10.0.0-rc2",
-          "Umbraco.Cms.Infrastructure": "10.0.0-rc2"
+          "Umbraco.Cms.Core": "10.0.0-rc3",
+          "Umbraco.Cms.Infrastructure": "10.0.0-rc3"
         }
       },
       "Umbraco.Cms.Infrastructure": {
         "type": "Transitive",
-        "resolved": "10.0.0-rc2",
-        "contentHash": "mYS/HF1jkAieUYY0wU6lar6g7o1ct6BpoRF3wuYIE+/O89P57hyVlF/3f666+AeV5CnRgVxnUGbseWprJEkLkA==",
+        "resolved": "10.0.0-rc3",
+        "contentHash": "LyeEUwmJdRhBRd01I7kzAPscnrZ5IB8AD/UN96EV0c6zzx2+RTOpK81tayTxtwIzV3KRtAqgmo56GzHInVs/yQ==",
         "dependencies": {
           "Examine.Core": "3.0.0-beta.9",
           "HtmlAgilityPack": "1.11.42",
@@ -2235,21 +2235,21 @@
           "System.Security.Cryptography.Pkcs": "6.0.1",
           "System.Text.Encodings.Web": "6.0.0",
           "System.Threading.Tasks.Dataflow": "6.0.0",
-          "Umbraco.Cms.Core": "10.0.0-rc2",
+          "Umbraco.Cms.Core": "10.0.0-rc3",
           "ncrontab": "3.3.1"
         }
       },
       "Umbraco.Cms.PublishedCache.NuCache": {
         "type": "Transitive",
-        "resolved": "10.0.0-rc2",
-        "contentHash": "91aKmmT9PTW/kSy+zZ1Pjre1eM+Tmrt9SnQTe9aiX9kurnr0ifgS5gGoiN/gSpMDeanS/eb3GgAlyaDnZw1umA==",
+        "resolved": "10.0.0-rc3",
+        "contentHash": "6zsETz7sleV54rmi3el6MKpY+ebqEJtOmvjPU8eLFQL+8HWEkMqjLcSQwKdj40G7VEdvRZAihnmz6XP8+oHb8w==",
         "dependencies": {
           "CSharpTest.Net.Collections-NetStd2": "14.906.1403.1084",
           "K4os.Compression.LZ4": "1.2.16",
           "MessagePack": "2.3.85",
           "Newtonsoft.Json": "13.0.1",
-          "Umbraco.Cms.Core": "10.0.0-rc2",
-          "Umbraco.Cms.Infrastructure": "10.0.0-rc2"
+          "Umbraco.Cms.Core": "10.0.0-rc3",
+          "Umbraco.Cms.Infrastructure": "10.0.0-rc3"
         }
       }
     }
