@@ -43,7 +43,7 @@ namespace Umbraco.StorageProviders.AzureBlob
             return mediaUrl.IsUrl switch
             {
                 false => mediaUrl,
-                _ => UrlInfo.Url($"{_cdnUrl}/{mediaUrl.Text[(_removeMediaFromPath ? "/media/" : "/").Length..]}", culture)
+                _ => UrlInfo.Url(_cdnUrl + mediaUrl.Text[(_removeMediaFromPath ? "/media/" : "/").Length..], culture)
             };
         }
 
