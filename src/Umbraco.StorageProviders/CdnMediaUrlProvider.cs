@@ -5,6 +5,7 @@ using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Routing;
+using Umbraco.Extensions;
 
 namespace Umbraco.StorageProviders
 {
@@ -38,7 +39,7 @@ namespace Umbraco.StorageProviders
 
             _cdnUrl = options.CurrentValue.Url;
             _removeMediaFromPath = options.CurrentValue.RemoveMediaFromPath;
-            _mediaPath = hostingEnvironment.ToAbsolute(globalSettings.CurrentValue.UmbracoMediaPath).TrimEnd('/');
+            _mediaPath = hostingEnvironment.ToAbsolute(globalSettings.CurrentValue.UmbracoMediaPath).EnsureEndsWith('/');
 
             options.OnChange((options, name) =>
             {
@@ -53,7 +54,7 @@ namespace Umbraco.StorageProviders
             {
                 if (name == Options.DefaultName)
                 {
-                    _mediaPath = hostingEnvironment.ToAbsolute(options.UmbracoMediaPath).TrimEnd('/');
+                    _mediaPath = hostingEnvironment.ToAbsolute(options.UmbracoMediaPath).EnsureEndsWith('/');
                 }
             });
         }
@@ -65,12 +66,18 @@ namespace Umbraco.StorageProviders
             if (mediaUrl?.IsUrl == true)
             {
                 string url = mediaUrl.Text;
+
+                int startIndex = 0;
                 if (_removeMediaFromPath && url.StartsWith(_mediaPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    url = url[_mediaPath.Length..];
+                    startIndex = _mediaPath.Length;
+                }
+                else if (url.StartsWith('/'))
+                {
+                    startIndex = 1;
                 }
 
-                return UrlInfo.Url(_cdnUrl + url, culture);
+                return UrlInfo.Url(_cdnUrl + url[startIndex..], culture);
             }
 
             return mediaUrl;
