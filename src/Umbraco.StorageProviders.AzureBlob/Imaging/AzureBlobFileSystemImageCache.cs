@@ -23,31 +23,34 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         /// Initializes a new instance of the <see cref="AzureBlobFileSystemImageCache" /> class.
         /// </summary>
         /// <param name="options">The options.</param>
+        /// <param name="blobContainerClientFactory">The BLOB container client factory.</param>
         /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
-        public AzureBlobFileSystemImageCache(IOptionsMonitor<AzureBlobFileSystemOptions> options)
-            : this(AzureBlobFileSystemOptions.MediaFileSystemName, options)
+        public AzureBlobFileSystemImageCache(IOptionsMonitor<AzureBlobFileSystemOptions> options, IBlobContainerClientFactory blobContainerClientFactory)
+            : this(AzureBlobFileSystemOptions.MediaFileSystemName, options, blobContainerClientFactory)
         { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AzureBlobFileSystemImageCache"/> class.
+        /// Initializes a new instance of the <see cref="AzureBlobFileSystemImageCache" /> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="options">The options.</param>
+        /// <param name="blobContainerClientFactory">The BLOB container client factory.</param>
         /// <exception cref="System.ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
         /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
-        public AzureBlobFileSystemImageCache(string name, IOptionsMonitor<AzureBlobFileSystemOptions> options)
+        public AzureBlobFileSystemImageCache(string name, IOptionsMonitor<AzureBlobFileSystemOptions> options, IBlobContainerClientFactory blobContainerClientFactory)
         {
             ArgumentNullException.ThrowIfNull(name);
             ArgumentNullException.ThrowIfNull(options);
+            ArgumentNullException.ThrowIfNull(blobContainerClientFactory, paramName: nameof(blobContainerClientFactory));
 
             var fileSystemOptions = options.Get(name);
-            _container = new BlobContainerClient(fileSystemOptions.ConnectionString, fileSystemOptions.ContainerName);
+            _container = blobContainerClientFactory.Build(fileSystemOptions);
 
             options.OnChange((options, changedName) =>
             {
                 if (changedName == name)
                 {
-                    _container = new BlobContainerClient(options.ConnectionString, options.ContainerName);
+                    _container = blobContainerClientFactory.Build(fileSystemOptions);
                 }
             });
         }
