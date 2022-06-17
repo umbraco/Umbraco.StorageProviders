@@ -19,7 +19,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <remarks>
         /// Unfortunatly the official parser is internal.
         /// </remarks>
-        private static readonly Regex ConnectionStringParser = new Regex("(?<Key>[^=]+)=(?<Value>[^;]+);?", RegexOptions.Compiled);
+        private static readonly Regex ConnectionStringParser = new Regex(@"\W*(?<Key>[^=]+)=(?<Value>[^;]+)", RegexOptions.Compiled);
 
         /// <inheritdoc/>
         public BlobContainerClient Build(AzureBlobFileSystemOptions options)
