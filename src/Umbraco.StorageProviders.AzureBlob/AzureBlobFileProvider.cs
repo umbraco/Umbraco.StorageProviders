@@ -38,11 +38,13 @@ namespace Umbraco.StorageProviders.AzureBlob
         /// </summary>
         /// <param name="options">The options.</param>
         /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
+        [Obsolete("Please use: AzureBlobFileProvider(BlobContainerClient containerClient, string? containerRootPath = null)")]
         public AzureBlobFileProvider(AzureBlobFileSystemOptions options)
         {
             ArgumentNullException.ThrowIfNull(options);
 
-            _containerClient = new BlobContainerClient(options.ConnectionString, options.ContainerName);
+            // Fallback to the default implementation of IBlobContainerClientFactory.
+            _containerClient = new BlobContainerClientFactory().Build(options);
             _containerRootPath = options.ContainerRootPath?.Trim(Constants.CharArrays.ForwardSlash);
         }
 

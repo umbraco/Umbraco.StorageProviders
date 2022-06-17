@@ -89,6 +89,7 @@ namespace Umbraco.Cms.Core.DependencyInjection
             ArgumentNullException.ThrowIfNull(name);
 
             builder.Services.TryAddSingleton<IAzureBlobFileSystemProvider, AzureBlobFileSystemProvider>();
+            builder.Services.TryAddSingleton<IBlobContainerClientFactory, BlobContainerClientFactory>();
 
             var optionsBuilder = builder.Services.AddOptions<AzureBlobFileSystemOptions>(name)
                 .BindConfiguration($"Umbraco:Storage:AzureBlob:{name}")

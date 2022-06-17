@@ -14,6 +14,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         private readonly IOptionsMonitor<AzureBlobFileSystemOptions> _optionsMonitor;
         private readonly IHostingEnvironment _hostingEnvironment;
         private readonly IIOHelper _ioHelper;
+        private readonly IBlobContainerClientFactory _blobContainerClientFactory;
         private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider;
 
         /// <summary>
@@ -22,14 +23,16 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <param name="optionsMonitor">The options monitor.</param>
         /// <param name="hostingEnvironment">The hosting environment.</param>
         /// <param name="ioHelper">The IO helper.</param>
+        /// <param name="blobContainerClientFactory">The BLOB container client factory.</param>
         /// <exception cref="ArgumentNullException"><paramref name="optionsMonitor"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="hostingEnvironment"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="ioHelper"/> is <c>null</c>.</exception>
-        public AzureBlobFileSystemProvider(IOptionsMonitor<AzureBlobFileSystemOptions> optionsMonitor, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper)
+        public AzureBlobFileSystemProvider(IOptionsMonitor<AzureBlobFileSystemOptions> optionsMonitor, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper, IBlobContainerClientFactory blobContainerClientFactory)
         {
             _optionsMonitor = optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
             _hostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
             _ioHelper = ioHelper ?? throw new ArgumentNullException(nameof(ioHelper));
+            _blobContainerClientFactory = blobContainerClientFactory ?? throw new ArgumentNullException(nameof(blobContainerClientFactory));
             _fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider();
 
             _optionsMonitor.OnChange((options, name) => _fileSystems.TryRemove(name, out _));
@@ -45,7 +48,11 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             {
                 var options = _optionsMonitor.Get(name);
 
-                return new AzureBlobFileSystem(options, _hostingEnvironment, _ioHelper, _fileExtensionContentTypeProvider);
+                return new AzureBlobFileSystem(
+                    rootUrl: _hostingEnvironment.ToAbsolute(options.VirtualPath),
+                    blobContainerClient: _blobContainerClientFactory.Build(options),
+                    ioHelper: _ioHelper,
+                    contentTypeProvider: _fileExtensionContentTypeProvider);
             });
         }
     }

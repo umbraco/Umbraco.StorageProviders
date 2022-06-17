@@ -35,6 +35,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <exception cref="System.ArgumentNullException"><paramref name="hostingEnvironment" /> is <c>null</c>.</exception>
         /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
         /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
+        [Obsolete("Please use 'AzureBlobFileSystem(string rootUrl, BlobContainerClient blobContainerClient, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider, string? containerRootPath = null)'")]
         public AzureBlobFileSystem(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider)
         {
             ArgumentNullException.ThrowIfNull(options);
@@ -42,7 +43,9 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
 
             _rootUrl = EnsureUrlSeparatorChar(hostingEnvironment.ToAbsolute(options.VirtualPath)).TrimEnd('/');
             _containerRootPath = options.ContainerRootPath ?? _rootUrl;
-            _container = new BlobContainerClient(options.ConnectionString, options.ContainerName);
+
+            // Fallback to the default implementation of IBlobContainerClientFactory.
+            _container = new BlobContainerClientFactory().Build(options);
             _ioHelper = ioHelper ?? throw new ArgumentNullException(nameof(ioHelper));
             _contentTypeProvider = contentTypeProvider ?? throw new ArgumentNullException(nameof(contentTypeProvider));
         }
@@ -85,11 +88,32 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// If the container does not already exist, a <see cref="Response{T}" /> describing the newly created container. If the container already exists, <see langword="null" />.
         /// </returns>
         /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
+        /// <remarks>
+        /// Fallback to the default implementation of IBlobContainerClientFactory.
+        /// </remarks>
+        [Obsolete("Please use: CreateIfNotExists(AzureBlobFileSystemOptions options, IBlobContainerClientFactory blobContainerClientFactory, PublicAccessType accessType = PublicAccessType.None)")]
         public static Response<BlobContainerInfo> CreateIfNotExists(AzureBlobFileSystemOptions options, PublicAccessType accessType = PublicAccessType.None)
+            => CreateIfNotExists(options, new BlobContainerClientFactory(), accessType);
+
+        /// <summary>
+        /// Creates a new container under the specified account if a container with the same name does not already exist.
+        /// </summary>
+        /// <param name="options">The Azure Blob Storage file system options.</param>
+        /// <param name="blobContainerClientFactory">The BLOB container client factory.</param>
+        /// <param name="accessType">Optionally specifies whether data in the container may be accessed publicly and the level of access.
+        /// <see cref="PublicAccessType.BlobContainer" /> specifies full public read access for container and blob data. Clients can enumerate blobs within the container via anonymous request, but cannot enumerate containers within the storage account.
+        /// <see cref="PublicAccessType.Blob" /> specifies public read access for blobs. Blob data within this container can be read via anonymous request, but container data is not available. Clients cannot enumerate blobs within the container via anonymous request.
+        /// <see cref="PublicAccessType.None" /> specifies that the container data is private to the account owner.</param>
+        /// <returns>
+        /// If the container does not already exist, a <see cref="Response{T}" /> describing the newly created container. If the container already exists, <see langword="null" />.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
+        public static Response<BlobContainerInfo> CreateIfNotExists(AzureBlobFileSystemOptions options, IBlobContainerClientFactory blobContainerClientFactory, PublicAccessType accessType = PublicAccessType.None)
         {
             ArgumentNullException.ThrowIfNull(options);
+            ArgumentNullException.ThrowIfNull(blobContainerClientFactory, paramName: nameof(blobContainerClientFactory));
 
-            return new BlobContainerClient(options.ConnectionString, options.ContainerName).CreateIfNotExists(accessType);
+            return blobContainerClientFactory.Build(options).CreateIfNotExists(accessType);
         }
 
         /// <inheritdoc />
