@@ -1,6 +1,8 @@
 # Umbraco storage providers
 This repository contains Umbraco storage providers that can replace the default physical file storage.
 
+> **Note** For Umbraco 9, use version 1 and [follow the version-specific documentation](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/1.1.x/README.md).
+
 ## Umbraco.StorageProviders
 Contains shared storage providers infrastructure, like a CDN media URL provider.
 
@@ -46,7 +48,7 @@ UMBRACO__STORAGE__CDN__URL=https://cdn.example.com/
 UMBRACO__STORAGE__CDN__REMOVEMEDIAFROMPATH=true
 ```
 
-_Note: you still have to add the provider in the `Startup.cs` file when not configuring the options in code._
+> **Note** You still have to add the provider in the `Startup.cs` file when not configuring the options in code.
 
 ### Configuration
 Configure your CDN origin to point to your site and ensure every unique URL is cached (includes the query string), so images can be processed by the site (using ImageSharp) and the response cached by the CDN.
@@ -100,7 +102,7 @@ UMBRACO__STORAGE__AZUREBLOB__MEDIA__CONNECTIONSTRING=UseDevelopmentStorage=true
 UMBRACO__STORAGE__AZUREBLOB__MEDIA__CONTAINERNAME=sample-container
 ```
 
-_Note: you still have to add the provider in the `Startup.cs` file when not configuring the options in code._
+> **Note** You still have to add the provider in the `Startup.cs` file when not configuring the options in code.
 
 ### Folder structure in the Azure Blob Storage container
 The container name is expected to exist and uses the following folder structure:
