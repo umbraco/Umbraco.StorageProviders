@@ -62,7 +62,8 @@ namespace Umbraco.StorageProviders.AzureBlob
         /// <inheritdoc />
         public IFileInfo GetFileInfo(string subpath)
         {
-            var path = GetFullPath(subpath);
+            // avoid double URL encoding on Azure.Storage.Blobs code
+            var path = GetFullPath(System.Net.WebUtility.UrlDecode(subpath));
             var blobClient = _containerClient.GetBlobClient(path);
 
             BlobProperties properties;
