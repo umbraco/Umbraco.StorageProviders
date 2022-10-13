@@ -1,15 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Description>Azure Blob Storage provider for Umbraco CMS</Description>
-        <PackageTags>umbraco storage azure blob</PackageTags>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="Umbraco.Cms.Web.Common" Version="9.0.0" />
-        <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.5" />
-        <PackageReference Include="Azure.Storage.Blobs" Version="12.11.0" />
-	</ItemGroup>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Umbraco Storage Providers</Title>
+    <Description>Azure Blob Storage provider for Umbraco CMS.</Description>
+    <PackageTags>umbraco storage azure blob</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="9.0.0" />
+    <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="1.0.5" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.11.0" />
+  </ItemGroup>
 </Project>
