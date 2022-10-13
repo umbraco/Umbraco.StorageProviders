@@ -1,3 +1,5 @@
+name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+
 parameters:
   - name: cache_nuget
     displayName: Cache NuGet packages
@@ -7,38 +9,57 @@ parameters:
 variables:
   solution: Umbraco.StorageProviders.sln
   buildConfiguration: Release
-  NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
   DOTNET_NOLOGO: true
   DOTNET_GENERATE_ASPNET_CERTIFICATE: false
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 stages:
-  - stage: Artifacts
+  - stage: Build
+    variables:
+      NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
     jobs:
       - job: Build
         pool:
-          vmImage: windows-latest
+          vmImage: 'ubuntu-latest'
         steps:
+          # Checkout source (avoid shallow clone to calculate version height)
+          - checkout: self
+            fetchDepth: 0
+
+          # Setup build environment
+          - task: UseDotNet@2
+            displayName: Use .NET SDK from global.json
+            inputs:
+              useGlobalJson: true
+
+          # Cache and restore NuGet packages
           - task: Cache@2
-            condition: ${{parameters.cache_nuget}}
+            condition: ${{ parameters.cache_nuget }}
+            displayName: Cache NuGet packages
             inputs:
               key: 'nuget | "$(Agent.OS)" | **/packages.lock.json'
               restoreKeys: |
                 nuget | "$(Agent.OS)"
                 nuget
               path: $(NUGET_PACKAGES)
-            displayName: Cache NuGet packages
+              cacheHitVar: 'CACHE_NUGET_RESTORED'
 
           - script: dotnet restore $(solution) --locked-mode
+            condition: or(not(${{ parameters.cache_nuget }}), ne(variables.CACHE_NUGET_RESTORED, true))
             displayName: Restore NuGet packages
 
-          - script: dotnet build $(solution) -c $(buildConfiguration) -p:ContinuousIntegrationBuild=true --no-restore
-            displayName: Build
+          # Build
+          - script: dotnet build $(solution) --configuration $(buildConfiguration) --no-restore -p:ContinuousIntegrationBuild=true
+            displayName: Run dotnet build
 
-          - script: dotnet pack $(solution) -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory) --no-restore --no-build
-            displayName: Pack
+          # Pack
+          - script: dotnet pack $(solution) --configuration $(buildConfiguration) --no-build --output $(Build.ArtifactStagingDirectory)/nupkg
+            displayName: Run dotnet pack
 
-          - task: PublishBuildArtifacts@1
-            inputs:
-                ArtifactName: nupkg
+          # Publish
+          - task: PublishPipelineArtifact@1
             displayName: Publish NuGet packages
+            inputs:
+              targetPath: $(Build.ArtifactStagingDirectory)/nupkg
+              artifactName: nupkg
