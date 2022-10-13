@@ -46,7 +46,7 @@ stages:
               cacheHitVar: 'CACHE_NUGET_RESTORED'
 
           - script: dotnet restore $(solution) --locked-mode
-            condition: or(not(${{ parameters.cache_nuget }}), ne(variables.CACHE_NUGET_RESTORED, true))
+            condition: or(not(${{ parameters.cache_nuget }}), ne(variables.CACHE_NUGET_RESTORED, 'true'))
             displayName: Restore NuGet packages
 
           # Build
