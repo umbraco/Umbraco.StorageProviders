@@ -2,16 +2,6 @@
   "version": 1,
   "dependencies": {
     "net7.0": {
-      "Azure.Storage.Blobs": {
-        "type": "Direct",
-        "requested": "[12.12.0, )",
-        "resolved": "12.12.0",
-        "contentHash": "DYirbNIkP2KeCz+/7AP9Un8GkrmSfHSSE+J0k4pyIlI5d8wVWndZj5Pp74rNsgjE/jDRdr3dIhJHPQwHE4ifAg==",
-        "dependencies": {
-          "Azure.Storage.Common": "12.11.0",
-          "System.Text.Json": "4.7.2"
-        }
-      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[1.1.1, )",
@@ -47,22 +37,15 @@
           "StyleCop.Analyzers.Unstable": "1.2.0.435"
         }
       },
-      "Umbraco.Cms.Web.Common": {
+      "Umbraco.Cms.Imaging.ImageSharp": {
         "type": "Direct",
         "requested": "[11.0.0--rc1.preview.31.ged9a26b, 12.0.0)",
         "resolved": "11.0.0--rc1.preview.31.ged9a26b",
-        "contentHash": "158wyPjhfksibcgTrKHiVq6eFmLDEpQlsF5uqFLRkN7sbke9QgDEAUpVTzgekBi+33yg2GD6Ga9/r8/SJ2tVbg==",
+        "contentHash": "QPqYObfyrcjdoQpjeXNEVw9J6kYZZigGuCm+/mOG8X7uv5Na/BL0hATw9TTy41fAKjFXcHo3sLxNK8KY6CvKLQ==",
         "dependencies": {
-          "Dazinator.Extensions.FileProviders": "2.0.0",
-          "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "7.0.0-rc.2.22476.2",
-          "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "7.0.0-rc.2.22476.2",
-          "MiniProfiler.AspNetCore.Mvc": "4.2.22",
-          "Smidge.InMemory": "4.1.1",
-          "Smidge.Nuglify": "4.1.1",
-          "Umbraco.Cms.Core": "11.0.0--rc1.preview.31.ged9a26b",
-          "Umbraco.Cms.Examine.Lucene": "11.0.0--rc1.preview.31.ged9a26b",
-          "Umbraco.Cms.Infrastructure": "11.0.0--rc1.preview.31.ged9a26b",
-          "Umbraco.Cms.PublishedCache.NuCache": "11.0.0--rc1.preview.31.ged9a26b"
+          "SixLabors.ImageSharp": "2.1.3",
+          "SixLabors.ImageSharp.Web": "2.0.2",
+          "Umbraco.Cms.Web.Common": "11.0.0--rc1.preview.31.ged9a26b"
         }
       },
       "Umbraco.Code": {
@@ -95,6 +78,15 @@
           "System.Text.Encodings.Web": "4.7.2",
           "System.Text.Json": "4.7.2",
           "System.Threading.Tasks.Extensions": "4.5.4"
+        }
+      },
+      "Azure.Storage.Blobs": {
+        "type": "Transitive",
+        "resolved": "12.12.0",
+        "contentHash": "DYirbNIkP2KeCz+/7AP9Un8GkrmSfHSSE+J0k4pyIlI5d8wVWndZj5Pp74rNsgjE/jDRdr3dIhJHPQwHE4ifAg==",
+        "dependencies": {
+          "Azure.Storage.Common": "12.11.0",
+          "System.Text.Json": "4.7.2"
         }
       },
       "Azure.Storage.Common": {
@@ -1143,8 +1135,8 @@
       },
       "SixLabors.ImageSharp": {
         "type": "Transitive",
-        "resolved": "2.1.2",
-        "contentHash": "In0pC521LqJXJXZgFVHegvSzES10KkKRN31McxqA1+fKtKsNe+EShWavBFQnKRlXCdeAmfx/wDjLILbvCaq+8Q==",
+        "resolved": "2.1.3",
+        "contentHash": "8yonNRWX3vUE9k29ta0Hbfa0AEc0hbDjSH/nZ3vOTJEXmY6hLnGsjDKoz96Z+AgOsrdkAu6PdL/Ebaf70aitzw==",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "5.0.0",
           "System.Text.Encoding.CodePages": "5.0.0"
@@ -1152,11 +1144,11 @@
       },
       "SixLabors.ImageSharp.Web": {
         "type": "Transitive",
-        "resolved": "2.0.1",
-        "contentHash": "g9MvpL04OmBmRzpozckI8KL/R9X8/EuxdEi6bkjCi3lMVYXQqjQs0AYcPC9i4TAr0+0QERR4YtbOfnoJ1bqSxQ==",
+        "resolved": "2.0.2",
+        "contentHash": "nfc15qsWS7mKSkdHTDUrOcEU2DwAFrl1/wCG7IoOalZQmk73F8uztT6csLLivQ5mIi3gpMXW2JAITaDVG5SdaQ==",
         "dependencies": {
           "Microsoft.IO.RecyclableMemoryStream": "2.2.0",
-          "SixLabors.ImageSharp": "2.1.2"
+          "SixLabors.ImageSharp": "2.1.3"
         }
       },
       "Smidge": {
@@ -2366,10 +2358,36 @@
           "Umbraco.Cms.Infrastructure": "11.0.0--rc1.preview.31.ged9a26b"
         }
       },
+      "Umbraco.Cms.Web.Common": {
+        "type": "Transitive",
+        "resolved": "11.0.0--rc1.preview.31.ged9a26b",
+        "contentHash": "158wyPjhfksibcgTrKHiVq6eFmLDEpQlsF5uqFLRkN7sbke9QgDEAUpVTzgekBi+33yg2GD6Ga9/r8/SJ2tVbg==",
+        "dependencies": {
+          "Dazinator.Extensions.FileProviders": "2.0.0",
+          "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "7.0.0-rc.2.22476.2",
+          "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "7.0.0-rc.2.22476.2",
+          "MiniProfiler.AspNetCore.Mvc": "4.2.22",
+          "Smidge.InMemory": "4.1.1",
+          "Smidge.Nuglify": "4.1.1",
+          "Umbraco.Cms.Core": "11.0.0--rc1.preview.31.ged9a26b",
+          "Umbraco.Cms.Examine.Lucene": "11.0.0--rc1.preview.31.ged9a26b",
+          "Umbraco.Cms.Infrastructure": "11.0.0--rc1.preview.31.ged9a26b",
+          "Umbraco.Cms.PublishedCache.NuCache": "11.0.0--rc1.preview.31.ged9a26b"
+        }
+      },
       "umbraco.storageproviders": {
         "type": "Project",
         "dependencies": {
           "Umbraco.Cms.Web.Common": "[11.0.0--rc1.preview.31.ged9a26b, 12.0.0)"
+        }
+      },
+      "umbraco.storageproviders.azureblob": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Storage.Blobs": "[12.12.0, )",
+          "SixLabors.ImageSharp.Web.Providers.Azure": "[2.0.1, )",
+          "Umbraco.Cms.Web.Common": "[11.0.0--rc1.preview.31.ged9a26b, 12.0.0)",
+          "Umbraco.StorageProviders": "[1.0.0, )"
         }
       }
     }

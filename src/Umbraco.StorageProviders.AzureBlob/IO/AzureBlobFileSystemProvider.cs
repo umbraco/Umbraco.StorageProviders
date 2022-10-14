@@ -32,7 +32,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             _ioHelper = ioHelper ?? throw new ArgumentNullException(nameof(ioHelper));
             _fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider();
 
-            _optionsMonitor.OnChange((options, name) => _fileSystems.TryRemove(name, out _));
+            _optionsMonitor.OnChange((options, name) => _fileSystems.TryRemove(name ?? Options.DefaultName, out _));
         }
 
         /// <inheritdoc />
