@@ -6,80 +6,79 @@ using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Routing;
 using Umbraco.Extensions;
 
-namespace Umbraco.StorageProviders
+namespace Umbraco.StorageProviders;
+
+/// <summary>
+/// A <see cref="IMediaUrlProvider" /> that returns a CDN URL for a media item.
+/// </summary>
+/// <seealso cref="Umbraco.Cms.Core.Routing.DefaultMediaUrlProvider" />
+public sealed class CdnMediaUrlProvider : DefaultMediaUrlProvider
 {
+    private Uri _cdnUrl;
+    private bool _removeMediaFromPath;
+    private string _mediaPath;
+
     /// <summary>
-    /// A <see cref="IMediaUrlProvider" /> that returns a CDN URL for a media item.
+    /// Initializes a new instance of the <see cref="CdnMediaUrlProvider"/> class.
     /// </summary>
-    /// <seealso cref="Umbraco.Cms.Core.Routing.DefaultMediaUrlProvider" />
-    public sealed class CdnMediaUrlProvider : DefaultMediaUrlProvider
+    /// <param name="options">The options.</param>
+    /// <param name="globalSettings">The global settings.</param>
+    /// <param name="hostingEnvironment">The hosting environment.</param>
+    /// <param name="mediaPathGenerators">The media path generators.</param>
+    /// <param name="uriUtility">The URI utility.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="options"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="globalSettings"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="hostingEnvironment"/> is <c>null</c>.</exception>
+    public CdnMediaUrlProvider(IOptionsMonitor<CdnMediaUrlProviderOptions> options, IOptionsMonitor<GlobalSettings> globalSettings, IHostingEnvironment hostingEnvironment, MediaUrlGeneratorCollection mediaPathGenerators, UriUtility uriUtility)
+        : base(mediaPathGenerators, uriUtility)
     {
-        private Uri _cdnUrl;
-        private bool _removeMediaFromPath;
-        private string _mediaPath;
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(globalSettings);
+        ArgumentNullException.ThrowIfNull(hostingEnvironment);
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CdnMediaUrlProvider"/> class.
-        /// </summary>
-        /// <param name="options">The options.</param>
-        /// <param name="globalSettings">The global settings.</param>
-        /// <param name="hostingEnvironment">The hosting environment.</param>
-        /// <param name="mediaPathGenerators">The media path generators.</param>
-        /// <param name="uriUtility">The URI utility.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="options"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="globalSettings"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="hostingEnvironment"/> is <c>null</c>.</exception>
-        public CdnMediaUrlProvider(IOptionsMonitor<CdnMediaUrlProviderOptions> options, IOptionsMonitor<GlobalSettings> globalSettings, IHostingEnvironment hostingEnvironment, MediaUrlGeneratorCollection mediaPathGenerators, UriUtility uriUtility)
-            : base(mediaPathGenerators, uriUtility)
+        _cdnUrl = options.CurrentValue.Url;
+        _removeMediaFromPath = options.CurrentValue.RemoveMediaFromPath;
+        _mediaPath = hostingEnvironment.ToAbsolute(globalSettings.CurrentValue.UmbracoMediaPath).EnsureEndsWith('/');
+
+        options.OnChange((options, name) =>
         {
-            ArgumentNullException.ThrowIfNull(options);
-            ArgumentNullException.ThrowIfNull(globalSettings);
-            ArgumentNullException.ThrowIfNull(hostingEnvironment);
-
-            _cdnUrl = options.CurrentValue.Url;
-            _removeMediaFromPath = options.CurrentValue.RemoveMediaFromPath;
-            _mediaPath = hostingEnvironment.ToAbsolute(globalSettings.CurrentValue.UmbracoMediaPath).EnsureEndsWith('/');
-
-            options.OnChange((options, name) =>
+            if (name == Options.DefaultName)
             {
-                if (name == Options.DefaultName)
-                {
-                    _removeMediaFromPath = options.RemoveMediaFromPath;
-                    _cdnUrl = options.Url;
-                }
-            });
+                _removeMediaFromPath = options.RemoveMediaFromPath;
+                _cdnUrl = options.Url;
+            }
+        });
 
-            globalSettings.OnChange((options, name) =>
-            {
-                if (name == Options.DefaultName)
-                {
-                    _mediaPath = hostingEnvironment.ToAbsolute(options.UmbracoMediaPath).EnsureEndsWith('/');
-                }
-            });
-        }
-
-        /// <inheritdoc />
-        public override UrlInfo? GetMediaUrl(IPublishedContent content, string propertyAlias, UrlMode mode, string? culture, Uri current)
+        globalSettings.OnChange((options, name) =>
         {
-            var mediaUrl = base.GetMediaUrl(content, propertyAlias, UrlMode.Relative, culture, current);
-            if (mediaUrl?.IsUrl == true)
+            if (name == Options.DefaultName)
             {
-                string url = mediaUrl.Text;
+                _mediaPath = hostingEnvironment.ToAbsolute(options.UmbracoMediaPath).EnsureEndsWith('/');
+            }
+        });
+    }
 
-                int startIndex = 0;
-                if (_removeMediaFromPath && url.StartsWith(_mediaPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    startIndex = _mediaPath.Length;
-                }
-                else if (url.StartsWith('/'))
-                {
-                    startIndex = 1;
-                }
+    /// <inheritdoc />
+    public override UrlInfo? GetMediaUrl(IPublishedContent content, string propertyAlias, UrlMode mode, string? culture, Uri current)
+    {
+        var mediaUrl = base.GetMediaUrl(content, propertyAlias, UrlMode.Relative, culture, current);
+        if (mediaUrl?.IsUrl == true)
+        {
+            string url = mediaUrl.Text;
 
-                return UrlInfo.Url(_cdnUrl + url[startIndex..], culture);
+            int startIndex = 0;
+            if (_removeMediaFromPath && url.StartsWith(_mediaPath, StringComparison.OrdinalIgnoreCase))
+            {
+                startIndex = _mediaPath.Length;
+            }
+            else if (url.StartsWith('/'))
+            {
+                startIndex = 1;
             }
 
-            return mediaUrl;
+            return UrlInfo.Url(_cdnUrl + url[startIndex..], culture);
         }
+
+        return mediaUrl;
     }
 }
