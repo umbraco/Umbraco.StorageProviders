@@ -5,7 +5,7 @@
     <PackageTags>umbraco storage azure blob imagesharp</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="2.0.1" />
+    <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="2.0.2" />
     <PackageReference Include="Umbraco.Cms.Imaging.ImageSharp" Version="[11.0.0--rc1.preview.31.ged9a26b, 12)" />
     <ProjectReference Include="..\Umbraco.StorageProviders.AzureBlob\Umbraco.StorageProviders.AzureBlob.csproj" />
   </ItemGroup>
