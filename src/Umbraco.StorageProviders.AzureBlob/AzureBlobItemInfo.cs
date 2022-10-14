@@ -1,5 +1,3 @@
-﻿using System;
-using System.IO;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.FileProviders;
