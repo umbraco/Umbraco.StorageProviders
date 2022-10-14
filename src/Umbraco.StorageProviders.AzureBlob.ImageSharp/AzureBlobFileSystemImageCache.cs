@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp.Web;
@@ -9,21 +6,21 @@ using SixLabors.ImageSharp.Web.Resolvers;
 using SixLabors.ImageSharp.Web.Resolvers.Azure;
 using Umbraco.StorageProviders.AzureBlob.IO;
 
-namespace Umbraco.StorageProviders.AzureBlob.Imaging
+namespace Umbraco.StorageProviders.AzureBlob.ImageSharp
 {
     /// <summary>
     /// Implements an Azure Blob Storage based cache storing files in a <c>cache</c> subfolder.
     /// </summary>
     public sealed class AzureBlobFileSystemImageCache : IImageCache
     {
-        private const string _cachePath = "cache/";
+        private const string CachePath = "cache/";
         private BlobContainerClient _container;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureBlobFileSystemImageCache" /> class.
         /// </summary>
         /// <param name="options">The options.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
         public AzureBlobFileSystemImageCache(IOptionsMonitor<AzureBlobFileSystemOptions> options)
             : this(AzureBlobFileSystemOptions.MediaFileSystemName, options)
         { }
@@ -33,8 +30,8 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="options">The options.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
-        /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
         public AzureBlobFileSystemImageCache(string name, IOptionsMonitor<AzureBlobFileSystemOptions> options)
         {
             ArgumentNullException.ThrowIfNull(name);
@@ -56,14 +53,14 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         /// Initializes a new instance of the <see cref="AzureBlobFileSystemImageCache" /> class.
         /// </summary>
         /// <param name="blobContainerClient">The blob container client.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="blobContainerClient" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="blobContainerClient" /> is <c>null</c>.</exception>
         public AzureBlobFileSystemImageCache(BlobContainerClient blobContainerClient)
             => _container = blobContainerClient ?? throw new ArgumentNullException(nameof(blobContainerClient));
 
         /// <inheritdoc />
         public async Task<IImageCacheResolver?> GetAsync(string key)
         {
-            var blob = _container.GetBlobClient(_cachePath + key);
+            var blob = _container.GetBlobClient(CachePath + key);
 
             return !await blob.ExistsAsync().ConfigureAwait(false)
                 ? null
@@ -73,7 +70,7 @@ namespace Umbraco.StorageProviders.AzureBlob.Imaging
         /// <inheritdoc />
         public async Task SetAsync(string key, Stream stream, ImageCacheMetadata metadata)
         {
-            var blob = _container.GetBlobClient(_cachePath + key);
+            var blob = _container.GetBlobClient(CachePath + key);
 
             await blob.UploadAsync(stream, metadata: metadata.ToDictionary()).ConfigureAwait(false);
         }

@@ -6,7 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms.Web.Common" Version="[11.0.0--rc1.preview.31.ged9a26b, 12)" />
-    <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="2.0.1" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.12.0" />
     <ProjectReference Include="..\Umbraco.StorageProviders\Umbraco.StorageProviders.csproj" />
   </ItemGroup>
