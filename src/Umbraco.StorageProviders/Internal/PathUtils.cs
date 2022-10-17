@@ -1,52 +1,49 @@
-﻿using Microsoft.Extensions.Primitives;
-using System.IO;
-using System.Linq;
+using Microsoft.Extensions.Primitives;
 
-namespace Umbraco.StorageProviders.Internal
+namespace Umbraco.StorageProviders.Internal;
+
+internal static class PathUtils
 {
-    internal static class PathUtils
+    private static readonly char[] _invalidFileNameChars = Path.GetInvalidFileNameChars()
+        .Where(c => c != Path.DirectorySeparatorChar && c != Path.AltDirectorySeparatorChar).ToArray();
+
+    private static readonly char[] _pathSeparators = new[]
     {
-        private static readonly char[] _invalidFileNameChars = Path.GetInvalidFileNameChars()
-            .Where(c => c != Path.DirectorySeparatorChar && c != Path.AltDirectorySeparatorChar).ToArray();
+        Path.DirectorySeparatorChar,
+        Path.AltDirectorySeparatorChar
+    };
 
-        private static readonly char[] _pathSeparators = new[]
+    internal static bool HasInvalidPathChars(string path)
+    {
+        return path.IndexOfAny(_invalidFileNameChars) != -1;
+    }
+
+    internal static bool PathNavigatesAboveRoot(string path)
+    {
+        var tokenizer = new StringTokenizer(path, _pathSeparators);
+        int depth = 0;
+
+        foreach (StringSegment segment in tokenizer)
         {
-            Path.DirectorySeparatorChar,
-            Path.AltDirectorySeparatorChar
-        };
-
-        internal static bool HasInvalidPathChars(string path)
-        {
-            return path.IndexOfAny(_invalidFileNameChars) != -1;
-        }
-
-        internal static bool PathNavigatesAboveRoot(string path)
-        {
-            var tokenizer = new StringTokenizer(path, _pathSeparators);
-            int depth = 0;
-
-            foreach (StringSegment segment in tokenizer)
+            if (segment.Equals(".") || segment.Equals(""))
             {
-                if (segment.Equals(".") || segment.Equals(""))
-                {
-                    continue;
-                }
-                else if (segment.Equals(".."))
-                {
-                    depth--;
+                continue;
+            }
+            else if (segment.Equals(".."))
+            {
+                depth--;
 
-                    if (depth == -1)
-                    {
-                        return true;
-                    }
-                }
-                else
+                if (depth == -1)
                 {
-                    depth++;
+                    return true;
                 }
             }
-
-            return false;
+            else
+            {
+                depth++;
+            }
         }
+
+        return false;
     }
 }

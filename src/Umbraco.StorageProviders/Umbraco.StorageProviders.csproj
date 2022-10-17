@@ -1,13 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>net5.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0" PrivateAssets="all" />
-        <PackageReference Include="SonarAnalyzer.CSharp" Version="8.33.0.40503" PrivateAssets="all" />
-        <PackageReference Include="Umbraco.Cms.Web.Common" Version="9.0.0" />
-    </ItemGroup>
+  <PropertyGroup>
+    <Title>Umbraco Storage Providers</Title>
+    <Description>Shared storage providers infrastructure for Umbraco CMS</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="[11.0.0--rc1.preview.31.ged9a26b, 12)" />
+  </ItemGroup>
 </Project>
