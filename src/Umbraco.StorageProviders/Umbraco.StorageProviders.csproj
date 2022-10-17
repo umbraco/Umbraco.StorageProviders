@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Umbraco Storage Providers</Title>
     <Description>Shared storage providers infrastructure for Umbraco CMS</Description>
