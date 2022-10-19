@@ -29,9 +29,9 @@
       },
       "Umbraco.Cms.Web.Common": {
         "type": "Direct",
-        "requested": "[11.0.0--rc1.preview.31.ged9a26b, 12.0.0)",
-        "resolved": "11.0.0--rc1.preview.31.ged9a26b",
-        "contentHash": "158wyPjhfksibcgTrKHiVq6eFmLDEpQlsF5uqFLRkN7sbke9QgDEAUpVTzgekBi+33yg2GD6Ga9/r8/SJ2tVbg==",
+        "requested": "[11.0.0-rc1, 12.0.0)",
+        "resolved": "11.0.0-rc1",
+        "contentHash": "g6N2uWeMnn1L0K8wiMawBtZtHoNsyEpuEGhUq80UYBzSLfDr5E3/uMunPl4nG513Uez2UGRwnd+tLQhCAJWwTQ==",
         "dependencies": {
           "Dazinator.Extensions.FileProviders": "2.0.0",
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "7.0.0-rc.2.22476.2",
@@ -39,10 +39,10 @@
           "MiniProfiler.AspNetCore.Mvc": "4.2.22",
           "Smidge.InMemory": "4.1.1",
           "Smidge.Nuglify": "4.1.1",
-          "Umbraco.Cms.Core": "11.0.0--rc1.preview.31.ged9a26b",
-          "Umbraco.Cms.Examine.Lucene": "11.0.0--rc1.preview.31.ged9a26b",
-          "Umbraco.Cms.Infrastructure": "11.0.0--rc1.preview.31.ged9a26b",
-          "Umbraco.Cms.PublishedCache.NuCache": "11.0.0--rc1.preview.31.ged9a26b"
+          "Umbraco.Cms.Core": "11.0.0-rc1",
+          "Umbraco.Cms.Examine.Lucene": "11.0.0-rc1",
+          "Umbraco.Cms.Infrastructure": "11.0.0-rc1",
+          "Umbraco.Cms.PublishedCache.NuCache": "11.0.0-rc1"
         }
       },
       "Umbraco.Code": {
@@ -2202,8 +2202,8 @@
       },
       "Umbraco.Cms.Core": {
         "type": "Transitive",
-        "resolved": "11.0.0--rc1.preview.31.ged9a26b",
-        "contentHash": "O4yYQh1Ytp87WNoKBW4s5qK5Mg1/FxSruYL4hSqft3M1fsAFR6auxd4mlW5Psj0XZxyxuFraERA9GhjPMtRMaw==",
+        "resolved": "11.0.0-rc1",
+        "contentHash": "9P+tT+S8uH9vfCY2q1T0G2f9GP70SgBjKbtR1T4MK5E9/1Y09Whq0bKkAjTz7n8Je6W2StVxNHjeeL5LWA2ZYQ==",
         "dependencies": {
           "Microsoft.Extensions.Configuration.Abstractions": "7.0.0-rc.2.22472.3",
           "Microsoft.Extensions.FileProviders.Embedded": "7.0.0-rc.2.22476.2",
@@ -2224,18 +2224,18 @@
       },
       "Umbraco.Cms.Examine.Lucene": {
         "type": "Transitive",
-        "resolved": "11.0.0--rc1.preview.31.ged9a26b",
-        "contentHash": "UXsiqnwkqkks10rhPdN98502Me5lzVnHLp6o1qzML+tAGIbRdN4FQqXyh7tvB6vbSY0y/TaOLMH5rKomUl21xg==",
+        "resolved": "11.0.0-rc1",
+        "contentHash": "u6Fw+5Nx6lt0uQe2Fi358R6hMPHMpICTNLSDIHOALbmzLO5oqeeCe96AXmWXj5TRN8aA9k608itIf50w2NMhpA==",
         "dependencies": {
           "Examine": "3.0.1",
-          "Umbraco.Cms.Core": "11.0.0--rc1.preview.31.ged9a26b",
-          "Umbraco.Cms.Infrastructure": "11.0.0--rc1.preview.31.ged9a26b"
+          "Umbraco.Cms.Core": "11.0.0-rc1",
+          "Umbraco.Cms.Infrastructure": "11.0.0-rc1"
         }
       },
       "Umbraco.Cms.Infrastructure": {
         "type": "Transitive",
-        "resolved": "11.0.0--rc1.preview.31.ged9a26b",
-        "contentHash": "e6mBL6+pTY8cQhywuhzHlkWVdcZc4bLSbFnX9fDIsqjH6SfkANnEY/KTZqrg07pqARpVyD+ojK+hA9lnF03Wjw==",
+        "resolved": "11.0.0-rc1",
+        "contentHash": "IUAWrraWyGTYimf4eFSONGw05d/z/3GBUHR7SggY80PaV5dO+q1kJfNuaVfZsxqe5GZP8Yn3K+BW5F04cTdKYA==",
         "dependencies": {
           "Examine.Core": "3.0.1",
           "HtmlAgilityPack": "1.11.46",
@@ -2265,21 +2265,21 @@
           "System.IO.FileSystem.AccessControl": "5.0.0",
           "System.Security.Cryptography.Pkcs": "7.0.0-rc.2.22472.3",
           "System.Threading.Tasks.Dataflow": "7.0.0-rc.2.22472.3",
-          "Umbraco.Cms.Core": "11.0.0--rc1.preview.31.ged9a26b",
+          "Umbraco.Cms.Core": "11.0.0-rc1",
           "ncrontab": "3.3.1"
         }
       },
       "Umbraco.Cms.PublishedCache.NuCache": {
         "type": "Transitive",
-        "resolved": "11.0.0--rc1.preview.31.ged9a26b",
-        "contentHash": "tXXfdzA9Mz3cSZFlcz1bAoN0w1x5JkN+rSHUXBIqHA4w0K5zYQr0K5UTL47dqspmQpsqjqkdqlSjjE18BHbmGQ==",
+        "resolved": "11.0.0-rc1",
+        "contentHash": "8sx2hWbuTHwqCeQANjv0BUUpv6FFBrX8WaRKQp2iBUlSDQQWURkCwMLVXSj7hm3UuO4FBEk5IeP3joZb2qIx3Q==",
         "dependencies": {
           "CSharpTest.Net.Collections-NetStd2": "14.906.1403.1084",
           "K4os.Compression.LZ4": "1.2.16",
           "MessagePack": "2.4.35",
           "Newtonsoft.Json": "13.0.1",
-          "Umbraco.Cms.Core": "11.0.0--rc1.preview.31.ged9a26b",
-          "Umbraco.Cms.Infrastructure": "11.0.0--rc1.preview.31.ged9a26b"
+          "Umbraco.Cms.Core": "11.0.0-rc1",
+          "Umbraco.Cms.Infrastructure": "11.0.0-rc1"
         }
       }
     }

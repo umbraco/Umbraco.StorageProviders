@@ -8,8 +8,8 @@
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.5.113" />
     <PackageVersion Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="2.0.2" />
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.435" />
-    <PackageVersion Include="Umbraco.Cms.Imaging.ImageSharp" Version="[11.0.0--rc1.preview.31.ged9a26b, 12)" />
-    <PackageVersion Include="Umbraco.Cms.Web.Common" Version="[11.0.0--rc1.preview.31.ged9a26b, 12)" />
+    <PackageVersion Include="Umbraco.Cms.Imaging.ImageSharp" Version="[11.0.0-rc1, 12)" />
+    <PackageVersion Include="Umbraco.Cms.Web.Common" Version="[11.0.0-rc1, 12)" />
     <PackageVersion Include="Umbraco.Code" Version="2.0.0" />
     <PackageVersion Include="Umbraco.GitVersioning.Extensions" Version="0.1.1" />
   </ItemGroup>
