@@ -170,7 +170,11 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
             IfNoneMatch = ETag.All
         };
 
-        blob.Upload(stream, headers, conditions: conditions);
+        blob.Upload(stream, new BlobUploadOptions()
+        {
+            HttpHeaders = headers,
+            Conditions = conditions
+        });
     }
 
     /// <inheritdoc />
@@ -192,12 +196,15 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         {
             IfNoneMatch = ETag.All
         };
-        var copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri, destinationConditions: destinationConditions);
+
+        var copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri, new BlobCopyFromUriOptions()
+        {
+            DestinationConditions = destinationConditions
+        });
+
         if (copyFromUriOperation?.HasCompleted == false)
         {
-            Task.Run(async () => await copyFromUriOperation.WaitForCompletionAsync().ConfigureAwait(false))
-                .GetAwaiter()
-                .GetResult();
+            copyFromUriOperation.WaitForCompletion();
         }
 
         if (!copy)
