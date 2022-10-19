@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "dependencies": {
     "net7.0": {
       "Microsoft.SourceLink.GitHub": {
@@ -78,15 +78,6 @@
           "System.Text.Encodings.Web": "4.7.2",
           "System.Text.Json": "4.7.2",
           "System.Threading.Tasks.Extensions": "4.5.4"
-        }
-      },
-      "Azure.Storage.Blobs": {
-        "type": "Transitive",
-        "resolved": "12.14.0",
-        "contentHash": "+/aubv2pWQuGw2cDh4TBXOuDYF1IpzI2gttcXYS+g4QJZhzG7TKuN50NuSr0Rlz5AaXVUIoQ+ET2i5ajt3xDPg==",
-        "dependencies": {
-          "Azure.Storage.Common": "12.13.0",
-          "System.Text.Json": "4.7.2"
         }
       },
       "Azure.Storage.Common": {
@@ -2358,8 +2349,33 @@
           "Umbraco.Cms.Infrastructure": "11.0.0--rc1.preview.31.ged9a26b"
         }
       },
+      "umbraco.storageproviders": {
+        "type": "Project",
+        "dependencies": {
+          "Umbraco.Cms.Web.Common": "[11.0.0--rc1.preview.31.ged9a26b, 12.0.0)"
+        }
+      },
+      "umbraco.storageproviders.azureblob": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Storage.Blobs": "[12.14.0, )",
+          "Umbraco.Cms.Web.Common": "[11.0.0--rc1.preview.31.ged9a26b, 12.0.0)",
+          "Umbraco.StorageProviders": "[1.0.0, )"
+        }
+      },
+      "Azure.Storage.Blobs": {
+        "type": "CentralTransitive",
+        "requested": "[12.14.0, )",
+        "resolved": "12.14.0",
+        "contentHash": "+/aubv2pWQuGw2cDh4TBXOuDYF1IpzI2gttcXYS+g4QJZhzG7TKuN50NuSr0Rlz5AaXVUIoQ+ET2i5ajt3xDPg==",
+        "dependencies": {
+          "Azure.Storage.Common": "12.13.0",
+          "System.Text.Json": "4.7.2"
+        }
+      },
       "Umbraco.Cms.Web.Common": {
-        "type": "Transitive",
+        "type": "CentralTransitive",
+        "requested": "[11.0.0--rc1.preview.31.ged9a26b, 12.0.0)",
         "resolved": "11.0.0--rc1.preview.31.ged9a26b",
         "contentHash": "158wyPjhfksibcgTrKHiVq6eFmLDEpQlsF5uqFLRkN7sbke9QgDEAUpVTzgekBi+33yg2GD6Ga9/r8/SJ2tVbg==",
         "dependencies": {
@@ -2373,20 +2389,6 @@
           "Umbraco.Cms.Examine.Lucene": "11.0.0--rc1.preview.31.ged9a26b",
           "Umbraco.Cms.Infrastructure": "11.0.0--rc1.preview.31.ged9a26b",
           "Umbraco.Cms.PublishedCache.NuCache": "11.0.0--rc1.preview.31.ged9a26b"
-        }
-      },
-      "umbraco.storageproviders": {
-        "type": "Project",
-        "dependencies": {
-          "Umbraco.Cms.Web.Common": "[11.0.0--rc1.preview.31.ged9a26b, 12.0.0)"
-        }
-      },
-      "umbraco.storageproviders.azureblob": {
-        "type": "Project",
-        "dependencies": {
-          "Azure.Storage.Blobs": "[12.14.0, )",
-          "Umbraco.Cms.Web.Common": "[11.0.0--rc1.preview.31.ged9a26b, 12.0.0)",
-          "Umbraco.StorageProviders": "[1.0.0, )"
         }
       }
     }

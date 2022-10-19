@@ -19,10 +19,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" IsImplicitlyDefined="true" />
-    <PackageReference Include="StyleCop.Analyzers" PrivateAssets="all" IsImplicitlyDefined="true" />
-    <PackageReference Include="Umbraco.Code" PrivateAssets="all" IsImplicitlyDefined="true" />
-    <PackageReference Include="Umbraco.GitVersioning.Extensions" PrivateAssets="all" IsImplicitlyDefined="true" />
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="all" />
+    <PackageReference Include="StyleCop.Analyzers" PrivateAssets="all" />
+    <PackageReference Include="Umbraco.Code" PrivateAssets="all" />
+    <PackageReference Include="Umbraco.GitVersioning.Extensions" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- NuGet packages lock -->
