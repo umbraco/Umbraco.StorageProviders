@@ -61,7 +61,7 @@ public sealed class CdnMediaUrlProvider : DefaultMediaUrlProvider
     /// <inheritdoc />
     public override UrlInfo? GetMediaUrl(IPublishedContent content, string propertyAlias, UrlMode mode, string? culture, Uri current)
     {
-        var mediaUrl = base.GetMediaUrl(content, propertyAlias, UrlMode.Relative, culture, current);
+        UrlInfo? mediaUrl = base.GetMediaUrl(content, propertyAlias, UrlMode.Relative, culture, current);
         if (mediaUrl?.IsUrl == true)
         {
             string url = mediaUrl.Text;

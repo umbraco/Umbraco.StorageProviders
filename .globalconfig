@@ -48,9 +48,11 @@ dotnet_analyzer_diagnostic.category-StyleCop.CSharp.OrderingRules.severity = sug
 dotnet_analyzer_diagnostic.category-StyleCop.CSharp.MaintainabilityRules.severity = suggestion
 dotnet_analyzer_diagnostic.category-StyleCop.CSharp.LayoutRules.severity = suggestion
 
-dotnet_diagnostic.SA1636.severity = none # SA1636: File header copyright text should match
 dotnet_diagnostic.SA1101.severity = none # PrefixLocalCallsWithThis - stylecop appears to be ignoring dotnet_style_qualification_for_*
 dotnet_diagnostic.SA1309.severity = none # FieldNamesMustNotBeginWithUnderscore
+dotnet_diagnostic.SA1413.severity = none # UseTrailingCommasInMultiLineInitializers
+dotnet_diagnostic.SA1633.severity = none # FileMustHaveHeader
+dotnet_diagnostic.SA1636.severity = none # FileHeaderCopyrightTextMustMatch
 
 dotnet_diagnostic.SA1503.severity = warning # BracesMustNotBeOmitted
 dotnet_diagnostic.SA1117.severity = warning # ParametersMustBeOnSameLineOrSeparateLines
@@ -81,3 +83,6 @@ dotnet_diagnostic.SA1209.severity = warning # UsingAliasDirectivesMustBePlacedAf
 dotnet_diagnostic.SA1216.severity = warning # UsingStaticDirectivesMustBePlacedAtTheCorrectLocation
 dotnet_diagnostic.SA1133.severity = warning # DoNotCombineAttributes
 dotnet_diagnostic.SA1135.severity = warning # UsingDirectivesMustBeQualified
+
+# IDE0058: Expression value is never used
+dotnet_diagnostic.IDE0058.severity = none

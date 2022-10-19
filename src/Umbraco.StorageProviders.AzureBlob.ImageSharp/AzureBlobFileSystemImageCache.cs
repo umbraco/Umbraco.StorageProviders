@@ -30,7 +30,7 @@ public sealed class AzureBlobFileSystemImageCache : IImageCache
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(name);
 
-        var fileSystemOptions = options.Get(name);
+        AzureBlobFileSystemOptions fileSystemOptions = options.Get(name);
         _container = new BlobContainerClient(fileSystemOptions.ConnectionString, fileSystemOptions.ContainerName);
         _containerRootPath = GetContainerRootPath(containerRootPath, fileSystemOptions);
 
@@ -56,17 +56,10 @@ public sealed class AzureBlobFileSystemImageCache : IImageCache
         _containerRootPath = GetContainerRootPath(containerRootPath);
     }
 
-    private static string? GetContainerRootPath(string? containerRootPath, AzureBlobFileSystemOptions? options = null)
-    {
-        var path = containerRootPath ?? options?.ContainerRootPath;
-
-        return string.IsNullOrEmpty(path) ? null : path.EnsureEndsWith('/');
-    }
-
     /// <inheritdoc />
     public async Task<IImageCacheResolver?> GetAsync(string key)
     {
-        var blob = _container.GetBlobClient(_containerRootPath + key);
+        BlobClient blob = _container.GetBlobClient(_containerRootPath + key);
 
         return !await blob.ExistsAsync().ConfigureAwait(false)
             ? null
@@ -76,11 +69,18 @@ public sealed class AzureBlobFileSystemImageCache : IImageCache
     /// <inheritdoc />
     public async Task SetAsync(string key, Stream stream, ImageCacheMetadata metadata)
     {
-        var blob = _container.GetBlobClient(_containerRootPath + key);
+        BlobClient blob = _container.GetBlobClient(_containerRootPath + key);
 
         await blob.UploadAsync(stream, new BlobUploadOptions()
         {
             Metadata = metadata.ToDictionary()
         }).ConfigureAwait(false);
+    }
+
+    private static string? GetContainerRootPath(string? containerRootPath, AzureBlobFileSystemOptions? options = null)
+    {
+        var path = containerRootPath ?? options?.ContainerRootPath;
+
+        return string.IsNullOrEmpty(path) ? null : path.EnsureEndsWith('/');
     }
 }

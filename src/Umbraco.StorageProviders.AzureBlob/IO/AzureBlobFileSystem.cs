@@ -112,7 +112,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        foreach (var blob in ListBlobs(GetDirectoryPath(path)))
+        foreach (BlobHierarchyItem blob in ListBlobs(GetDirectoryPath(path)))
         {
             if (blob.IsPrefix)
             {
@@ -153,7 +153,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(stream);
 
-        var blob = GetBlobClient(path);
+        BlobClient blob = GetBlobClient(path);
         if (!overrideIfExists && blob.Exists())
         {
             throw new InvalidOperationException($"A file at path '{path}' already exists");
@@ -165,7 +165,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
             headers.ContentType = contentType;
         }
 
-        var conditions = overrideIfExists ? null : new BlobRequestConditions
+        BlobRequestConditions? conditions = overrideIfExists ? null : new BlobRequestConditions
         {
             IfNoneMatch = ETag.All
         };
@@ -185,19 +185,19 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(physicalPath);
 
-        var destinationBlob = GetBlobClient(path);
+        BlobClient destinationBlob = GetBlobClient(path);
         if (!overrideIfExists && destinationBlob.Exists())
         {
             throw new InvalidOperationException($"A file at path '{path}' already exists");
         }
 
-        var sourceBlob = GetBlobClient(physicalPath);
-        var destinationConditions = overrideIfExists ? null : new BlobRequestConditions
+        BlobClient sourceBlob = GetBlobClient(physicalPath);
+        BlobRequestConditions? destinationConditions = overrideIfExists ? null : new BlobRequestConditions
         {
             IfNoneMatch = ETag.All
         };
 
-        var copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri, new BlobCopyFromUriOptions()
+        CopyFromUriOperation copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri, new BlobCopyFromUriOptions()
         {
             DestinationConditions = destinationConditions
         });
@@ -228,7 +228,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        var files = ListBlobs(GetDirectoryPath(path)).Where(x => x.IsBlob).Select(x => x.Blob.Name);
+        IEnumerable<string> files = ListBlobs(GetDirectoryPath(path)).Where(x => x.IsBlob).Select(x => x.Blob.Name);
         if (!string.IsNullOrEmpty(filter) && filter != "*.*")
         {
             // TODO: Might be better to use a globbing library

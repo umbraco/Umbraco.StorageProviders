@@ -42,7 +42,7 @@ public sealed class AzureBlobFileSystemProvider : IAzureBlobFileSystemProvider
 
         return _fileSystems.GetOrAdd(name, name =>
         {
-            var options = _optionsMonitor.Get(name);
+            AzureBlobFileSystemOptions options = _optionsMonitor.Get(name);
 
             return new AzureBlobFileSystem(options, _hostingEnvironment, _ioHelper, _fileExtensionContentTypeProvider);
         });

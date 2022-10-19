@@ -61,7 +61,7 @@ public sealed class AzureBlobFileProvider : IFileProvider
     public IFileInfo GetFileInfo(string subpath)
     {
         var path = GetFullPath(subpath);
-        var blobClient = _containerClient.GetBlobClient(path);
+        BlobClient blobClient = _containerClient.GetBlobClient(path);
 
         BlobProperties properties;
         try

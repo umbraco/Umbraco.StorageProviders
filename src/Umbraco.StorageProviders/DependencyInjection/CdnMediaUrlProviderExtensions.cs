@@ -73,7 +73,7 @@ public static class CdnMediaUrlProviderExtensions
 
         builder.MediaUrlProviders().Insert<CdnMediaUrlProvider>();
 
-        var optionsBuilder = builder.Services.AddOptions<CdnMediaUrlProviderOptions>()
+        OptionsBuilder<CdnMediaUrlProviderOptions> optionsBuilder = builder.Services.AddOptions<CdnMediaUrlProviderOptions>()
             .BindConfiguration("Umbraco:Storage:Cdn")
             .ValidateDataAnnotations();
 

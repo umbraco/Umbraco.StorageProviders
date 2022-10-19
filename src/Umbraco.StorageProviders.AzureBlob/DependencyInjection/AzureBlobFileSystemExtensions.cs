@@ -89,7 +89,7 @@ public static class AzureBlobFileSystemExtensions
 
         builder.Services.TryAddSingleton<IAzureBlobFileSystemProvider, AzureBlobFileSystemProvider>();
 
-        var optionsBuilder = builder.Services.AddOptions<AzureBlobFileSystemOptions>(name)
+        OptionsBuilder<AzureBlobFileSystemOptions> optionsBuilder = builder.Services.AddOptions<AzureBlobFileSystemOptions>(name)
             .BindConfiguration($"Umbraco:Storage:AzureBlob:{name}")
             .ValidateDataAnnotations();
 
