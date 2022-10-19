@@ -1,7 +1,10 @@
 # Umbraco storage providers
 This repository contains Umbraco storage providers that can replace the default physical file storage.
 
-> **Note** For Umbraco 9, use version 1 and [follow the version-specific documentation](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/1.1.x/README.md).
+> **Note**
+> Use the following documentation for previous Umbraco CMS versions:
+> * [Umbraco CMS 10 - v10](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/10.0.x/README.md)
+> * [Umbraco CMS 9 - v1](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/1.1.x/README.md)
 
 ## Umbraco.StorageProviders
 Contains shared storage providers infrastructure, like a CDN media URL provider.
@@ -48,10 +51,11 @@ UMBRACO__STORAGE__CDN__URL=https://cdn.example.com/
 UMBRACO__STORAGE__CDN__REMOVEMEDIAFROMPATH=true
 ```
 
-> **Note** You still have to add the provider in the `Startup.cs` file when not configuring the options in code.
+> **Note**
+> You still have to add the provider in the `Startup.cs` file when not configuring the options in code.
 
 ### Configuration
-Configure your CDN origin to point to your site and ensure every unique URL is cached (includes the query string), so images can be processed by the site (using ImageSharp) and the response cached by the CDN.
+Configure your CDN origin to point to your site and ensure every unique URL is cached (includes the query string), so images can be processed by the site and the response cached by the CDN.
 
 By default, the CDN provider removes the media path (`/media`) from the generated media URL, so you need to configure your CDN origin to include this path. This is to prevent caching/proxying other parts of your site, but you can opt-out of this behavior by setting `RemoveMediaFromPath` to `false`.
 
@@ -67,7 +71,7 @@ public void ConfigureServices(IServiceCollection services)
         .AddBackOffice()
         .AddWebsite()
         .AddComposers()
-+       .AddAzureBlobMediaFileSystem() 
++       .AddAzureBlobMediaFileSystem()
         .Build();
 }
 ```
@@ -102,14 +106,41 @@ UMBRACO__STORAGE__AZUREBLOB__MEDIA__CONNECTIONSTRING=UseDevelopmentStorage=true
 UMBRACO__STORAGE__AZUREBLOB__MEDIA__CONTAINERNAME=sample-container
 ```
 
-> **Note** You still have to add the provider in the `Startup.cs` file when not configuring the options in code.
+> **Note**
+> You still have to add the provider in the `Startup.cs` file when not configuring the options in code.
 
-### Folder structure in the Azure Blob Storage container
+## Umbraco.StorageProviders.AzureBlob.ImageSharp
+Adds ImageSharp support for storing the image cache to a pre-configured Azure Blob Storage provider.
+
+### Usage
+This provider can be added in the `Startup.cs` file:
+```diff
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddUmbraco(_env, _config)
+        .AddBackOffice()
+        .AddWebsite()
+        .AddComposers()
+        .AddAzureBlobMediaFileSystem()
++       .AddAzureBlobImageSharpCache()
+        .Build();
+}
+```
+
+By default the media file system configuration will be used and files will be stored in a separate folder ([see below](#folder-structure-in-the-azure-blob-storage-container)). You can specify the name of another (already configured) Azure Blob file system to store the files in another container:
+```csharp
+.AddAzureBlobFileSystem("Cache")
+.AddAzureBlobImageSharpCache("Cache")
+```
+
+
+## Folder structure in the Azure Blob Storage container
 The container name is expected to exist and uses the following folder structure:
 - `/media` - contains the Umbraco media, stored in the structure defined by the `IMediaPathScheme` registered in Umbraco (the default `UniqueMediaPathScheme` stores files with their original filename in 8 character directories, based on the content and property GUID identifier)
 - `/cache` - contains the ImageSharp image cache, stored as files with a filename defined by the `ICacheHash` registered in ImageSharp (the default `CacheHash` generates SHA256 hashes of the file contents and uses the first characters configured by the `Umbraco:CMS:Imaging:CacheHashLength` setting)
 
-Note that this is different than the behavior of other file system providers - i.e. https://github.com/umbraco-community/UmbracoFileSystemProviders.Azure that expect the media contents to be at the root level.
+> **Note**
+> This is different than the behavior of other file system providers, i.e. [UmbracoFileSystemProviders.Azure](https://github.com/umbraco-community/UmbracoFileSystemProviders.Azure) that expect the media contents to be at the root level.
 
 ## Using the file system providers
 Please refer to our documentation on [using custom file systems](https://our.umbraco.com/documentation/Extending/FileSystemProviders/).
