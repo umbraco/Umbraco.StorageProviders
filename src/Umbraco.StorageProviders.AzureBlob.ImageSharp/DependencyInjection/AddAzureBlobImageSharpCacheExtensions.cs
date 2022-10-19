@@ -30,7 +30,7 @@ public static class AddAzureBlobImageSharpCacheExtensions
     /// </summary>
     /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
     /// <param name="name">The name of the file system.</param>
-    /// <param name="containerRootPath">The container root path.</param>
+    /// <param name="containerRootPath">The container root path (will use <see cref="AzureBlobFileSystemOptions.ContainerRootPath" /> if <c>null</c>).</param>
     /// <returns>
     /// The <see cref="IUmbracoBuilder" />.
     /// </returns>
@@ -43,7 +43,7 @@ public static class AddAzureBlobImageSharpCacheExtensions
     /// </summary>
     /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
     /// <param name="name">The name of the file system.</param>
-    /// <param name="containerRootPath">The container root path.</param>
+    /// <param name="containerRootPath">The container root path (will use <see cref="AzureBlobFileSystemOptions.ContainerRootPath" /> if <c>null</c>).</param>
     /// <returns>
     /// The <see cref="IUmbracoBuilder" />.
     /// </returns>

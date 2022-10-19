@@ -15,15 +15,15 @@ namespace Umbraco.StorageProviders.AzureBlob.ImageSharp;
 /// </summary>
 public sealed class AzureBlobFileSystemImageCache : IImageCache
 {
-    private readonly string? _containerRootPath;
     private BlobContainerClient _container;
+    private string? _containerRootPath;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureBlobFileSystemImageCache" /> class.
     /// </summary>
     /// <param name="options">The options.</param>
     /// <param name="name">The name.</param>
-    /// <param name="containerRootPath">The container root path.</param>
+    /// <param name="containerRootPath">The container root path (will use <see cref="AzureBlobFileSystemOptions.ContainerRootPath" /> if <c>null</c>).</param>
     /// <exception cref="ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
     public AzureBlobFileSystemImageCache(IOptionsMonitor<AzureBlobFileSystemOptions> options, string name, string? containerRootPath)
     {
@@ -32,19 +32,16 @@ public sealed class AzureBlobFileSystemImageCache : IImageCache
 
         var fileSystemOptions = options.Get(name);
         _container = new BlobContainerClient(fileSystemOptions.ConnectionString, fileSystemOptions.ContainerName);
+        _containerRootPath = GetContainerRootPath(containerRootPath, fileSystemOptions);
 
         options.OnChange((options, changedName) =>
         {
             if (changedName == name)
             {
                 _container = new BlobContainerClient(options.ConnectionString, options.ContainerName);
+                _containerRootPath = GetContainerRootPath(containerRootPath, options);
             }
         });
-
-        if (!string.IsNullOrEmpty(containerRootPath))
-        {
-            _containerRootPath = containerRootPath.EnsureEndsWith('/');
-        }
     }
 
     /// <summary>
@@ -56,11 +53,14 @@ public sealed class AzureBlobFileSystemImageCache : IImageCache
     public AzureBlobFileSystemImageCache(BlobContainerClient blobContainerClient, string? containerRootPath)
     {
         _container = blobContainerClient ?? throw new ArgumentNullException(nameof(blobContainerClient));
+        _containerRootPath = GetContainerRootPath(containerRootPath);
+    }
 
-        if (!string.IsNullOrEmpty(containerRootPath))
-        {
-            _containerRootPath = containerRootPath.EnsureEndsWith('/');
-        }
+    private static string? GetContainerRootPath(string? containerRootPath, AzureBlobFileSystemOptions? options = null)
+    {
+        var path = containerRootPath ?? options?.ContainerRootPath;
+
+        return string.IsNullOrEmpty(path) ? null : path.EnsureEndsWith('/');
     }
 
     /// <inheritdoc />
