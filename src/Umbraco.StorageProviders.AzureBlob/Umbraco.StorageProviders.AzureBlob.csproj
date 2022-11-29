@@ -4,9 +4,13 @@
     <Description>Azure Blob Storage provider for Umbraco CMS.</Description>
     <PackageTags>umbraco storage azure blob</PackageTags>
   </PropertyGroup>
-  <ItemGroup>
+    <ItemGroup>
     <PackageReference Include="Umbraco.Cms.Web.Common" />
     <PackageReference Include="Azure.Storage.Blobs" />
     <ProjectReference Include="..\Umbraco.StorageProviders\Umbraco.StorageProviders.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="buildTransitive\**" PackagePath="buildTransitive" />
+    <Content Include="appsettings-schema.Umbraco.StorageProviders.AzureBlob.json" PackagePath="" />
   </ItemGroup>
 </Project>
