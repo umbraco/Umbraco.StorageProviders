@@ -6,4 +6,8 @@
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms.Web.Common" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="buildTransitive\**" PackagePath="buildTransitive" />
+    <Content Include="appsettings-schema.Umbraco.StorageProviders.json" PackagePath="" />
+  </ItemGroup>
 </Project>
