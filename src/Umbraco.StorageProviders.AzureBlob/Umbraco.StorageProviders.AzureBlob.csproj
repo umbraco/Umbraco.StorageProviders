@@ -9,4 +9,8 @@
     <PackageReference Include="Azure.Storage.Blobs" />
     <ProjectReference Include="..\Umbraco.StorageProviders\Umbraco.StorageProviders.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="buildTransitive\**" PackagePath="buildTransitive" />
+    <Content Include="appsettings-schema.Umbraco.StorageProviders.AzureBlob.json" PackagePath="" />
+  </ItemGroup>
 </Project>
