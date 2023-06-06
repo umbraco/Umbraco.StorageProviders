@@ -1,4 +1,10 @@
-name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+trigger:
+  branches:
+    include:
+    - '*'
+  tags:
+    include:
+    - release-*
 
 parameters:
   - name: cache_nuget
