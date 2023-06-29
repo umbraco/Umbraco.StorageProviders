@@ -9,10 +9,13 @@
     <GlobalPackageReference Include="Umbraco.Code" Version="2.0.0" />
     <GlobalPackageReference Include="Umbraco.GitVersioning.Extensions" Version="0.2.0" />
   </ItemGroup>
+  <PropertyGroup>
+    <UmbracoCmsPackageVersion>[12.0.0, 13)</UmbracoCmsPackageVersion>
+  </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.16.0" />
     <PackageVersion Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="3.0.1" />
-    <PackageVersion Include="Umbraco.Cms.Imaging.ImageSharp" Version="[12.0.0, 13)" />
-    <PackageVersion Include="Umbraco.Cms.Web.Common" Version="[12.0.0, 13)" />
+    <PackageVersion Include="Umbraco.Cms.Imaging.ImageSharp" Version="$(UmbracoCmsPackageVersion)" />
+    <PackageVersion Include="Umbraco.Cms.Web.Common" Version="$(UmbracoCmsPackageVersion)" />
   </ItemGroup>
 </Project>
