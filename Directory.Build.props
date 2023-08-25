@@ -53,13 +53,9 @@
   <!-- Use version range on project references (to limit on major version in generated packages) -->
   <Target Name="_GetProjectReferenceVersionRanges" AfterTargets="_GetProjectReferenceVersions">
     <ItemGroup>
-      <_ProjectReferencesWithVersionRanges Include="@(_ProjectReferencesWithVersions)">
-        <ProjectVersion Condition="'%(_ProjectReferencesWithVersions.ProjectVersion)' != ''">[%(_ProjectReferencesWithVersions.ProjectVersion), $([MSBuild]::Add($([System.Text.RegularExpressions.Regex]::Match('%(_ProjectReferencesWithVersions.ProjectVersion)', '^\d+').Value), 1)))</ProjectVersion>
-      </_ProjectReferencesWithVersionRanges>
-    </ItemGroup>
-    <ItemGroup>
-      <_ProjectReferencesWithVersions Remove="@(_ProjectReferencesWithVersions)" />
-      <_ProjectReferencesWithVersions Include="@(_ProjectReferencesWithVersionRanges)" />
+      <_ProjectReferencesWithVersions Condition="'%(ProjectVersion)' != ''">
+        <ProjectVersion>[%(ProjectVersion), $([MSBuild]::Add($([System.Text.RegularExpressions.Regex]::Match('%(ProjectVersion)', '^\d+').Value), 1)))</ProjectVersion>
+      </_ProjectReferencesWithVersions>
     </ItemGroup>
   </Target>
 </Project>
