@@ -3,6 +3,7 @@ This repository contains Umbraco storage providers that can replace the default 
 
 > **Note**
 > Use the following documentation for previous Umbraco CMS versions:
+> * [Umbraco CMS 12 - v12](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/12.0.x/README.md)
 > * [Umbraco CMS 11 - v11](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/11.0.x/README.md)
 > * [Umbraco CMS 10 - v10](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/10.0.x/README.md)
 > * [Umbraco CMS 9 - v1](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/1.1.x/README.md)
