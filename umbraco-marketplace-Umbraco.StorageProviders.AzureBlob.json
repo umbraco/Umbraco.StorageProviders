@@ -1,0 +1,29 @@
+{
+  "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+  "AuthorDetails": {
+    "Url": "https://umbraco.com/",
+    "ImageUrl": "https://github.com/umbraco.png",
+    "SyncContributorsFromRepository": true
+  },
+  "Category": "Developer Tools",
+  "Title": "Umbraco Azure Blob Storage Provider",
+  "Description": "The Azure Blob Storage provider has an implementation of the Umbraco IFileSystem that connects to an Azure Blob Storage container.",
+  "DocumentationUrl": "https://github.com/umbraco/Umbraco.StorageProviders#umbracostorageprovidersazureblob",
+  "IssueTrackerUrl": "https://github.com/umbraco/Umbraco.StorageProviders/issues",
+  "IsSubPackageOf": "Umbraco.StorageProviders",
+  "LicenseTypes": [
+    "Free"
+  ],
+  "PackageType": "Package",
+  "RelatedPackages": [
+    {
+      "PackageId": "Umbraco.StorageProviders.AzureBlob.ImageSharp",
+      "Description": "Adds ImageSharp support for storing the image cache to a pre-configured Azure Blob Storage provider."
+    }
+  ],
+  "Tags": [
+    "azure",
+    "blob",
+    "storage"
+  ]
+}

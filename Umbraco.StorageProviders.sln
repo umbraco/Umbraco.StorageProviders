@@ -26,6 +26,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Umbraco.StorageProviders", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Umbraco.StorageProviders.AzureBlob.ImageSharp", "src\Umbraco.StorageProviders.AzureBlob.ImageSharp\Umbraco.StorageProviders.AzureBlob.ImageSharp.csproj", "{D88EAD61-5596-415D-B8B2-CBE83B35DC68}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Umbraco Marketplace", "Umbraco Marketplace", "{52E66DE4-F70B-4E6C-B8BE-91D8873CBE95}"
+	ProjectSection(SolutionItems) = preProject
+		umbraco-marketplace-readme-Umbraco.StorageProviders.AzureBlob.ImageSharp.md = umbraco-marketplace-readme-Umbraco.StorageProviders.AzureBlob.ImageSharp.md
+		umbraco-marketplace-readme-Umbraco.StorageProviders.AzureBlob.md = umbraco-marketplace-readme-Umbraco.StorageProviders.AzureBlob.md
+		umbraco-marketplace-readme-Umbraco.StorageProviders.md = umbraco-marketplace-readme-Umbraco.StorageProviders.md
+		umbraco-marketplace-Umbraco.StorageProviders.AzureBlob.ImageSharp.json = umbraco-marketplace-Umbraco.StorageProviders.AzureBlob.ImageSharp.json
+		umbraco-marketplace-Umbraco.StorageProviders.AzureBlob.json = umbraco-marketplace-Umbraco.StorageProviders.AzureBlob.json
+		umbraco-marketplace-Umbraco.StorageProviders.json = umbraco-marketplace-Umbraco.StorageProviders.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +85,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{52E66DE4-F70B-4E6C-B8BE-91D8873CBE95} = {F00AB141-9521-4D68-967D-4326FEB32E1B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1476D78A-AFF2-44AD-8425-C77786B527FD}

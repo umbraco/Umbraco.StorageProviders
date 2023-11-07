@@ -2,6 +2,7 @@
   <PropertyGroup>
     <Title>Umbraco Storage Providers</Title>
     <Description>Shared storage providers infrastructure for Umbraco CMS</Description>
+    <PackageTags>umbraco-marketplace umbraco storage cdn</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms.Web.Common" />

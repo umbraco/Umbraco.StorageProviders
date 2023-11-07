@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Title>Umbraco Storage Providers - Azure Blob Storage</Title>
     <Description>Azure Blob Storage provider for Umbraco CMS.</Description>
-    <PackageTags>umbraco storage azure blob</PackageTags>
+    <PackageTags>umbraco-marketplace umbraco azure blob storage</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms.Web.Common" />

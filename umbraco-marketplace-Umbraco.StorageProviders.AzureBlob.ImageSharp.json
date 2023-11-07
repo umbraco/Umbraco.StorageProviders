@@ -1,0 +1,24 @@
+{
+  "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+  "AuthorDetails": {
+    "Url": "https://umbraco.com/",
+    "ImageUrl": "https://github.com/umbraco.png",
+    "SyncContributorsFromRepository": true
+  },
+  "Category": "Developer Tools",
+  "Title": "Umbraco Azure Blob Storage Provider for ImageSharp",
+  "Description": "Adds ImageSharp support for storing the image cache to a pre-configured Azure Blob Storage provider.",
+  "DocumentationUrl": "https://github.com/umbraco/Umbraco.StorageProviders#umbracostorageprovidersazureblobimagesharp",
+  "IssueTrackerUrl": "https://github.com/umbraco/Umbraco.StorageProviders/issues",
+  "IsSubPackageOf": "Umbraco.StorageProviders.AzureBlob",
+  "LicenseTypes": [
+    "Free"
+  ],
+  "PackageType": "Package",
+  "Tags": [
+    "azure",
+    "blob",
+    "storage",
+    "imagesharp"
+  ]
+}
