@@ -31,7 +31,7 @@
         "type": "Direct",
         "requested": "[13.0.0-rc1, 14.0.0)",
         "resolved": "13.0.0-rc1",
-        "contentHash": "R/8X13CepAnZmXFGG+20q5tvrxv5qEfZtB8zecT4KDKdFB97rOmSoEdEWUu+rVE1zawEQbChq8QtxZtbz0WfMw==",
+        "contentHash": "XicYCauM4mYT2mkxu/AZE20NWeomFV6hyTtNPWtk62wBgtyGyEORY1NVoxAF9ICEdrOaTKDnoDFHg4UHsWJgqQ==",
         "dependencies": {
           "Asp.Versioning.Mvc": "7.1.0",
           "Asp.Versioning.Mvc.ApiExplorer": "7.1.0",
@@ -2183,7 +2183,7 @@
       "Umbraco.Cms.Core": {
         "type": "Transitive",
         "resolved": "13.0.0-rc1",
-        "contentHash": "KwYL3xWLCcv1U6Q3boIrQN616rmbfrQDuhM28WZNmSjCOoU/ZkdpzkO9Mh6V/2u1ylX326DmhUSB4LMZUPD1kw==",
+        "contentHash": "aR4jfx4/ItsmPdc6zMfsHKLuDacd6Yi2aRCFuURdkZ/Ng93QObglYDWz1Ukm91Vpn6giwvFySz4b4PAAw/nHOQ==",
         "dependencies": {
           "Microsoft.Extensions.Configuration.Abstractions": "8.0.0-rc.2.23479.6",
           "Microsoft.Extensions.FileProviders.Embedded": "8.0.0-rc.2.23480.2",
@@ -2205,7 +2205,7 @@
       "Umbraco.Cms.Examine.Lucene": {
         "type": "Transitive",
         "resolved": "13.0.0-rc1",
-        "contentHash": "8YZVs++PVAgkW+8lA6TiLCg9mAa804viMqA6JU1N9eiwmY6X7FA5AEzl65i4b7Nh4fC1xjDpST3kYoRwO2Aikg==",
+        "contentHash": "7+O+j+/LowPAsAbfL5kQsW7T4H199FU9e1I2dSBrwWR4hrR9j7OTSrDh4a4iiN8g3+QzyIJUuMSg+BpzCIyMKA==",
         "dependencies": {
           "Examine": "3.1.0",
           "Umbraco.Cms.Infrastructure": "13.0.0-rc1"
@@ -2214,7 +2214,7 @@
       "Umbraco.Cms.Infrastructure": {
         "type": "Transitive",
         "resolved": "13.0.0-rc1",
-        "contentHash": "e8d1qR/UZcmG8wpvnzXIiWuClodvsz4u8J2gnornp0kmVlMhG1vQkiBSiWfp4PRUytvvLijf85kiOzE3V1moOQ==",
+        "contentHash": "m/fGNYmQvkYAwTH446ZGPu4wdUaf9ViMRPgq+2QZJVlbMcKoxdtr8DqCjUMRGduDy2R5EJKvRal9QF/k9HR8XQ==",
         "dependencies": {
           "Examine.Core": "3.1.0",
           "HtmlAgilityPack": "1.11.54",
