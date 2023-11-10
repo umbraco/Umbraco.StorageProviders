@@ -10,7 +10,7 @@ parameters:
   - name: cache_nuget
     displayName: Cache NuGet packages
     type: boolean
-    default: true
+    default: false
 
 variables:
   solution: Umbraco.StorageProviders.sln
