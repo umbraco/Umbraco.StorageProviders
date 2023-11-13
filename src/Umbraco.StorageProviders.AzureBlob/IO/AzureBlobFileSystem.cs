@@ -361,13 +361,16 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         path = EnsureUrlSeparatorChar(path);
 
-        if (_ioHelper.PathStartsWith(path, _containerRootPath, '/'))
+        if (!string.IsNullOrEmpty(_containerRootPath) &&
+            _ioHelper.PathStartsWith(path, _containerRootPath, '/'))
         {
+            // Path already starts with the root path
             return path;
         }
 
         if (_ioHelper.PathStartsWith(path, _rootUrl, '/'))
         {
+            // Remove root URL from path (e.g. /media/abc123/file.ext to /abc123/file.ext)
             path = path[_rootUrl.Length..];
         }
 
