@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.StorageProviders;
 
 namespace Umbraco.Cms.Core.DependencyInjection;
@@ -78,6 +79,16 @@ public static class CdnMediaUrlProviderExtensions
             .ValidateDataAnnotations();
 
         configure?.Invoke(optionsBuilder);
+
+        // Configure CDN as allowed media host
+        builder.Services.AddOptions<ContentSettings>().PostConfigure<IOptions<CdnMediaUrlProviderOptions>>((options, cdnMediaUrlProviderOptions) =>
+        {
+            string cdnMediaHost = cdnMediaUrlProviderOptions.Value.Url.Host;
+            if (!options.AllowedMediaHosts.Contains(cdnMediaHost, StringComparer.OrdinalIgnoreCase))
+            {
+                options.AllowedMediaHosts = [..options.AllowedMediaHosts, cdnMediaHost];
+            }
+        });
 
         return builder;
     }
