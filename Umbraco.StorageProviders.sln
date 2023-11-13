@@ -28,12 +28,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Umbraco.StorageProviders.Az
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Umbraco Marketplace", "Umbraco Marketplace", "{52E66DE4-F70B-4E6C-B8BE-91D8873CBE95}"
 	ProjectSection(SolutionItems) = preProject
-		umbraco-marketplace-readme-Umbraco.StorageProviders.AzureBlob.ImageSharp.md = umbraco-marketplace-readme-Umbraco.StorageProviders.AzureBlob.ImageSharp.md
-		umbraco-marketplace-readme-Umbraco.StorageProviders.AzureBlob.md = umbraco-marketplace-readme-Umbraco.StorageProviders.AzureBlob.md
-		umbraco-marketplace-readme-Umbraco.StorageProviders.md = umbraco-marketplace-readme-Umbraco.StorageProviders.md
-		umbraco-marketplace-Umbraco.StorageProviders.AzureBlob.ImageSharp.json = umbraco-marketplace-Umbraco.StorageProviders.AzureBlob.ImageSharp.json
-		umbraco-marketplace-Umbraco.StorageProviders.AzureBlob.json = umbraco-marketplace-Umbraco.StorageProviders.AzureBlob.json
-		umbraco-marketplace-Umbraco.StorageProviders.json = umbraco-marketplace-Umbraco.StorageProviders.json
+		umbraco-marketplace-readme-umbraco.storageproviders.azureblob.imagesharp.md = umbraco-marketplace-readme-umbraco.storageproviders.azureblob.imagesharp.md
+		umbraco-marketplace-readme-umbraco.storageproviders.azureblob.md = umbraco-marketplace-readme-umbraco.storageproviders.azureblob.md
+		umbraco-marketplace-readme-umbraco.storageproviders.md = umbraco-marketplace-readme-umbraco.storageproviders.md
+		umbraco-marketplace-umbraco.storageproviders.azureblob.imagesharp.json = umbraco-marketplace-umbraco.storageproviders.azureblob.imagesharp.json
+		umbraco-marketplace-umbraco.storageproviders.azureblob.json = umbraco-marketplace-umbraco.storageproviders.azureblob.json
+		umbraco-marketplace-umbraco.storageproviders.json = umbraco-marketplace-umbraco.storageproviders.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{209D581B-FE93-4050-BED7-D439D00CEC5A}"
