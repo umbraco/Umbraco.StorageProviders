@@ -30,7 +30,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
     public AzureBlobFileSystem(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider)
-        : this(GetRequestRootPath(options, hostingEnvironment), new BlobContainerClient(options.ConnectionString, options.ContainerName), ioHelper, contentTypeProvider, options.ContainerRootPath)
+        : this(GetRequestRootPath(options, hostingEnvironment), options.CreateBlobContainerClient(), ioHelper, contentTypeProvider, options.ContainerRootPath)
     { }
 
     /// <summary>
@@ -75,7 +75,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        return new BlobContainerClient(options.ConnectionString, options.ContainerName).CreateIfNotExists(accessType);
+        return options.CreateBlobContainerClient().CreateIfNotExists(accessType);
     }
 
     /// <inheritdoc />
