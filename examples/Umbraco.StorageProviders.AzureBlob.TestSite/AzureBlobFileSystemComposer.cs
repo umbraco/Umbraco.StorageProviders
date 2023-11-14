@@ -4,7 +4,7 @@ using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.StorageProviders.AzureBlob.IO;
 
-namespace Umbraco.StorageProviders.TestSite;
+namespace Umbraco.StorageProviders.AzureBlob.TestSite;
 
 internal sealed class AzureBlobFileSystemComposer : IComposer
 {

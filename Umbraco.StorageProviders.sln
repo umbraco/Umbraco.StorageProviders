@@ -42,7 +42,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{20
 		examples\Directory.Packages.props = examples\Directory.Packages.props
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Umbraco.StorageProviders.TestSite", "examples\Umbraco.StorageProviders.TestSite\Umbraco.StorageProviders.TestSite.csproj", "{9B1140ED-9F17-44B0-80CF-FA50F949B65B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Umbraco.StorageProviders.AzureBlob.TestSite", "examples\Umbraco.StorageProviders.AzureBlob.TestSite\Umbraco.StorageProviders.AzureBlob.TestSite.csproj", "{9B1140ED-9F17-44B0-80CF-FA50F949B65B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
