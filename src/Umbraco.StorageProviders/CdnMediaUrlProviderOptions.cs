@@ -14,7 +14,7 @@ public sealed class CdnMediaUrlProviderOptions
     /// The CDN media root URL.
     /// </value>
     [Required]
-    public Uri Url { get; set; } = null!;
+    public required Uri Url { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to remove the <see cref="Umbraco.Cms.Core.Configuration.Models.GlobalSettings.UmbracoMediaPath"/> from the path, defaults to <c>true</c>.
