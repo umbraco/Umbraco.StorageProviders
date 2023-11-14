@@ -12,7 +12,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO;
 /// <inheritdoc />
 public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFactory
 {
-    private readonly string _rootUrl;
+    private readonly string _requestRootPath;
     private readonly string _containerRootPath;
     private readonly BlobContainerClient _container;
     private readonly IIOHelper _ioHelper;
@@ -21,7 +21,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureBlobFileSystem"/> class.
     /// </summary>
-    /// <param name="options">The options.</param>
+    /// <param name="options">The Azure Blob File System options.</param>
     /// <param name="hostingEnvironment">The hosting environment.</param>
     /// <param name="ioHelper">The I/O helper.</param>
     /// <param name="contentTypeProvider">The content type provider.</param>
@@ -30,35 +30,27 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
     public AzureBlobFileSystem(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider)
-    {
-        ArgumentNullException.ThrowIfNull(options);
-        ArgumentNullException.ThrowIfNull(hostingEnvironment);
-
-        _rootUrl = EnsureUrlSeparatorChar(hostingEnvironment.ToAbsolute(options.VirtualPath)).TrimEnd('/');
-        _containerRootPath = options.ContainerRootPath ?? _rootUrl;
-        _container = new BlobContainerClient(options.ConnectionString, options.ContainerName);
-        _ioHelper = ioHelper ?? throw new ArgumentNullException(nameof(ioHelper));
-        _contentTypeProvider = contentTypeProvider ?? throw new ArgumentNullException(nameof(contentTypeProvider));
-    }
+        : this(GetRequestRootPath(options, hostingEnvironment), new BlobContainerClient(options.ConnectionString, options.ContainerName), ioHelper, contentTypeProvider, options.ContainerRootPath)
+    { }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureBlobFileSystem"/> class.
     /// </summary>
-    /// <param name="rootUrl">The root URL.</param>
+    /// <param name="requestRootPath">The request/URL root path.</param>
     /// <param name="blobContainerClient">The blob container client.</param>
     /// <param name="ioHelper">The I/O helper.</param>
     /// <param name="contentTypeProvider">The content type provider.</param>
-    /// <param name="containerRootPath">The container root path (uses the root URL if not set).</param>
-    /// <exception cref="System.ArgumentNullException"><paramref name="rootUrl" /> is <c>null</c>.</exception>
+    /// <param name="containerRootPath">The container root path (uses the request/URL root path if not set).</param>
+    /// <exception cref="System.ArgumentNullException"><paramref name="requestRootPath" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="blobContainerClient" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
-    public AzureBlobFileSystem(string rootUrl, BlobContainerClient blobContainerClient, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider, string? containerRootPath = null)
+    public AzureBlobFileSystem(string requestRootPath, BlobContainerClient blobContainerClient, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider, string? containerRootPath = null)
     {
-        ArgumentNullException.ThrowIfNull(rootUrl);
+        ArgumentNullException.ThrowIfNull(requestRootPath);
 
-        _rootUrl = EnsureUrlSeparatorChar(rootUrl).TrimEnd('/');
-        _containerRootPath = containerRootPath ?? _rootUrl;
+        _requestRootPath = EnsureUrlSeparatorChar(requestRootPath).TrimEnd('/');
+        _containerRootPath = containerRootPath ?? _requestRootPath;
         _container = blobContainerClient ?? throw new ArgumentNullException(nameof(blobContainerClient));
         _ioHelper = ioHelper ?? throw new ArgumentNullException(nameof(ioHelper));
         _contentTypeProvider = contentTypeProvider ?? throw new ArgumentNullException(nameof(contentTypeProvider));
@@ -275,11 +267,11 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         // test url
         var path = EnsureUrlSeparatorChar(fullPathOrUrl); // ensure url separator char
 
-        // if it starts with the root url, strip it and trim the starting slash to make it relative
+        // if it starts with the request/URL root path, strip it and trim the starting slash to make it relative
         // eg "/Media/1234/img.jpg" => "1234/img.jpg"
-        if (_ioHelper.PathStartsWith(path, _rootUrl, '/'))
+        if (_ioHelper.PathStartsWith(path, _requestRootPath, '/'))
         {
-            path = path[_rootUrl.Length..].TrimStart('/');
+            path = path[_requestRootPath.Length..].TrimStart('/');
         }
 
         // unchanged - what else?
@@ -293,16 +285,17 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         ArgumentNullException.ThrowIfNull(path);
 
         path = EnsureUrlSeparatorChar(path);
-        return (_ioHelper.PathStartsWith(path, _rootUrl, '/') ? path : $"{_rootUrl}/{path}").Trim('/');
+        return (_ioHelper.PathStartsWith(path, _requestRootPath, '/') ? path : $"{_requestRootPath}/{path}").Trim('/');
     }
 
     /// <inheritdoc />
     /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI-like return values should not be strings", Justification = "This method is inherited from an interface.")]
     public string GetUrl(string? path)
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        return $"{_rootUrl}/{EnsureUrlSeparatorChar(path).Trim('/')}";
+        return $"{_requestRootPath}/{EnsureUrlSeparatorChar(path).Trim('/')}";
     }
 
     /// <inheritdoc />
@@ -344,6 +337,14 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// <inheritdoc />
     public IFileProvider Create() => new AzureBlobFileProvider(_container, _containerRootPath);
 
+    private static string GetRequestRootPath(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(hostingEnvironment);
+
+        return hostingEnvironment.ToAbsolute(options.VirtualPath);
+    }
+
     private static string EnsureUrlSeparatorChar(string path)
         => path.Replace("\\", "/", StringComparison.InvariantCultureIgnoreCase);
 
@@ -354,7 +355,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         return path.Length == 0 ? path : path.EnsureEndsWith('/');
     }
 
-    private IEnumerable<BlobHierarchyItem> ListBlobs(string path)
+    private Pageable<BlobHierarchyItem> ListBlobs(string path)
         => _container.GetBlobsByHierarchy(prefix: path);
 
     private string GetBlobPath(string path)
@@ -368,10 +369,10 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
             return path;
         }
 
-        if (_ioHelper.PathStartsWith(path, _rootUrl, '/'))
+        if (_ioHelper.PathStartsWith(path, _requestRootPath, '/'))
         {
-            // Remove root URL from path (e.g. /media/abc123/file.ext to /abc123/file.ext)
-            path = path[_rootUrl.Length..];
+            // Remove request/URL root path from path (e.g. /media/abc123/file.ext to /abc123/file.ext)
+            path = path[_requestRootPath.Length..];
         }
 
         path = $"{_containerRootPath}/{path.TrimStart('/')}";
