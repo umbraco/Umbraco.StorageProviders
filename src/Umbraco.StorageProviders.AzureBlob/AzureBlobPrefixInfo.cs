@@ -36,7 +36,7 @@ public sealed class AzureBlobPrefixInfo : IFileInfo
     public string Name { get; }
 
     /// <inheritdoc />
-    public string PhysicalPath => null!;
+    public string? PhysicalPath => null;
 
     /// <inheritdoc />
     public Stream CreateReadStream() => throw new InvalidOperationException();
