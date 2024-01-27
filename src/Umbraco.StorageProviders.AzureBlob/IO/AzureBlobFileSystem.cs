@@ -85,8 +85,14 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         ArgumentNullException.ThrowIfNull(path);
 
         return ListBlobs(GetDirectoryPath(path))
-            .Where(x => x.IsPrefix)
-            .Select(x => GetRelativePath($"/{x.Prefix}").Trim('/'));
+            .Select(x => StripFileName(GetRelativePath(x.Blob.Name)))
+            .Distinct();
+    }
+
+    private static string StripFileName(string path)
+    {
+        var pathParts = path.Split('/');
+        return string.Join('/', pathParts.Take(pathParts.Length - 1));
     }
 
     /// <inheritdoc />
@@ -123,7 +129,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        return GetBlobClient(GetDirectoryPath(path)).Exists();
+        return ListBlobs(GetDirectoryPath(path)).Any();
     }
 
     /// <inheritdoc />
@@ -269,7 +275,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
 
         // if it starts with the request/URL root path, strip it and trim the starting slash to make it relative
         // eg "/Media/1234/img.jpg" => "1234/img.jpg"
-        if (_ioHelper.PathStartsWith(path, _requestRootPath, '/'))
+        if (_ioHelper.PathStartsWith(path.EnsureStartsWith('/'), _requestRootPath.EnsureStartsWith('/'), '/'))
         {
             path = path[_requestRootPath.Length..].TrimStart('/');
         }
@@ -363,7 +369,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         path = EnsureUrlSeparatorChar(path);
 
         if (!string.IsNullOrEmpty(_containerRootPath) &&
-            _ioHelper.PathStartsWith(path, _containerRootPath, '/'))
+            _ioHelper.PathStartsWith(path.EnsureStartsWith('/'), _containerRootPath.EnsureStartsWith('/'), '/'))
         {
             // Path already starts with the root path
             return path;
