@@ -129,6 +129,12 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
+        // If the path exists as a blob, it can't be a directory.
+        if (GetBlobClient(path).Exists())
+        {
+            return false;
+        }
+
         return ListBlobs(GetDirectoryPath(path)).Any();
     }
 
