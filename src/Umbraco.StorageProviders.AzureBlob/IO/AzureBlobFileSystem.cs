@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -59,6 +53,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         /// <exception cref="System.ArgumentNullException"><paramref name="blobContainerClient" /> is <c>null</c>.</exception>
         /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
         /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1054:URI-like parameters should not be strings", Justification = "This parameter is only a part of the URL.")]
         public AzureBlobFileSystem(string rootUrl, BlobContainerClient blobContainerClient, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider, string? containerRootPath = null)
         {
             ArgumentNullException.ThrowIfNull(rootUrl);
@@ -263,6 +258,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
 
         /// <inheritdoc />
         /// <exception cref="System.ArgumentNullException"><paramref name="fullPathOrUrl" /> is <c>null</c>.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1054:URI-like parameters should not be strings", Justification = "This method is inherited from an interface.")]
         public string GetRelativePath(string fullPathOrUrl)
         {
             ArgumentNullException.ThrowIfNull(fullPathOrUrl);
@@ -293,6 +289,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
 
         /// <inheritdoc />
         /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI-like return values should not be strings", Justification = "This method is inherited from an interface.")]
         public string GetUrl(string? path)
         {
             ArgumentNullException.ThrowIfNull(path);
