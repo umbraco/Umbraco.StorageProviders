@@ -98,9 +98,9 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         {
             ArgumentNullException.ThrowIfNull(path);
 
-            return ListBlobs(GetDirectoryPath(path))
+            return ListBlobs(path)
                 .Where(x => x.IsPrefix)
-                .Select(x => GetRelativePath($"/{x.Prefix}").Trim('/'));
+                .Select(x => GetRelativePath(x.Prefix).TrimEnd('/'));
         }
 
         /// <inheritdoc />
@@ -118,13 +118,9 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         {
             ArgumentNullException.ThrowIfNull(path);
 
-            foreach (var blob in ListBlobs(GetDirectoryPath(path)))
+            foreach (BlobHierarchyItem blob in ListBlobs(path, true))
             {
-                if (blob.IsPrefix)
-                {
-                    DeleteDirectory(blob.Prefix, true);
-                }
-                else if (blob.IsBlob)
+                if (blob.IsBlob)
                 {
                     _container.GetBlobClient(blob.Blob.Name).DeleteIfExists();
                 }
@@ -137,7 +133,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         {
             ArgumentNullException.ThrowIfNull(path);
 
-            return GetBlobClient(GetDirectoryPath(path)).Exists();
+            return ListBlobs(path).Any();
         }
 
         /// <inheritdoc />
@@ -159,10 +155,10 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             ArgumentNullException.ThrowIfNull(path);
             ArgumentNullException.ThrowIfNull(stream);
 
-            var blob = GetBlobClient(path);
+            BlobClient blob = GetBlobClient(path);
             if (!overrideIfExists && blob.Exists())
             {
-                throw new InvalidOperationException($"A file at path '{path}' already exists");
+                throw new InvalidOperationException($"A file at path '{path}' already exists.");
             }
 
             var headers = new BlobHttpHeaders();
@@ -187,10 +183,10 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
             ArgumentNullException.ThrowIfNull(path);
             ArgumentNullException.ThrowIfNull(physicalPath);
 
-            var destinationBlob = GetBlobClient(path);
+            BlobClient destinationBlob = GetBlobClient(path);
             if (!overrideIfExists && destinationBlob.Exists())
             {
-                throw new InvalidOperationException($"A file at path '{path}' already exists");
+                throw new InvalidOperationException($"A file at path '{path}' already exists.");
             }
 
             var sourceBlob = GetBlobClient(physicalPath);
@@ -227,7 +223,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         {
             ArgumentNullException.ThrowIfNull(path);
 
-            var files = ListBlobs(GetDirectoryPath(path)).Where(x => x.IsBlob).Select(x => x.Blob.Name);
+            IEnumerable<string> files = ListBlobs(path).Where(x => x.IsBlob).Select(x => x.Blob.Name);
             if (!string.IsNullOrEmpty(filter) && filter != "*.*")
             {
                 // TODO: Might be better to use a globbing library
@@ -235,7 +231,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
                 files = files.Where(x => x.IndexOf(filter, StringComparison.InvariantCultureIgnoreCase) > -1);
             }
 
-            return files.Select(x => GetRelativePath($"/{x}"));
+            return files.Select(GetRelativePath);
         }
 
         /// <inheritdoc />
@@ -337,7 +333,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         {
             ArgumentNullException.ThrowIfNull(path);
 
-            return _container.GetBlobClient(GetBlobPath(path));
+            return _container.GetBlobClient(GetBlobName(path));
         }
 
         /// <inheritdoc />
@@ -346,19 +342,15 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         private static string EnsureUrlSeparatorChar(string path)
             => path.Replace("\\", "/", StringComparison.InvariantCultureIgnoreCase);
 
-        private string GetDirectoryPath(string fullPathOrUrl)
+        private Pageable<BlobHierarchyItem> ListBlobs(string path, bool recursive = false)
         {
-            var path = GetFullPath(fullPathOrUrl);
+            string? delimiter = recursive ? null : "/";
+            string prefix = GetFullPath(path).EnsureEndsWith('/');
 
-            return path.Length == 0 ? path : path.EnsureEndsWith('/');
+            return _container.GetBlobsByHierarchy(delimiter: delimiter, prefix: prefix);
         }
 
-        private IEnumerable<BlobHierarchyItem> ListBlobs(string path)
-        {
-            return _container.GetBlobsByHierarchy(prefix: path);
-        }
-
-        private string GetBlobPath(string path)
+        private string GetBlobName(string path)
         {
             path = EnsureUrlSeparatorChar(path);
 
