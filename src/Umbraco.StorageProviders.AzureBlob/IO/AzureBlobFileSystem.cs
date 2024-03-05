@@ -100,7 +100,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
 
             return ListBlobs(path)
                 .Where(x => x.IsPrefix)
-                .Select(x => GetRelativePath(x.Prefix).TrimEnd('/'));
+                .Select(x => GetRelativePath($"/{x.Prefix}").Trim('/'));
         }
 
         /// <inheritdoc />
@@ -231,7 +231,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
                 files = files.Where(x => x.IndexOf(filter, StringComparison.InvariantCultureIgnoreCase) > -1);
             }
 
-            return files.Select(GetRelativePath);
+            return files.Select(x => GetRelativePath($"/{x}"));
         }
 
         /// <inheritdoc />
