@@ -128,7 +128,10 @@ namespace Umbraco.StorageProviders.AzureBlob.IO
         {
             ArgumentNullException.ThrowIfNull(path);
 
-            return ListBlobs(path).Any();
+            // Try getting a single item/page
+            Page<BlobHierarchyItem>? firstPage = ListBlobs(path).AsPages(pageSizeHint: 1).FirstOrDefault();
+
+            return firstPage?.Values.Count > 0;
         }
 
         /// <inheritdoc />
