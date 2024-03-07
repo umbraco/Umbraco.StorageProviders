@@ -84,7 +84,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        return ListBlobs(GetDirectoryPath(path))
+        return ListBlobs(path)
             .Where(x => x.IsPrefix)
             .Select(x => GetRelativePath($"/{x.Prefix}").Trim('/'));
     }
@@ -104,13 +104,9 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        foreach (BlobHierarchyItem blob in ListBlobs(GetDirectoryPath(path)))
+        foreach (BlobHierarchyItem blob in ListBlobs(path, true))
         {
-            if (blob.IsPrefix)
-            {
-                DeleteDirectory(blob.Prefix, true);
-            }
-            else if (blob.IsBlob)
+            if (blob.IsBlob)
             {
                 _container.GetBlobClient(blob.Blob.Name).DeleteIfExists();
             }
@@ -123,7 +119,10 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        return GetBlobClient(GetDirectoryPath(path)).Exists();
+        // Try getting a single item/page
+        Page<BlobHierarchyItem>? firstPage = ListBlobs(path).AsPages(pageSizeHint: 1).FirstOrDefault();
+
+        return firstPage?.Values.Count > 0;
     }
 
     /// <inheritdoc />
@@ -148,7 +147,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         BlobClient blob = GetBlobClient(path);
         if (!overrideIfExists && blob.Exists())
         {
-            throw new InvalidOperationException($"A file at path '{path}' already exists");
+            throw new InvalidOperationException($"A file at path '{path}' already exists.");
         }
 
         var headers = new BlobHttpHeaders();
@@ -180,7 +179,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         BlobClient destinationBlob = GetBlobClient(path);
         if (!overrideIfExists && destinationBlob.Exists())
         {
-            throw new InvalidOperationException($"A file at path '{path}' already exists");
+            throw new InvalidOperationException($"A file at path '{path}' already exists.");
         }
 
         BlobClient sourceBlob = GetBlobClient(physicalPath);
@@ -220,7 +219,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        IEnumerable<string> files = ListBlobs(GetDirectoryPath(path)).Where(x => x.IsBlob).Select(x => x.Blob.Name);
+        IEnumerable<string> files = ListBlobs(path).Where(x => x.IsBlob).Select(x => x.Blob.Name);
         if (!string.IsNullOrEmpty(filter) && filter != "*.*")
         {
             // TODO: Might be better to use a globbing library
@@ -331,7 +330,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        return _container.GetBlobClient(GetBlobPath(path));
+        return _container.GetBlobClient(GetBlobName(path));
     }
 
     /// <inheritdoc />
@@ -348,17 +347,15 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     private static string EnsureUrlSeparatorChar(string path)
         => path.Replace("\\", "/", StringComparison.InvariantCultureIgnoreCase);
 
-    private string GetDirectoryPath(string fullPathOrUrl)
+    private Pageable<BlobHierarchyItem> ListBlobs(string path, bool recursive = false)
     {
-        var path = GetFullPath(fullPathOrUrl);
+        string? delimiter = recursive ? null : "/";
+        string prefix = GetFullPath(path).EnsureEndsWith('/');
 
-        return path.Length == 0 ? path : path.EnsureEndsWith('/');
+        return _container.GetBlobsByHierarchy(delimiter: delimiter, prefix: prefix);
     }
 
-    private Pageable<BlobHierarchyItem> ListBlobs(string path)
-        => _container.GetBlobsByHierarchy(prefix: path);
-
-    private string GetBlobPath(string path)
+    private string GetBlobName(string path)
     {
         path = EnsureUrlSeparatorChar(path);
 
