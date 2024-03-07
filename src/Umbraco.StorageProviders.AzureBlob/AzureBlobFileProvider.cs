@@ -40,7 +40,7 @@ public sealed class AzureBlobFileProvider : IFileProvider
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        _containerClient = new BlobContainerClient(options.ConnectionString, options.ContainerName);
+        _containerClient = options.CreateBlobContainerClient();
         _containerRootPath = options.ContainerRootPath?.Trim(Constants.CharArrays.ForwardSlash);
     }
 
