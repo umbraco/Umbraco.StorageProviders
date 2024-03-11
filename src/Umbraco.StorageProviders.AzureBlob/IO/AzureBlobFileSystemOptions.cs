@@ -16,13 +16,13 @@ public sealed class AzureBlobFileSystemOptions
     /// Gets or sets the storage account connection string.
     /// </summary>
     [Required]
-    public string ConnectionString { get; set; } = null!;
+    public required string ConnectionString { get; set; }
 
     /// <summary>
     /// Gets or sets the container name.
     /// </summary>
     [Required]
-    public string ContainerName { get; set; } = null!;
+    public required string ContainerName { get; set; }
 
     /// <summary>
     /// Gets or sets the root path of the container.
@@ -33,5 +33,5 @@ public sealed class AzureBlobFileSystemOptions
     /// Gets or sets the virtual path.
     /// </summary>
     [Required]
-    public string VirtualPath { get; set; } = null!;
+    public required string VirtualPath { get; set; }
 }

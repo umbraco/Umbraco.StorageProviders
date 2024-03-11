@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <path fill="#283A97" d="M 0.753906 31.957031 C 0.78125 14.699219 14.78125 0.726562 32.042969 0.753906 C 49.300781 0.78125 63.273438 14.78125 63.246094 32.042969 C 63.21875 49.285156 49.246094 63.246094 32 63.246094 C 14.726562 63.234375 0.738281 49.230469 0.753906 31.957031 Z M 0.753906 31.957031 "/>
+  <g transform="translate(14, 14) scale(1.5)" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-database">
+    <ellipse cx="12" cy="5" rx="9" ry="3"/>
+    <path d="M3 5V19A9 3 0 0 0 21 19V5"/>
+    <path d="M3 12A9 3 0 0 0 21 12"/>
+  </g>
+</svg>

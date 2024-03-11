@@ -3,6 +3,8 @@ This repository contains Umbraco storage providers that can replace the default 
 
 > **Note**
 > Use the following documentation for previous Umbraco CMS versions:
+> * [Umbraco CMS 12 - v12](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/12.0.x/README.md)
+> * [Umbraco CMS 11 - v11](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/11.0.x/README.md)
 > * [Umbraco CMS 10 - v10](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/10.0.x/README.md)
 > * [Umbraco CMS 9 - v1](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/1.1.x/README.md)
 
@@ -10,17 +12,15 @@ This repository contains Umbraco storage providers that can replace the default 
 Contains shared storage providers infrastructure, like a CDN media URL provider.
 
 ### Usage
-This provider can be added in the `Startup.cs` file:
+This provider can be added in the `Program.cs` file:
 ```diff
-public void ConfigureServices(IServiceCollection services)
-{
-    services.AddUmbraco(_env, _config)
-        .AddBackOffice()
-        .AddWebsite()
-        .AddComposers()
-+       .AddCdnMediaUrlProvider()
-        .Build();
-}
+builder.CreateUmbracoBuilder()
+    .AddBackOffice()
+    .AddWebsite()
+    .AddDeliveryApi()
+    .AddComposers()
++   .AddCdnMediaUrlProvider()
+    .Build();
 ```
 
 There are multiple ways to configure the CDN provider. It can be done in code (replacing the code added above):
@@ -52,7 +52,7 @@ UMBRACO__STORAGE__CDN__REMOVEMEDIAFROMPATH=true
 ```
 
 > **Note**
-> You still have to add the provider in the `Startup.cs` file when not configuring the options in code.
+> You still have to add the provider in the `Program.cs` file when not configuring the options in code.
 
 ### Configuration
 Configure your CDN origin to point to your site and ensure every unique URL is cached (includes the query string), so images can be processed by the site and the response cached by the CDN.
@@ -63,17 +63,15 @@ By default, the CDN provider removes the media path (`/media`) from the generate
 The Azure Blob Storage provider has an implementation of the Umbraco `IFileSystem` that connects to an Azure Blob Storage container.
 
 ### Usage
-This provider can be added in the `Startup.cs` file:
+This provider can be added in the `Program.cs` file:
 ```diff
-public void ConfigureServices(IServiceCollection services)
-{
-    services.AddUmbraco(_env, _config)
-        .AddBackOffice()
-        .AddWebsite()
-        .AddComposers()
-+       .AddAzureBlobMediaFileSystem()
-        .Build();
-}
+builder.CreateUmbracoBuilder()
+    .AddBackOffice()
+    .AddWebsite()
+    .AddDeliveryApi()
+    .AddComposers()
++   .AddAzureBlobMediaFileSystem()
+    .Build();
 ```
 
 There are multiple ways to configure the provider. It can be done in code (replacing the code added above):
@@ -107,24 +105,22 @@ UMBRACO__STORAGE__AZUREBLOB__MEDIA__CONTAINERNAME=sample-container
 ```
 
 > **Note**
-> You still have to add the provider in the `Startup.cs` file when not configuring the options in code.
+> You still have to add the provider in the `Program.cs` file when not configuring the options in code.
 
 ## Umbraco.StorageProviders.AzureBlob.ImageSharp
 Adds ImageSharp support for storing the image cache to a pre-configured Azure Blob Storage provider.
 
 ### Usage
-This provider can be added in the `Startup.cs` file:
+This provider can be added in the `Program.cs` file:
 ```diff
-public void ConfigureServices(IServiceCollection services)
-{
-    services.AddUmbraco(_env, _config)
-        .AddBackOffice()
-        .AddWebsite()
-        .AddComposers()
-        .AddAzureBlobMediaFileSystem()
-+       .AddAzureBlobImageSharpCache()
-        .Build();
-}
+builder.CreateUmbracoBuilder()
+    .AddBackOffice()
+    .AddWebsite()
+    .AddDeliveryApi()
+    .AddComposers()
+    .AddAzureBlobMediaFileSystem()
++   .AddAzureBlobImageSharpCache()
+    .Build();
 ```
 
 By default the media file system configuration will be used and files will be stored in a separate folder ([see below](#folder-structure-in-the-azure-blob-storage-container)). You can specify the name of another (already configured) Azure Blob file system to store the files in another container:

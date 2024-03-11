@@ -1,0 +1,33 @@
+{
+  "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
+  "AuthorDetails": {
+    "Url": "https://umbraco.com/",
+    "ImageUrl": "https://github.com/umbraco.png",
+    "SyncContributorsFromRepository": true
+  },
+  "Category": "Developer Tools",
+  "Title": "Umbraco Storage Providers",
+  "Description": "Storage Providers is an extension from Umbraco that provides a CDN media provider and can replace the default physical file storage.",
+  "DocumentationUrl": "https://github.com/umbraco/Umbraco.StorageProviders#umbracostorageproviders",
+  "IssueTrackerUrl": "https://github.com/umbraco/Umbraco.StorageProviders/issues",
+  "LicenseTypes": [
+    "Free"
+  ],
+  "PackageType": "Package",
+  "RelatedPackages": [
+    {
+      "GroupTitle": "Azure Blob Storage",
+      "PackageId": "Umbraco.StorageProviders.AzureBlob",
+      "Description": "The Azure Blob Storage provider has an implementation of the Umbraco IFileSystem that connects to an Azure Blob Storage container."
+    },
+    {
+      "GroupTitle": "Azure Blob Storage",
+      "PackageId": "Umbraco.StorageProviders.AzureBlob.ImageSharp",
+      "Description": "Adds ImageSharp support for storing the image cache to a pre-configured Azure Blob Storage provider."
+    }
+  ],
+  "Tags": [
+    "storage",
+    "cdn"
+  ]
+}

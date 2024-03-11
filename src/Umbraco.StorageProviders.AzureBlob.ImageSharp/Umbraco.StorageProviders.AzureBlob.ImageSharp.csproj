@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Title>Umbraco Storage Providers - Azure Blob Storage - ImageSharp</Title>
     <Description>Adds ImageSharp support using the Azure Blob Storage provider for Umbraco CMS.</Description>
-    <PackageTags>umbraco storage azure blob imagesharp</PackageTags>
+    <PackageTags>umbraco-marketplace umbraco azure blob storage imagesharp</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" />

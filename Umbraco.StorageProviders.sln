@@ -28,6 +28,24 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Umbraco.StorageProviders.Az
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Umbraco.StorageProviders.AzureBlob.ImageSharp2", "src\Umbraco.StorageProviders.AzureBlob.ImageSharp2\Umbraco.StorageProviders.AzureBlob.ImageSharp2.csproj", "{CBFE3322-4B5F-453A-AF68-E67F7CC80FEC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Umbraco Marketplace", "Umbraco Marketplace", "{52E66DE4-F70B-4E6C-B8BE-91D8873CBE95}"
+	ProjectSection(SolutionItems) = preProject
+		umbraco-marketplace-readme-umbraco.storageproviders.azureblob.imagesharp.md = umbraco-marketplace-readme-umbraco.storageproviders.azureblob.imagesharp.md
+		umbraco-marketplace-readme-umbraco.storageproviders.azureblob.md = umbraco-marketplace-readme-umbraco.storageproviders.azureblob.md
+		umbraco-marketplace-readme-umbraco.storageproviders.md = umbraco-marketplace-readme-umbraco.storageproviders.md
+		umbraco-marketplace-umbraco.storageproviders.azureblob.imagesharp.json = umbraco-marketplace-umbraco.storageproviders.azureblob.imagesharp.json
+		umbraco-marketplace-umbraco.storageproviders.azureblob.json = umbraco-marketplace-umbraco.storageproviders.azureblob.json
+		umbraco-marketplace-umbraco.storageproviders.json = umbraco-marketplace-umbraco.storageproviders.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{209D581B-FE93-4050-BED7-D439D00CEC5A}"
+	ProjectSection(SolutionItems) = preProject
+		examples\Directory.Build.props = examples\Directory.Build.props
+		examples\Directory.Packages.props = examples\Directory.Packages.props
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Umbraco.StorageProviders.AzureBlob.TestSite", "examples\Umbraco.StorageProviders.AzureBlob.TestSite\Umbraco.StorageProviders.AzureBlob.TestSite.csproj", "{9B1140ED-9F17-44B0-80CF-FA50F949B65B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,9 +104,25 @@ Global
 		{CBFE3322-4B5F-453A-AF68-E67F7CC80FEC}.Release|x64.Build.0 = Release|Any CPU
 		{CBFE3322-4B5F-453A-AF68-E67F7CC80FEC}.Release|x86.ActiveCfg = Release|Any CPU
 		{CBFE3322-4B5F-453A-AF68-E67F7CC80FEC}.Release|x86.Build.0 = Release|Any CPU
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B}.Debug|x64.Build.0 = Debug|Any CPU
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B}.Debug|x86.Build.0 = Debug|Any CPU
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B}.Release|x64.ActiveCfg = Release|Any CPU
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B}.Release|x64.Build.0 = Release|Any CPU
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B}.Release|x86.ActiveCfg = Release|Any CPU
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{52E66DE4-F70B-4E6C-B8BE-91D8873CBE95} = {F00AB141-9521-4D68-967D-4326FEB32E1B}
+		{9B1140ED-9F17-44B0-80CF-FA50F949B65B} = {209D581B-FE93-4050-BED7-D439D00CEC5A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1476D78A-AFF2-44AD-8425-C77786B527FD}
