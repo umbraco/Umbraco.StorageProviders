@@ -19,18 +19,16 @@ public sealed class CdnMediaUrlProvider : DefaultMediaUrlProvider
     private string _mediaPath;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CdnMediaUrlProvider"/> class.
+    /// Initializes a new instance of the <see cref="CdnMediaUrlProvider" /> class.
     /// </summary>
     /// <param name="options">The options.</param>
     /// <param name="globalSettings">The global settings.</param>
     /// <param name="hostingEnvironment">The hosting environment.</param>
     /// <param name="mediaPathGenerators">The media path generators.</param>
     /// <param name="uriUtility">The URI utility.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="options"/> is <c>null</c>.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="globalSettings"/> is <c>null</c>.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="hostingEnvironment"/> is <c>null</c>.</exception>
-    public CdnMediaUrlProvider(IOptionsMonitor<CdnMediaUrlProviderOptions> options, IOptionsMonitor<GlobalSettings> globalSettings, IHostingEnvironment hostingEnvironment, MediaUrlGeneratorCollection mediaPathGenerators, UriUtility uriUtility)
-        : base(mediaPathGenerators, uriUtility)
+    /// <param name="urlAssembler">The URL assembler.</param>
+    public CdnMediaUrlProvider(IOptionsMonitor<CdnMediaUrlProviderOptions> options, IOptionsMonitor<GlobalSettings> globalSettings, IHostingEnvironment hostingEnvironment, MediaUrlGeneratorCollection mediaPathGenerators, UriUtility uriUtility, IUrlAssembler urlAssembler)
+        : base(mediaPathGenerators, uriUtility, urlAssembler)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(globalSettings);
