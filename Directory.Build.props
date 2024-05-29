@@ -28,7 +28,8 @@
   <!-- Package Validation -->
   <PropertyGroup>
     <GenerateCompatibilitySuppressionFile>false</GenerateCompatibilitySuppressionFile>
-    <!--<EnablePackageValidation>true</EnablePackageValidation>-->
+    <!-- TODO (V14): Re-enable when 14 is released. -->
+    <EnablePackageValidation>false</EnablePackageValidation>
     <PackageValidationBaselineVersion>14.0.0</PackageValidationBaselineVersion>
     <EnableStrictModeForCompatibleFrameworksInPackage>true</EnableStrictModeForCompatibleFrameworksInPackage>
     <EnableStrictModeForCompatibleTfms>true</EnableStrictModeForCompatibleTfms>
