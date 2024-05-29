@@ -31,14 +31,14 @@ public sealed class AzureBlobFileSystemImageCache : IImageCache
         ArgumentNullException.ThrowIfNull(name);
 
         AzureBlobFileSystemOptions fileSystemOptions = options.Get(name);
-        _container = new BlobContainerClient(fileSystemOptions.ConnectionString, fileSystemOptions.ContainerName);
+        _container = fileSystemOptions.CreateBlobContainerClient();
         _containerRootPath = GetContainerRootPath(containerRootPath, fileSystemOptions);
 
         options.OnChange((options, changedName) =>
         {
             if (changedName == name)
             {
-                _container = new BlobContainerClient(options.ConnectionString, options.ContainerName);
+                _container = options.CreateBlobContainerClient();
                 _containerRootPath = GetContainerRootPath(containerRootPath, options);
             }
         });
