@@ -75,7 +75,7 @@ public static class AzureBlobMediaFileSystemExtensions
             .Get<AzureBlobFileSystemOptions>() ?? throw new InvalidOperationException($"Configuration section Umbraco:Storage:AzureBlob:{AzureBlobFileSystemOptions.MediaFileSystemName} must have a value");
 
         // Register the BlobContainerClient as a scoped service. Uses the `Try` method, so if there is a previously registered service, it will not be replaced.
-        builder.Services.TryAddScoped(_ => new BlobContainerClient(config.ConnectionString, config.ContainerName));
+        builder.Services.TryAddSingleton(_ => new BlobContainerClient(config.ConnectionString, config.ContainerName));
 
         builder.SetMediaFileSystem(provider => provider.GetRequiredService<IAzureBlobFileSystemProvider>().GetFileSystem(AzureBlobFileSystemOptions.MediaFileSystemName));
 
