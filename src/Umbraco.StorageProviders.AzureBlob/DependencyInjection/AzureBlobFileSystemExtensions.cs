@@ -101,7 +101,7 @@ public static class AzureBlobFileSystemExtensions
     /// <summary>
     /// Returns the configuration key for the Azure Blob Storage file system.
     /// </summary>
-    /// <param name="name">The specific AzureBlob configuration key name</param>
-    /// <returns>A <see cref="string"/>with the configuration key </returns>
+    /// <param name="name">The specific AzureBlob configuration key name.</param>
+    /// <returns>A <see cref="string"/>with the configuration key.</returns>
     internal static string UmbracoStorageAzureBlobMediaConfigurationKey(string name = AzureBlobFileSystemOptions.MediaFileSystemName) => $"Umbraco:Storage:AzureBlob:{name}";
 }
