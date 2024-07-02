@@ -25,7 +25,7 @@ public sealed class AzureBlobFileSystemProvider : IAzureBlobFileSystemProvider
     /// <param name="optionsMonitor">The options monitor.</param>
     /// <param name="hostingEnvironment">The hosting environment.</param>
     /// <param name="ioHelper">The IO helper.</param>
-    /// <param name="provider">The .</param>
+    /// <param name="provider">The <see cref="IServiceProvider"/> used to instantiate a <see cref="BlobContainerClient"/>.</param>
     /// <exception cref="ArgumentNullException"><paramref name="optionsMonitor"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="hostingEnvironment"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="ioHelper"/> is <c>null</c>.</exception>
