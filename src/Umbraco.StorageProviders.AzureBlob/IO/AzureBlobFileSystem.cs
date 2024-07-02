@@ -104,7 +104,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        foreach (BlobHierarchyItem blob in ListBlobs(path, true))
+        foreach (BlobHierarchyItem blob in ListBlobs(path, recursive))
         {
             if (blob.IsBlob)
             {
