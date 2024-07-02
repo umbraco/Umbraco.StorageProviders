@@ -1,4 +1,7 @@
+using Azure.Storage.Blobs;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Infrastructure.DependencyInjection;
@@ -65,6 +68,15 @@ public static class AzureBlobMediaFileSystemExtensions
         {
             optionsBuilder.Configure<IOptions<GlobalSettings>>((options, globalSettings) => options.VirtualPath = globalSettings.Value.UmbracoMediaPath);
             configure?.Invoke(optionsBuilder);
+        });
+
+        // Register the BlobContainerClient as a scoped service. Uses the `Try` method, so if there is a previously registered service, it will not be replaced.
+        builder.Services.TryAddSingleton(provider =>
+        {
+            IOptionsSnapshot<AzureBlobFileSystemOptions> options = provider.GetRequiredService<IOptionsSnapshot<AzureBlobFileSystemOptions>>();
+            AzureBlobFileSystemOptions config = options.Get(AzureBlobFileSystemOptions.MediaFileSystemName);
+
+            return new BlobContainerClient(config.ConnectionString, config.ContainerName);
         });
 
         builder.SetMediaFileSystem(provider => provider.GetRequiredService<IAzureBlobFileSystemProvider>().GetFileSystem(AzureBlobFileSystemOptions.MediaFileSystemName));

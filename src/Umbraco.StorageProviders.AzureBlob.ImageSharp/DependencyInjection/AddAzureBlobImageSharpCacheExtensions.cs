@@ -1,5 +1,5 @@
+using Azure.Storage.Blobs;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp.Web.Caching;
 using Umbraco.Extensions;
 using Umbraco.StorageProviders.AzureBlob.ImageSharp;
@@ -52,7 +52,7 @@ public static class AddAzureBlobImageSharpCacheExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Services.AddUnique<IImageCache>(provider => new AzureBlobFileSystemImageCache(provider.GetRequiredService<IOptionsMonitor<AzureBlobFileSystemOptions>>(), name, containerRootPath));
+        builder.Services.AddUnique<IImageCache>(provider => new AzureBlobFileSystemImageCache(provider.GetRequiredService<BlobContainerClient>(), containerRootPath));
 
         return builder;
     }
