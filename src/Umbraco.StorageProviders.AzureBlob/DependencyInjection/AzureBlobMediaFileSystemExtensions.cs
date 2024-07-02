@@ -1,4 +1,7 @@
+using Azure.Storage.Blobs;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Infrastructure.DependencyInjection;
@@ -66,6 +69,13 @@ public static class AzureBlobMediaFileSystemExtensions
             optionsBuilder.Configure<IOptions<GlobalSettings>>((options, globalSettings) => options.VirtualPath = globalSettings.Value.UmbracoMediaPath);
             configure?.Invoke(optionsBuilder);
         });
+
+        // Note: this instance will be reused via the closure below.
+        AzureBlobFileSystemOptions config = builder.Config.GetRequiredSection(AzureBlobFileSystemExtensions.UmbracoStorageAzureBlobMediaConfigurationKey(AzureBlobFileSystemOptions.MediaFileSystemName))
+            .Get<AzureBlobFileSystemOptions>() ?? throw new InvalidOperationException($"Configuration section Umbraco:Storage:AzureBlob:{AzureBlobFileSystemOptions.MediaFileSystemName} must have a value");
+
+        // Register the BlobContainerClient as a scoped service. Uses the `Try` method, so if there is a previously registered service, it will not be replaced.
+        builder.Services.TryAddScoped(_ => new BlobContainerClient(config.ConnectionString, config.ContainerName));
 
         builder.SetMediaFileSystem(provider => provider.GetRequiredService<IAzureBlobFileSystemProvider>().GetFileSystem(AzureBlobFileSystemOptions.MediaFileSystemName));
 

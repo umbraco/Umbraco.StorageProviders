@@ -22,6 +22,23 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// Initializes a new instance of the <see cref="AzureBlobFileSystem"/> class.
     /// </summary>
     /// <param name="options">The Azure Blob File System options.</param>
+    /// <param name="blobContainerClient">The blob container client.</param>
+    /// <param name="hostingEnvironment">The hosting environment.</param>
+    /// <param name="ioHelper">The I/O helper.</param>
+    /// <param name="contentTypeProvider">The content type provider.</param>
+    /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
+    /// <exception cref="System.ArgumentNullException"><paramref name="hostingEnvironment" /> is <c>null</c>.</exception>
+    /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
+    /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
+    /// <exception cref="System.ArgumentNullException"><paramref name="blobContainerClient" /> is <c>null</c>.</exception>
+    public AzureBlobFileSystem(AzureBlobFileSystemOptions options, BlobContainerClient blobContainerClient, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider)
+        : this(GetRequestRootPath(options, hostingEnvironment), blobContainerClient, ioHelper, contentTypeProvider, options.ContainerRootPath)
+    { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AzureBlobFileSystem"/> class.
+    /// </summary>
+    /// <param name="options">The Azure Blob File System options.</param>
     /// <param name="hostingEnvironment">The hosting environment.</param>
     /// <param name="ioHelper">The I/O helper.</param>
     /// <param name="contentTypeProvider">The content type provider.</param>
@@ -45,6 +62,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// <exception cref="System.ArgumentNullException"><paramref name="blobContainerClient" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
+    /// <exception cref="System.ArgumentNullException"><paramref name="blobContainerClient" /> is <c>null</c>.</exception>
     public AzureBlobFileSystem(string requestRootPath, BlobContainerClient blobContainerClient, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider, string? containerRootPath = null)
     {
         ArgumentNullException.ThrowIfNull(requestRootPath);
