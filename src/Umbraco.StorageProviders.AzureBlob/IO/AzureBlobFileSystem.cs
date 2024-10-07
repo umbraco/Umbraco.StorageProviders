@@ -1,3 +1,4 @@
+using System.Net;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -12,6 +13,10 @@ namespace Umbraco.StorageProviders.AzureBlob.IO;
 /// <inheritdoc />
 public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFactory
 {
+    // When not found, default to 1-1-1601 00:00:00 +00:00 for created/last modified and -1 for size to align with PhysicalFileSystem
+    private static readonly DateTimeOffset _notFoundDateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(-11644473600);
+    private const long NotFoundSize = -1;
+
     private readonly string _requestRootPath;
     private readonly string _containerRootPath;
     private readonly BlobContainerClient _container;
@@ -30,7 +35,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
     public AzureBlobFileSystem(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider)
-        : this(GetRequestRootPath(options, hostingEnvironment), new BlobContainerClient(options.ConnectionString, options.ContainerName), ioHelper, contentTypeProvider, options.ContainerRootPath)
+        : this(GetRequestRootPath(options, hostingEnvironment), options.CreateBlobContainerClient(), ioHelper, contentTypeProvider, options.ContainerRootPath)
     { }
 
     /// <summary>
@@ -75,7 +80,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        return new BlobContainerClient(options.ConnectionString, options.ContainerName).CreateIfNotExists(accessType);
+        return options.CreateBlobContainerClient().CreateIfNotExists(accessType);
     }
 
     /// <inheritdoc />
@@ -91,6 +96,9 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
 
     /// <inheritdoc />
     /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
+    /// <remarks>
+    /// Azure Blob Storage can only delete blobs, so deleting directories is always recursive.
+    /// </remarks>
     public void DeleteDirectory(string path)
     {
         ArgumentNullException.ThrowIfNull(path);
@@ -100,6 +108,9 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
 
     /// <inheritdoc />
     /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
+    /// <remarks>
+    /// Azure Blob Storage can only delete blobs, so deleting directories is always recursive.
+    /// </remarks>
     public void DeleteDirectory(string path, bool recursive)
     {
         ArgumentNullException.ThrowIfNull(path);
@@ -303,7 +314,14 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        return GetBlobClient(path).GetProperties().Value.LastModified;
+        try
+        {
+            return GetBlobClient(path).GetProperties().Value.LastModified;
+        }
+        catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
+        {
+            return _notFoundDateTimeOffset;
+        }
     }
 
     /// <inheritdoc />
@@ -312,7 +330,14 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        return GetBlobClient(path).GetProperties().Value.CreatedOn;
+        try
+        {
+            return GetBlobClient(path).GetProperties().Value.CreatedOn;
+        }
+        catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
+        {
+            return _notFoundDateTimeOffset;
+        }
     }
 
     /// <inheritdoc />
@@ -321,7 +346,14 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        return GetBlobClient(path).GetProperties().Value.ContentLength;
+        try
+        {
+            return GetBlobClient(path).GetProperties().Value.ContentLength;
+        }
+        catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
+        {
+            return NotFoundSize;
+        }
     }
 
     /// <inheritdoc />
