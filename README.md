@@ -107,6 +107,36 @@ UMBRACO__STORAGE__AZUREBLOB__MEDIA__CONTAINERNAME=sample-container
 > **Note**
 > You still have to add the provider in the `Program.cs` file when not configuring the options in code.
 
+### Custom blob container options
+To override the default blob container options, you can use the following extension methods on `AzureBlobFileSystemOptions`:
+```csharp
+// Add using default options (overly verbose, but shows how to revert back to the default)
+.AddAzureBlobMediaFileSystem(options => options.CreateBlobContainerClientUsingDefault())
+// Add using options
+.AddAzureBlobMediaFileSystem(options => options.CreateBlobContainerClientUsingOptions(_blobClientOptions))
+// If the connection string is parsed to a URI, use the delegate to create a BlobContainerClient
+.AddAzureBlobMediaFileSystem(options => options.TryCreateBlobContainerClientUsingUri(uri => new BlobContainerClient(uri, _blobClientOptions)))
+```
+
+This can also be used together with the `Azure.Identity` package to authenticate with Azure AD (using managed identities):
+```csharp
+using Azure.Identity;
+using Azure.Storage.Blobs;
+using Umbraco.Cms.Core.Composing;
+using Umbraco.StorageProviders.AzureBlob.IO;
+
+internal sealed class AzureBlobFileSystemComposer : IComposer
+{
+    public void Compose(IUmbracoBuilder builder)
+        => builder.AddAzureBlobMediaFileSystem(options =>
+        {
+            options.ConnectionString = "https://[storage-account].blob.core.windows.net";
+            options.ContainerName = "media";
+            options.TryCreateBlobContainerClientUsingUri(uri => new BlobContainerClient(uri, new DefaultAzureCredential()));
+        });
+}
+```
+
 ## Umbraco.StorageProviders.AzureBlob.ImageSharp
 Adds ImageSharp support for storing the image cache to a pre-configured Azure Blob Storage provider.
 
