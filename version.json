@@ -19,6 +19,7 @@
   },
   "release": {
     "tagName": "release-{version}",
-    "branchName": "release/{version}"
+    "branchName": "release/{version}",
+    "versionIncrement": "build"
   }
 }
