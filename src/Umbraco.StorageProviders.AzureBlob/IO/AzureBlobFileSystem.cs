@@ -167,6 +167,11 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
             headers.ContentType = contentType;
         }
 
+        if (stream.CanSeek)
+        {
+            stream.Seek(0, 0);
+        }
+
         BlobRequestConditions? conditions = overrideIfExists ? null : new BlobRequestConditions
         {
             IfNoneMatch = ETag.All
