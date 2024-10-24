@@ -3,16 +3,16 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.6.143" />
+    <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.6.146" />
     <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
     <GlobalPackageReference Include="Umbraco.Code" Version="2.2.0" />
     <GlobalPackageReference Include="Umbraco.GitVersioning.Extensions" Version="0.2.0" />
   </ItemGroup>
   <PropertyGroup>
-    <UmbracoCmsPackageVersion>[15.0.0-rc1, 16)</UmbracoCmsPackageVersion>
+    <UmbracoCmsPackageVersion>[15.0.0-rc2, 16)</UmbracoCmsPackageVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Azure.Storage.Blobs" Version="12.22.1" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.22.2" />
     <PackageVersion Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="3.1.3" />
     <PackageVersion Include="Umbraco.Cms.Imaging.ImageSharp" Version="$(UmbracoCmsPackageVersion)" />
     <PackageVersion Include="Umbraco.Cms.Web.Common" Version="$(UmbracoCmsPackageVersion)" />
