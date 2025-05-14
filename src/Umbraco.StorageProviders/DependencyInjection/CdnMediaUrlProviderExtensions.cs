@@ -83,11 +83,7 @@ public static class CdnMediaUrlProviderExtensions
         // Configure CDN as allowed media host
         builder.Services.AddOptions<ContentSettings>().PostConfigure<IOptions<CdnMediaUrlProviderOptions>>((options, cdnMediaUrlProviderOptions) =>
         {
-            string cdnMediaHost = cdnMediaUrlProviderOptions.Value.Url.Host;
-            if (!options.AllowedMediaHosts.Contains(cdnMediaHost, StringComparer.OrdinalIgnoreCase))
-            {
-                options.AllowedMediaHosts = [..options.AllowedMediaHosts, cdnMediaHost];
-            }
+            options.AllowedMediaHosts.Add(cdnMediaUrlProviderOptions.Value.Url.Host);
         });
 
         return builder;
