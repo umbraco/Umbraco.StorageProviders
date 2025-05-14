@@ -3,11 +3,12 @@ This repository contains Umbraco storage providers that can replace the default 
 
 > **Note**
 > Use the following documentation for previous Umbraco CMS versions:
-> * [Umbraco CMS 14 - v14](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/14.x/README.md)
-> * [Umbraco CMS 13 - v13](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/13.x/README.md)
-> * [Umbraco CMS 12 - v12](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/12.0.x/README.md)
-> * [Umbraco CMS 11 - v11](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/11.0.x/README.md)
-> * [Umbraco CMS 10 - v10](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/10.0.x/README.md)
+> * [Umbraco CMS 15](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/15.x/README.md)
+> * [Umbraco CMS 14](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/14.x/README.md)
+> * [Umbraco CMS 13](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/13.x/README.md)
+> * [Umbraco CMS 12](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/12.0.x/README.md)
+> * [Umbraco CMS 11](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/11.0.x/README.md)
+> * [Umbraco CMS 10 - v10 (aligned with CMS major version from now on)](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/10.0.x/README.md)
 > * [Umbraco CMS 9 - v1](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/1.1.x/README.md)
 
 ## Umbraco.StorageProviders
@@ -171,12 +172,12 @@ The container name is expected to exist and uses the following folder structure:
 > This is different than the behavior of other file system providers, i.e. [UmbracoFileSystemProviders.Azure](https://github.com/umbraco-community/UmbracoFileSystemProviders.Azure) that expect the media contents to be at the root level.
 
 ## Using the file system providers
-Please refer to our documentation on [using custom file systems](https://our.umbraco.com/documentation/Extending/FileSystemProviders/).
+Please refer to our documentation on [using custom file systems](https://docs.umbraco.com/umbraco-cms/extending/filesystemproviders).
 
 ## Bugs, issues and Pull Requests
 If you encounter a bug when using this client library you are welcome to open an issue in the issue tracker of this repository. We always welcome Pull Request and please feel free to open an issue before submitting a Pull Request to discuss what you want to submit.
 
-Questions about usage should be posted to the forum on [our.umbraco.com](https://our.umbraco.com).
+Questions about usage should be posted to the forum on [forum.umbraco.com](https://forum.umbraco.com).
 
 ## License
 Umbraco Storage Providers is [MIT licensed](LICENSE).
