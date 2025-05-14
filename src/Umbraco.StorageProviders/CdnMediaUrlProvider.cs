@@ -25,10 +25,9 @@ public sealed class CdnMediaUrlProvider : DefaultMediaUrlProvider
     /// <param name="globalSettings">The global settings.</param>
     /// <param name="hostingEnvironment">The hosting environment.</param>
     /// <param name="mediaPathGenerators">The media path generators.</param>
-    /// <param name="uriUtility">The URI utility.</param>
     /// <param name="urlAssembler">The URL assembler.</param>
-    public CdnMediaUrlProvider(IOptionsMonitor<CdnMediaUrlProviderOptions> options, IOptionsMonitor<GlobalSettings> globalSettings, IHostingEnvironment hostingEnvironment, MediaUrlGeneratorCollection mediaPathGenerators, UriUtility uriUtility, IUrlAssembler urlAssembler)
-        : base(mediaPathGenerators, uriUtility, urlAssembler)
+    public CdnMediaUrlProvider(IOptionsMonitor<CdnMediaUrlProviderOptions> options, IOptionsMonitor<GlobalSettings> globalSettings, IHostingEnvironment hostingEnvironment, MediaUrlGeneratorCollection mediaPathGenerators, IUrlAssembler urlAssembler)
+        : base(mediaPathGenerators, urlAssembler)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(globalSettings);
