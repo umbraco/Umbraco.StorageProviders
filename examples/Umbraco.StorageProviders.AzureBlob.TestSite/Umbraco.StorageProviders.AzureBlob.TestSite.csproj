@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms" Version="17.0.0-rc3" />
-    <PackageReference Include="Umbraco.TheStarterKit" Version="17.0.0-rc1" />
+    <PackageReference Include="Umbraco.Cms" Version="17.0.0-rc4" />
+    <PackageReference Include="Umbraco.TheStarterKit" Version="17.0.0-rc4" />
   </ItemGroup>
 
   <Import Project="..\..\src\Umbraco.StorageProviders\buildTransitive\Umbraco.StorageProviders.props" />
