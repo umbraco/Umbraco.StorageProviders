@@ -59,21 +59,21 @@ public sealed class CdnMediaUrlProvider : DefaultMediaUrlProvider
     public override UrlInfo? GetMediaUrl(IPublishedContent content, string propertyAlias, UrlMode mode, string? culture, Uri current)
     {
         UrlInfo? mediaUrl = base.GetMediaUrl(content, propertyAlias, UrlMode.Relative, culture, current);
-        if (mediaUrl?.IsUrl == true)
+        if (mediaUrl?.Url is Uri url)
         {
-            string url = mediaUrl.Text;
+            var path = url.ToString();
 
             int startIndex = 0;
-            if (_removeMediaFromPath && url.StartsWith(_mediaPath, StringComparison.OrdinalIgnoreCase))
+            if (_removeMediaFromPath && path.StartsWith(_mediaPath, StringComparison.OrdinalIgnoreCase))
             {
                 startIndex = _mediaPath.Length;
             }
-            else if (url.StartsWith('/'))
+            else if (path.StartsWith('/'))
             {
                 startIndex = 1;
             }
 
-            return UrlInfo.Url(_cdnUrl + url[startIndex..], culture);
+            return UrlInfo.AsUrl(_cdnUrl + path[startIndex..], mediaUrl.Provider, mediaUrl.Culture, mediaUrl.IsExternal);
         }
 
         return mediaUrl;
