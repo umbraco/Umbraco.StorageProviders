@@ -1,0 +1,73 @@
+---
+# SBOM Generation Template
+# Generates Software Bill of Materials (SBOM) using CycloneDX cdxgen
+# and uploads to Dependency Track for security vulnerability tracking
+
+jobs:
+  - job: GenerateSBOMJob
+    displayName: Generate SBOM
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      # Check if DT_API_KEY and DT_BASE_URL are configured
+      - script: |
+          MISSING_VARS=""
+
+          if [ -z "$(DT_API_KEY)" ]; then
+            echo "##vso[task.logissue type=error]DT_API_KEY" \
+              "secret variable is not configured"
+            MISSING_VARS="DT_API_KEY"
+          fi
+
+          if [ -z "$(DT_BASE_URL)" ]; then
+            echo "##vso[task.logissue type=error]DT_BASE_URL" \
+              "variable is not configured"
+            if [ -n "$MISSING_VARS" ]; then
+              MISSING_VARS="$MISSING_VARS, DT_BASE_URL"
+            else
+              MISSING_VARS="DT_BASE_URL"
+            fi
+          fi
+
+          if [ -n "$MISSING_VARS" ]; then
+            echo "Please configure the following variables in pipeline" \
+              "to enable SBOM generation: $MISSING_VARS"
+            echo "##vso[task.complete result=Skipped;]" \
+              "Skipping SBOM generation - missing required variables"
+            exit 0
+          fi
+
+          echo "✓ DT_API_KEY and DT_BASE_URL are configured, proceeding" \
+            "with SBOM generation"
+        displayName: 'Verify SBOM Configuration'
+
+      # Install cdxgen globally
+      - script: |
+          cd $(Build.SourcesDirectory)
+          npm install --global @cyclonedx/cdxgen
+        displayName: 'Install cdxgen'
+
+      # Generate and upload SBOM
+      - script: |
+          mkdir -p $(Build.ArtifactStagingDirectory)/bom
+          cd $(Build.SourcesDirectory)
+
+          cdxgen --recurse \
+            --output $(Build.ArtifactStagingDirectory)/bom/bom.json \
+            --json-pretty \
+            --project-group "$(productGroup)" \
+            --project-name "$(productName)" \
+            --project-version "$(productVersion)" \
+            --server-url "$(DT_BASE_URL)" \
+            --api-key "$(DT_API_KEY)"
+        displayName: 'Generate & Upload SBOM with cdxgen'
+        env:
+          DT_API_KEY: $(DT_API_KEY)
+          DT_BASE_URL: $(DT_BASE_URL)
+
+      # Publish SBOM artifact
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish SBOM Artifact'
+        inputs:
+          targetPath: $(Build.ArtifactStagingDirectory)/bom
+          artifactName: SBOM
