@@ -37,6 +37,21 @@ public sealed class AzureBlobFileSystemOptions
     public required string VirtualPath { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether file provider metadata should be cached.
+    /// </summary>
+    public bool EnableFileProviderMetadataCache { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the file provider metadata cache duration.
+    /// </summary>
+    public TimeSpan FileProviderMetadataCacheDuration { get; set; } = TimeSpan.FromSeconds(60);
+
+    /// <summary>
+    /// Gets or sets a delegate that configures <see cref="BlobClientOptions" />.
+    /// </summary>
+    public Action<BlobClientOptions>? ConfigureBlobClientOptions { get; set; }
+
+    /// <summary>
     /// Gets or sets the Azure Blob Container client factory.
     /// </summary>
     /// <value>
@@ -50,5 +65,15 @@ public sealed class AzureBlobFileSystemOptions
     /// <value>
     /// The default Azure Blob Container client factory.
     /// </value>
-    internal static Func<AzureBlobFileSystemOptions, BlobContainerClient> DefaultBlobContainerClientFactory => options => new BlobContainerClient(options.ConnectionString, options.ContainerName);
+    internal static Func<AzureBlobFileSystemOptions, BlobContainerClient> DefaultBlobContainerClientFactory => options =>
+    {
+        if (options.ConfigureBlobClientOptions is null)
+        {
+            return new BlobContainerClient(options.ConnectionString, options.ContainerName);
+        }
+
+        var clientOptions = new BlobClientOptions();
+        options.ConfigureBlobClientOptions(clientOptions);
+        return new BlobContainerClient(options.ConnectionString, options.ContainerName, clientOptions);
+    };
 }

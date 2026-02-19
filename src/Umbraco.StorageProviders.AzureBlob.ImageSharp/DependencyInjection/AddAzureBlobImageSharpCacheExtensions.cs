@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp.Web.Caching;
@@ -52,7 +53,15 @@ public static class AddAzureBlobImageSharpCacheExtensions
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Services.AddUnique<IImageCache>(provider => new AzureBlobFileSystemImageCache(provider.GetRequiredService<IOptionsMonitor<AzureBlobFileSystemOptions>>(), name, containerRootPath));
+        builder.Services.AddMemoryCache();
+        builder.Services.AddOptions<AzureBlobImageSharpCacheOptions>()
+            .BindConfiguration(AzureBlobImageSharpCacheOptions.ConfigurationSectionName);
+        builder.Services.AddUnique<IImageCache>(provider => new AzureBlobFileSystemImageCache(
+            provider.GetRequiredService<IOptionsMonitor<AzureBlobFileSystemOptions>>(),
+            provider.GetRequiredService<IOptionsMonitor<AzureBlobImageSharpCacheOptions>>(),
+            provider.GetRequiredService<IMemoryCache>(),
+            name,
+            containerRootPath));
 
         return builder;
     }

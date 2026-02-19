@@ -1,11 +1,11 @@
 <Project>
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Company>Umbraco HQ</Company>
-    <Authors>Umbraco</Authors>
-    <Copyright>Copyright © Umbraco $([System.DateTime]::Today.ToString('yyyy'))</Copyright>
-    <Product>Umbraco Storage Providers</Product>
-    <PackageProjectUrl>https://github.com/umbraco/Umbraco.StorageProviders</PackageProjectUrl>
+    <Company>Vettvangur</Company>
+    <Authors>Vettvangur & Umbraco</Authors>
+    <Copyright>Copyright © Vettvangur $([System.DateTime]::Today.ToString('yyyy'))</Copyright>
+    <Product>Vettvangur Umbraco Storage Providers</Product>
+    <PackageProjectUrl>https://github.com/vettvangur/Umbraco.StorageProviders</PackageProjectUrl>
     <PackageIconUrl>https://github.com/umbraco/Umbraco.StorageProviders/raw/develop/icon.png</PackageIconUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

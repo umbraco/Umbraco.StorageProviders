@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Umbraco Storage Providers</Title>
+    <PackageId>Vettvangur.UmbracoStorageProviders</PackageId>
     <Description>Shared storage providers infrastructure for Umbraco CMS</Description>
     <PackageTags>umbraco-marketplace umbraco storage cdn</PackageTags>
   </PropertyGroup>

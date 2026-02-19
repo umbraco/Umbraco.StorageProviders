@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -87,6 +88,7 @@ public static class AzureBlobFileSystemExtensions
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(name);
 
+        builder.Services.AddMemoryCache();
         builder.Services.TryAddSingleton<IAzureBlobFileSystemProvider, AzureBlobFileSystemProvider>();
 
         OptionsBuilder<AzureBlobFileSystemOptions> optionsBuilder = builder.Services.AddOptions<AzureBlobFileSystemOptions>(name)

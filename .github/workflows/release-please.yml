@@ -1,0 +1,88 @@
+name: release-please
+
+on:
+  push:
+    branches: ["master"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - id: rp
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - uses: actions/checkout@v4
+        if: ${{ steps.rp.outputs.release_created == 'true' }}
+
+      - uses: actions/setup-dotnet@v4
+        if: ${{ steps.rp.outputs.release_created == 'true' }}
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        if: ${{ steps.rp.outputs.release_created == 'true' }}
+        run: dotnet restore
+
+      - name: Build (Release)
+        if: ${{ steps.rp.outputs.release_created == 'true' }}
+        run: dotnet build -c Release --no-restore
+
+      - name: Pack released paths
+        if: ${{ steps.rp.outputs.release_created == 'true' }}
+        shell: bash
+        run: |
+          echo "paths_released:"
+          echo '${{ steps.rp.outputs.paths_released }}' | jq .
+
+          mkdir -p artifacts
+
+          while IFS= read -r path; do
+            echo "Released path: $path"
+
+            if [ "$path" = "." ]; then
+              search_path="src"
+            else
+              search_path="$path"
+            fi
+
+            mapfile -t projects < <(find "$search_path" -maxdepth 2 -name '*.csproj' -print)
+
+            if [ ${#projects[@]} -eq 0 ]; then
+              echo "No .csproj found under $search_path"
+              continue
+            fi
+
+            for proj in "${projects[@]}"; do
+              echo "Packing: $proj"
+              dotnet pack "$proj" -c Release --no-build -o ./artifacts
+            done
+          done < <(echo '${{ steps.rp.outputs.paths_released }}' | jq -r '.[]')
+
+      - name: NuGet Login (OIDC)
+        id: login
+        if: ${{ steps.rp.outputs.release_created == 'true' }}
+        uses: NuGet/login@v1
+        with:
+          user: Vettvangur
+
+      - name: Push to NuGet.org
+        if: ${{ steps.rp.outputs.release_created == 'true' }}
+        run: |
+          dotnet nuget push "./artifacts/*.nupkg" \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source "https://api.nuget.org/v3/index.json" \
+            --skip-duplicate

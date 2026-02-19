@@ -3,6 +3,7 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.FileProviders;
 using Umbraco.Cms.Core.Hosting;
 using Umbraco.Cms.Core.IO;
@@ -22,6 +23,8 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     private readonly BlobContainerClient _container;
     private readonly IIOHelper _ioHelper;
     private readonly IContentTypeProvider _contentTypeProvider;
+    private readonly IMemoryCache? _memoryCache;
+    private readonly AzureBlobFileSystemOptions? _options;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureBlobFileSystem"/> class.
@@ -30,12 +33,13 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// <param name="hostingEnvironment">The hosting environment.</param>
     /// <param name="ioHelper">The I/O helper.</param>
     /// <param name="contentTypeProvider">The content type provider.</param>
+    /// <param name="memoryCache">The memory cache for blob metadata.</param>
     /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="hostingEnvironment" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
-    public AzureBlobFileSystem(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider)
-        : this(GetRequestRootPath(options, hostingEnvironment), options.CreateBlobContainerClient(), ioHelper, contentTypeProvider, options.ContainerRootPath)
+    public AzureBlobFileSystem(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider, IMemoryCache? memoryCache = null)
+        : this(GetRequestRootPath(options, hostingEnvironment), options.CreateBlobContainerClient(), ioHelper, contentTypeProvider, options.ContainerRootPath, memoryCache, options)
     { }
 
     /// <summary>
@@ -46,11 +50,13 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// <param name="ioHelper">The I/O helper.</param>
     /// <param name="contentTypeProvider">The content type provider.</param>
     /// <param name="containerRootPath">The container root path (uses the request/URL root path if not set).</param>
+    /// <param name="memoryCache">The memory cache for blob metadata.</param>
+    /// <param name="options">The Azure Blob File System options.</param>
     /// <exception cref="System.ArgumentNullException"><paramref name="requestRootPath" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="blobContainerClient" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
-    public AzureBlobFileSystem(string requestRootPath, BlobContainerClient blobContainerClient, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider, string? containerRootPath = null)
+    public AzureBlobFileSystem(string requestRootPath, BlobContainerClient blobContainerClient, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider, string? containerRootPath = null, IMemoryCache? memoryCache = null, AzureBlobFileSystemOptions? options = null)
     {
         ArgumentNullException.ThrowIfNull(requestRootPath);
 
@@ -59,6 +65,8 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         _container = blobContainerClient ?? throw new ArgumentNullException(nameof(blobContainerClient));
         _ioHelper = ioHelper ?? throw new ArgumentNullException(nameof(ioHelper));
         _contentTypeProvider = contentTypeProvider ?? throw new ArgumentNullException(nameof(contentTypeProvider));
+        _memoryCache = memoryCache;
+        _options = options;
     }
 
     /// <inheritdoc />
@@ -366,7 +374,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     }
 
     /// <inheritdoc />
-    public IFileProvider Create() => new AzureBlobFileProvider(_container, _containerRootPath);
+    public IFileProvider Create() => new AzureBlobFileProvider(_container, _containerRootPath, _options, _memoryCache);
 
     private static string GetRequestRootPath(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment)
     {

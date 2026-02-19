@@ -1,10 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Umbraco Storage Providers - Azure Blob Storage</Title>
+    <PackageId>Vettvangur.UmbracoAzureStorageProvider</PackageId>
     <Description>Azure Blob Storage provider for Umbraco CMS.</Description>
     <PackageTags>umbraco-marketplace umbraco azure blob storage</PackageTags>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="Umbraco.Cms.Web.Common" />
     <PackageReference Include="Azure.Storage.Blobs" />
     <ProjectReference Include="..\Umbraco.StorageProviders\Umbraco.StorageProviders.csproj" />

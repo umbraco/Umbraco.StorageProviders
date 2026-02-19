@@ -1,10 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>Umbraco Storage Providers - Azure Blob Storage - ImageSharp</Title>
+    <PackageId>Vettvangur.UmbracoAzureStorageProvider.ImageSharp</PackageId>
     <Description>Adds ImageSharp support using the Azure Blob Storage provider for Umbraco CMS.</Description>
     <PackageTags>umbraco-marketplace umbraco azure blob storage imagesharp</PackageTags>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" />
     <PackageReference Include="Umbraco.Cms.Imaging.ImageSharp" />
     <ProjectReference Include="..\Umbraco.StorageProviders.AzureBlob\Umbraco.StorageProviders.AzureBlob.csproj" />

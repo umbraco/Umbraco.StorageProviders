@@ -1,0 +1,11 @@
+{
+  "release-type": "dotnet",
+  "packages": {
+    ".": {
+      "release-type": "dotnet",
+      "extra-files": [
+        "version.json"
+      ]
+    }
+  }
+}
