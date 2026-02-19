@@ -1,8 +1,8 @@
 {
-  "release-type": "dotnet",
+  "release-type": "dotnet-yoshi",
   "packages": {
     ".": {
-      "release-type": "dotnet",
+      "release-type": "dotnet-yoshi",
       "extra-files": [
         "version.json"
       ]

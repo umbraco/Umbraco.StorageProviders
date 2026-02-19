@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Company>Vettvangur</Company>
-    <Authors>Vettvangur & Umbraco</Authors>
+    <Authors>Vettvangur</Authors>
     <Copyright>Copyright © Vettvangur $([System.DateTime]::Today.ToString('yyyy'))</Copyright>
     <Product>Vettvangur Umbraco Storage Providers</Product>
     <PackageProjectUrl>https://github.com/vettvangur/Umbraco.StorageProviders</PackageProjectUrl>
