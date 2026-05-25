@@ -156,15 +156,71 @@ The available options are:
 - `MissDuration` - how long a not-found result is cached; kept shorter than `HitDuration` so newly-uploaded blobs become visible quickly (default 5 seconds).
 - `SizeLimit` - the maximum number of cached entries, each counting as a single unit (default 10,000).
 
+### Retry and timeout options
+The Azure SDK's default retry policy is tuned for background jobs, not request-serving: it allows 3 retries with a 100-second network timeout each, so a single failing blob call can tie up a thread for several minutes. To bound the worst-case time a blob operation spends waiting on blob storage, the provider applies more conservative retry and timeout defaults to the default `BlobContainerClient`.
+
+These can be configured in code:
+```csharp
+using Azure.Core;
+
+.AddAzureBlobMediaFileSystem(options => {
+    options.Retry.MaxRetries = 2;
+    options.Retry.NetworkTimeout = TimeSpan.FromSeconds(30);
+    options.Retry.Mode = RetryMode.Exponential;
+    options.Retry.Delay = TimeSpan.FromMilliseconds(800);
+    options.Retry.MaxDelay = TimeSpan.FromSeconds(5);
+})
+```
+
+In `appsettings.json` (durations use the `hh:mm:ss` format):
+```json
+{
+  "Umbraco": {
+    "Storage": {
+      "AzureBlob": {
+        "Media": {
+          "Retry": {
+            "MaxRetries": 2,
+            "NetworkTimeout": "00:00:30",
+            "Mode": "Exponential",
+            "Delay": "00:00:00.800",
+            "MaxDelay": "00:00:05"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Or by environment variables:
+```sh
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__RETRY__MAXRETRIES=2
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__RETRY__NETWORKTIMEOUT=00:00:30
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__RETRY__MODE=Exponential
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__RETRY__DELAY=00:00:00.800
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__RETRY__MAXDELAY=00:00:05
+```
+
+The available options are:
+- `MaxRetries` - the maximum number of retry attempts before giving up (default 2).
+- `NetworkTimeout` - the timeout applied to an individual network operation (default 30 seconds). This also bounds uploads, so keep it high enough to transfer your largest media files in a single operation.
+- `Mode` - the approach used to calculate retry delays, `Exponential` or `Fixed` (default `Exponential`).
+- `Delay` - the delay between retries for `Fixed` mode, or the base delay for backoff calculations in `Exponential` mode (default 800 milliseconds).
+- `MaxDelay` - the maximum permissible delay between retries when using a backoff approach (default 5 seconds).
+
+> **Note**
+> These settings are only honored by the default `BlobContainerClient` factory. If you supply a custom `BlobClientOptions` (see [Custom blob container options](#custom-blob-container-options) below), call `options.ConfigureRetry(blobClientOptions)` to apply the retry policy.
+
 ### Custom blob container options
 To override the default blob container options, you can use the following extension methods on `AzureBlobFileSystemOptions`:
 ```csharp
 // Add using default options (overly verbose, but shows how to revert back to the default)
 .AddAzureBlobMediaFileSystem(options => options.CreateBlobContainerClientUsingDefault())
-// Add using options
-.AddAzureBlobMediaFileSystem(options => options.CreateBlobContainerClientUsingOptions(_blobClientOptions))
+// Add using options (call ConfigureRetry to keep applying the configured retry policy)
+.AddAzureBlobMediaFileSystem(options => options.CreateBlobContainerClientUsingOptions(options.ConfigureRetry(_blobClientOptions)))
 // If the connection string is parsed to a URI, use the delegate to create a BlobContainerClient
-.AddAzureBlobMediaFileSystem(options => options.TryCreateBlobContainerClientUsingUri(uri => new BlobContainerClient(uri, _blobClientOptions)))
+.AddAzureBlobMediaFileSystem(options => options.TryCreateBlobContainerClientUsingUri(uri => new BlobContainerClient(uri, options.ConfigureRetry(_blobClientOptions))))
 ```
 
 This can also be used together with the `Azure.Identity` package to authenticate with Azure AD (using managed identities):
@@ -181,7 +237,7 @@ internal sealed class AzureBlobFileSystemComposer : IComposer
         {
             options.ConnectionString = "https://[storage-account].blob.core.windows.net";
             options.ContainerName = "media";
-            options.TryCreateBlobContainerClientUsingUri(uri => new BlobContainerClient(uri, new DefaultAzureCredential()));
+            options.TryCreateBlobContainerClientUsingUri(uri => new BlobContainerClient(uri, new DefaultAzureCredential(), options.ConfigureRetry(new BlobClientOptions())));
         });
 }
 ```

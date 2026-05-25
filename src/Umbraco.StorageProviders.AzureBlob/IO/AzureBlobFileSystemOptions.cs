@@ -45,6 +45,16 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     public AzureBlobFileSystemCacheOptions Cache { get; set; } = new();
 
     /// <summary>
+    /// Gets or sets the retry and timeout settings applied to the default Blob client.
+    /// </summary>
+    /// <remarks>
+    /// Only honored by the default factory. If a custom <see cref="BlobClientOptions" /> is supplied via
+    /// <see cref="AzureBlobFileSystemOptionsExtensions.CreateBlobContainerClientUsingOptions" /> or another override,
+    /// these values are ignored and the supplied options are used as-is.
+    /// </remarks>
+    public AzureBlobFileSystemRetryOptions Retry { get; set; } = new();
+
+    /// <summary>
     /// Gets or sets the Azure Blob Container client factory.
     /// </summary>
     /// <value>
@@ -58,27 +68,63 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     /// <value>
     /// The default Azure Blob Container client factory.
     /// </value>
-    internal static Func<AzureBlobFileSystemOptions, BlobContainerClient> DefaultBlobContainerClientFactory => options => new BlobContainerClient(options.ConnectionString, options.ContainerName);
+    internal static Func<AzureBlobFileSystemOptions, BlobContainerClient> DefaultBlobContainerClientFactory => options => new BlobContainerClient(options.ConnectionString, options.ContainerName, options.ConfigureRetry(new BlobClientOptions()));
+
+    /// <summary>
+    /// Applies the <see cref="Retry" /> settings from this options instance to the supplied <see cref="BlobClientOptions" />.
+    /// </summary>
+    /// <param name="blobClientOptions">The Blob client options to configure.</param>
+    /// <returns>
+    /// The same <paramref name="blobClientOptions" /> instance, to allow fluent chaining.
+    /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="blobClientOptions" /> is <c>null</c>.</exception>
+    /// <remarks>
+    /// Use this when supplying a custom <see cref="BlobClientOptions" /> (e.g. via
+    /// <see cref="AzureBlobFileSystemOptionsExtensions.CreateBlobContainerClientUsingOptions" />) to ensure the same retry policy is applied.
+    /// </remarks>
+    public BlobClientOptions ConfigureRetry(BlobClientOptions blobClientOptions)
+        => ConfigureRetry(blobClientOptions, Retry);
+
+    /// <summary>
+    /// Applies the configured retry and timeout settings to the supplied <see cref="BlobClientOptions" />.
+    /// </summary>
+    /// <param name="blobClientOptions">The Blob client options to configure.</param>
+    /// <param name="retry">The retry and timeout settings to apply.</param>
+    /// <returns>
+    /// The same <paramref name="blobClientOptions" /> instance, to allow fluent chaining.
+    /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="blobClientOptions" /> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="retry" /> is <c>null</c>.</exception>
+    /// <remarks>
+    /// Use this when supplying a custom <see cref="BlobClientOptions" /> (e.g. via
+    /// <see cref="AzureBlobFileSystemOptionsExtensions.CreateBlobContainerClientUsingOptions" />) to ensure the same retry policy is applied.
+    /// </remarks>
+    public static BlobClientOptions ConfigureRetry(BlobClientOptions blobClientOptions, AzureBlobFileSystemRetryOptions retry)
+    {
+        ArgumentNullException.ThrowIfNull(blobClientOptions);
+        ArgumentNullException.ThrowIfNull(retry);
+
+        blobClientOptions.Retry.MaxRetries = retry.MaxRetries;
+        blobClientOptions.Retry.NetworkTimeout = retry.NetworkTimeout;
+        blobClientOptions.Retry.Mode = retry.Mode;
+        blobClientOptions.Retry.Delay = retry.Delay;
+        blobClientOptions.Retry.MaxDelay = retry.MaxDelay;
+
+        return blobClientOptions;
+    }
 
     /// <inheritdoc />
     /// <remarks>
-    /// Recurses into the nested <see cref="Cache" /> options so its <see cref="IValidatableObject" /> implementation is honored by <c>ValidateDataAnnotations()</c>.
+    /// Recurses into the nested <see cref="Cache" /> and <see cref="Retry" /> options so their validation attributes and
+    /// <see cref="IValidatableObject" /> implementations are honored by <c>ValidateDataAnnotations()</c>.
     /// </remarks>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (Cache is null)
-        {
-            yield break;
-        }
+        var results = new List<ValidationResult>();
 
-        var nestedResults = new List<ValidationResult>();
-        Validator.TryValidateObject(Cache, new ValidationContext(Cache), nestedResults, validateAllProperties: true);
+        Validator.TryValidateObject(Cache, new ValidationContext(Cache), results, validateAllProperties: true);
+        Validator.TryValidateObject(Retry, new ValidationContext(Retry), results, validateAllProperties: true);
 
-        foreach (ValidationResult result in nestedResults)
-        {
-            yield return new ValidationResult(
-                result.ErrorMessage,
-                result.MemberNames.Select(member => $"{nameof(Cache)}.{member}"));
-        }
+        return results;
     }
 }
