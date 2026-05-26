@@ -146,7 +146,14 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         {
             if (blob.IsBlob)
             {
-                _container.GetBlobClient(blob.Blob.Name).DeleteIfExists();
+                try
+                {
+                    _container.GetBlobClient(blob.Blob.Name).DeleteIfExists();
+                }
+                finally
+                {
+                    InvalidateCacheEntry(blob.Blob.Name);
+                }
             }
         }
     }
@@ -199,11 +206,18 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
             IfNoneMatch = ETag.All
         };
 
-        blob.Upload(stream, new BlobUploadOptions()
+        try
         {
-            HttpHeaders = headers,
-            Conditions = conditions
-        });
+            blob.Upload(stream, new BlobUploadOptions()
+            {
+                HttpHeaders = headers,
+                Conditions = conditions
+            });
+        }
+        finally
+        {
+            InvalidateCacheEntry(blob.Name);
+        }
     }
 
     /// <inheritdoc />
@@ -226,19 +240,30 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
             IfNoneMatch = ETag.All
         };
 
-        CopyFromUriOperation copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri, new BlobCopyFromUriOptions()
+        try
         {
-            DestinationConditions = destinationConditions
-        });
+            CopyFromUriOperation copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri, new BlobCopyFromUriOptions()
+            {
+                DestinationConditions = destinationConditions
+            });
 
-        if (copyFromUriOperation?.HasCompleted == false)
-        {
-            copyFromUriOperation.WaitForCompletion();
+            if (copyFromUriOperation?.HasCompleted == false)
+            {
+                copyFromUriOperation.WaitForCompletion();
+            }
+
+            if (!copy)
+            {
+                sourceBlob.DeleteIfExists();
+            }
         }
-
-        if (!copy)
+        finally
         {
-            sourceBlob.DeleteIfExists();
+            InvalidateCacheEntry(destinationBlob.Name);
+            if (!copy)
+            {
+                InvalidateCacheEntry(sourceBlob.Name);
+            }
         }
     }
 
@@ -283,7 +308,15 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     {
         ArgumentNullException.ThrowIfNull(path);
 
-        GetBlobClient(path).DeleteIfExists();
+        BlobClient blob = GetBlobClient(path);
+        try
+        {
+            blob.DeleteIfExists();
+        }
+        finally
+        {
+            InvalidateCacheEntry(blob.Name);
+        }
     }
 
     /// <inheritdoc />
@@ -399,6 +432,23 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
 
     /// <inheritdoc />
     public void Dispose() => _cache?.Dispose();
+
+    private void InvalidateCacheEntry(string blobName)
+    {
+        if (_cache is null)
+        {
+            return;
+        }
+
+        try
+        {
+            _cache.Remove(blobName);
+        }
+        catch (ObjectDisposedException)
+        {
+            // Cache was disposed during the call (options change or app shutdown); nothing to invalidate.
+        }
+    }
 
     private static string GetRequestRootPath(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment)
     {
