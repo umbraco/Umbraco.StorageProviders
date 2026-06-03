@@ -1,9 +1,11 @@
-using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel;
+using System.IO.Hashing;
 using System.Net;
+using System.Runtime.InteropServices;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using Umbraco.Cms.Core;
@@ -20,8 +22,7 @@ public sealed class AzureBlobFileProvider : IFileProvider
 {
     private readonly BlobContainerClient _containerClient;
     private readonly string? _containerRootPath;
-    private readonly IMemoryCache? _cache;
-    private readonly AzureBlobFileSystemCacheOptions? _cacheOptions;
+    private readonly (HybridCache Cache, HybridCacheEntryOptions HitEntryOptions, HybridCacheEntryOptions MissEntryOptions)? _cache;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureBlobFileProvider" /> class.
@@ -36,20 +37,38 @@ public sealed class AzureBlobFileProvider : IFileProvider
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AzureBlobFileProvider" /> class with blob metadata caching backed by a caller-supplied <see cref="IMemoryCache" />.
+    /// Initializes a new instance of the <see cref="AzureBlobFileProvider" /> class with blob metadata caching backed by a caller-supplied <see cref="HybridCache" />.
     /// </summary>
     /// <param name="containerClient">The container client.</param>
     /// <param name="containerRootPath">The container root path.</param>
-    /// <param name="cache">The cache used to store blob metadata. The lifetime of this cache is owned by the caller.</param>
+    /// <param name="cache">The shared <see cref="HybridCache" /> used to store blob metadata.</param>
     /// <param name="cacheOptions">The cache options supplying the absolute expirations for found and not-found entries.</param>
     /// <exception cref="System.ArgumentNullException"><paramref name="containerClient" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="cache" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="cacheOptions" /> is <c>null</c>.</exception>
-    public AzureBlobFileProvider(BlobContainerClient containerClient, string? containerRootPath, IMemoryCache cache, AzureBlobFileSystemCacheOptions cacheOptions)
+    public AzureBlobFileProvider(BlobContainerClient containerClient, string? containerRootPath, HybridCache cache, AzureBlobFileSystemCacheOptions cacheOptions)
         : this(containerClient, containerRootPath)
     {
-        _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-        _cacheOptions = cacheOptions ?? throw new ArgumentNullException(nameof(cacheOptions));
+        ArgumentNullException.ThrowIfNull(cache);
+        ArgumentNullException.ThrowIfNull(cacheOptions);
+
+        if (cacheOptions.Enabled is true)
+        {
+            _cache = (
+                cache,
+                new HybridCacheEntryOptions
+                {
+                    Expiration = cacheOptions.HitDuration,
+                    LocalCacheExpiration = cacheOptions.HitDuration,
+                    Flags = HybridCacheEntryFlags.DisableDistributedCache,
+                },
+                new HybridCacheEntryOptions
+                {
+                    Expiration = cacheOptions.MissDuration,
+                    LocalCacheExpiration = cacheOptions.MissDuration,
+                    Flags = HybridCacheEntryFlags.DisableDistributedCache,
+                });
+        }
     }
 
     /// <summary>
@@ -62,16 +81,14 @@ public sealed class AzureBlobFileProvider : IFileProvider
     { }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AzureBlobFileProvider" /> class with blob metadata caching backed by a caller-supplied <see cref="IMemoryCache" />.
+    /// Initializes a new instance of the <see cref="AzureBlobFileProvider" /> class with blob metadata caching backed by a caller-supplied <see cref="HybridCache" />.
     /// </summary>
     /// <param name="options">The options.</param>
-    /// <param name="cache">The cache used to store blob metadata. The lifetime of this cache is owned by the caller.</param>
-    /// <param name="cacheOptions">The cache options supplying the absolute expirations for found and not-found entries.</param>
+    /// <param name="cache">The shared <see cref="HybridCache" /> used to store blob metadata.</param>
     /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="cache" /> is <c>null</c>.</exception>
-    /// <exception cref="System.ArgumentNullException"><paramref name="cacheOptions" /> is <c>null</c>.</exception>
-    public AzureBlobFileProvider(AzureBlobFileSystemOptions options, IMemoryCache cache, AzureBlobFileSystemCacheOptions cacheOptions)
-        : this(GetContainerClient(options), options.ContainerRootPath, cache, cacheOptions)
+    public AzureBlobFileProvider(AzureBlobFileSystemOptions options, HybridCache cache)
+        : this(GetContainerClient(options), options.ContainerRootPath, cache, options.Cache)
     { }
 
     /// <inheritdoc />
@@ -92,75 +109,94 @@ public sealed class AzureBlobFileProvider : IFileProvider
     {
         var path = GetFullPath(subpath);
 
-        if (TryGetFromCache(path, out IFileInfo? cached))
+        if (_cache is not (var cache, var hitEntryOptions, var missEntryOptions))
         {
-            return cached;
+            return Fetch(path);
         }
 
-        BlobClient blobClient = _containerClient.GetBlobClient(path);
+        string cacheKey = CreateCacheKey(_containerClient, path);
 
-        IFileInfo fileInfo;
-        bool found;
-        try
+        // IFileProvider.GetFileInfo is sync; HybridCache is async. Block once at the contract boundary.
+        // Stampede protection inside HybridCache ensures concurrent callers for the same key share a single fetch.
+        // Stateful overload + static lambda avoids a per-call closure allocation.
+        // CachedFileInfo wrapper is [ImmutableObject(true)] so HybridCache stores by reference rather than
+        // serializing — IFileInfo is an interface which System.Text.Json cannot deserialize.
+        ValueTask<CachedFileInfo> getTask = cache.GetOrCreateAsync(
+            cacheKey,
+            (Provider: this, Path: path),
+            static (state, ct) => state.Provider.FetchAsync(state.Path, ct),
+            hitEntryOptions);
+
+        CachedFileInfo cached = getTask.IsCompletedSuccessfully
+            ? getTask.Result
+            : getTask.AsTask().GetAwaiter().GetResult();
+
+        // Optimistic HitDuration was applied above; shorten to MissDuration for not-found results
+        // so newly-uploaded blobs become visible quickly.
+        if (!cached.Value.Exists)
         {
-            BlobProperties properties = blobClient.GetProperties().Value;
-            fileInfo = new AzureBlobItemInfo(blobClient, properties);
-            found = true;
-        }
-        catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
-        {
-            fileInfo = new NotFoundFileInfo(AzureBlobItemInfo.ParseName(path));
-            found = false;
+            ValueTask setTask = cache.SetAsync(cacheKey, cached, missEntryOptions);
+            if (!setTask.IsCompletedSuccessfully)
+            {
+                setTask.AsTask().GetAwaiter().GetResult();
+            }
         }
 
-        TrySetCache(path, fileInfo, found);
-
-        return fileInfo;
+        return cached.Value;
     }
 
     /// <inheritdoc />
     public IChangeToken Watch(string filter) => NullChangeToken.Singleton;
 
+    /// <summary>
+    /// Builds the <see cref="HybridCache" /> key for a blob. This is the single place a cache key is constructed,
+    /// so the read path (<see cref="GetFileInfo" />) and the write-invalidation path (<see cref="IO.AzureBlobFileSystem" />) can never diverge.
+    /// </summary>
+    /// <param name="containerClient">The container client the blob belongs to.</param>
+    /// <param name="blobPath">The container-relative blob path.</param>
+    /// <returns>
+    /// A cache key namespaced to this package and the storage account/container.
+    /// </returns>
+    internal static string CreateCacheKey(BlobContainerClient containerClient, string blobPath)
+    {
+        // Hash the (potentially long, partly untrusted) blob path so the key stays well under HybridCache's
+        // MaximumKeyLength (1024 by default) no matter how deep the request path is; an over-long key silently
+        // bypasses the cache. XxHash128 is fast and non-cryptographic — a collision merely serves another blob's
+        // metadata until the entry expires or is invalidated, an acceptable trade for a metadata cache. The
+        // account/container are kept readable to keep keys diagnosable, and the literal prefix avoids collisions
+        // with other consumers of the shared HybridCache.
+        UInt128 hash = XxHash128.HashToUInt128(MemoryMarshal.AsBytes(blobPath.AsSpan()));
+
+        return $"Umbraco.StorageProviders.AzureBlob:{containerClient.AccountName}:{containerClient.Name}:{hash:x32}";
+    }
+
     private string GetFullPath(string subpath) => _containerRootPath + subpath.EnsureStartsWith('/');
 
-    private bool TryGetFromCache(string path, [NotNullWhen(true)] out IFileInfo? value)
+    private IFileInfo Fetch(string path)
     {
-        if (_cache is null)
-        {
-            value = null;
-            return false;
-        }
-
+        BlobClient blobClient = _containerClient.GetBlobClient(path);
         try
         {
-            return _cache.TryGetValue(path, out value) && value is not null;
+            return new AzureBlobItemInfo(blobClient, blobClient.GetProperties().Value);
         }
-        catch (ObjectDisposedException)
+        catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
         {
-            // Cache was disposed mid-request (options change or app shutdown); fall through to fetch from blob.
-            value = null;
-            return false;
+            return new NotFoundFileInfo(AzureBlobItemInfo.ParseName(path));
         }
     }
 
-    private void TrySetCache(string path, IFileInfo fileInfo, bool found)
+    private async ValueTask<CachedFileInfo> FetchAsync(string path, CancellationToken cancellationToken)
     {
-        if (_cache is null || _cacheOptions is null)
-        {
-            return;
-        }
-
+        BlobClient blobClient = _containerClient.GetBlobClient(path);
         try
         {
-            _cache.Set(path, fileInfo, new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = found ? _cacheOptions.HitDuration : _cacheOptions.MissDuration,
-                Size = 1,
-            });
+            Response<BlobProperties> response = await blobClient.GetPropertiesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            return new CachedFileInfo(new AzureBlobItemInfo(blobClient, response.Value));
         }
-        catch (ObjectDisposedException)
+        catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
         {
-            // Cache was disposed mid-request (options change or app shutdown); skip caching this entry.
+            return new CachedFileInfo(new NotFoundFileInfo(AzureBlobItemInfo.ParseName(path)));
         }
     }
 
@@ -170,4 +206,11 @@ public sealed class AzureBlobFileProvider : IFileProvider
 
         return options.CreateBlobContainerClient();
     }
+
+    // Immutable wrapper around IFileInfo. HybridCache's ImmutableTypeCache<T> sees [ImmutableObject(true)]
+    // on this type and uses ImmutableCacheItem<T> (stored by reference, no serialization) instead of the
+    // default MutableCacheItem<T> which serializes via System.Text.Json — that path fails for IFileInfo
+    // because the interface cannot be deserialized polymorphically.
+    [ImmutableObject(true)]
+    private sealed record CachedFileInfo(IFileInfo Value);
 }

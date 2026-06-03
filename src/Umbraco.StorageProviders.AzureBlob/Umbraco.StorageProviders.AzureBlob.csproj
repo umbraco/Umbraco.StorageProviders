@@ -6,8 +6,10 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms.Web.Common" />
     <PackageReference Include="Azure.Storage.Blobs" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+    <PackageReference Include="System.IO.Hashing" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" />
     <ProjectReference Include="..\Umbraco.StorageProviders\Umbraco.StorageProviders.csproj" />
   </ItemGroup>
   
