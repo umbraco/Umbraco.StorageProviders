@@ -27,7 +27,7 @@ public sealed class AzureBlobFileSystemProvider : IAzureBlobFileSystemProvider, 
     /// <exception cref="ArgumentNullException"><paramref name="optionsMonitor"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="hostingEnvironment"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="ioHelper"/> is <c>null</c>.</exception>
-    [Obsolete("Use the overload that accepts an HybridCache to enable blob metadata caching.")]
+    [Obsolete("Use the overload that accepts a HybridCache to enable blob metadata caching.")]
     public AzureBlobFileSystemProvider(IOptionsMonitor<AzureBlobFileSystemOptions> optionsMonitor, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper)
         : this(optionsMonitor, hostingEnvironment, ioHelper, null)
     { }
