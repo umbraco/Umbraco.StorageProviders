@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Umbraco.StorageProviders;
@@ -22,5 +23,6 @@ public sealed class CdnMediaUrlProviderOptions
     /// <value>
     ///   <c>true</c> if the media path needs to be removed from the path; otherwise, <c>false</c>.
     /// </value>
+    [DefaultValue(true)]
     public bool RemoveMediaFromPath { get; set; } = true;
 }

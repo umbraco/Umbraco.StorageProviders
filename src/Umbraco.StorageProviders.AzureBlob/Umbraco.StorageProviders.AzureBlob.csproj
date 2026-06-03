@@ -4,13 +4,34 @@
     <Description>Azure Blob Storage provider for Umbraco CMS.</Description>
     <PackageTags>umbraco-marketplace umbraco azure blob storage</PackageTags>
   </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms.Web.Common" />
     <PackageReference Include="Azure.Storage.Blobs" />
     <ProjectReference Include="..\Umbraco.StorageProviders\Umbraco.StorageProviders.csproj" />
   </ItemGroup>
+  
   <ItemGroup>
     <Content Include="buildTransitive\**" PackagePath="buildTransitive" />
-    <Content Include="appsettings-schema.Umbraco.StorageProviders.AzureBlob.json" PackagePath="" />
   </ItemGroup>
+
+  <!-- Add the generated JSON schema file to the package output and remove it on clean -->
+  <PropertyGroup>
+    <_JsonSchemaFile>appsettings-schema.Umbraco.StorageProviders.AzureBlob.json</_JsonSchemaFile>
+    <!-- Copy dependency assemblies (e.g. Azure.Core for RetryMode) next to the output so the schema generator can resolve them -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="$(_JsonSchemaFile)" PackagePath="" Visible="false" />
+    <Clean Include="$(_JsonSchemaFile)" />
+  </ItemGroup>
+
+  <!-- Generate the JSON schema on build (regenerated when the assembly is newer) -->
+  <Target Name="GenerateAppsettingsSchema" BeforeTargets="Build;CopyUmbracoJsonSchemaFiles" Inputs="$(TargetPath)" Outputs="$(_JsonSchemaFile)">
+    <Message Text="Generating $(_JsonSchemaFile)" Importance="high" />
+    <JsonSchemaGenerate AssemblyPath="$(TargetPath)" TypeName="UmbracoStorageProvidersAzureBlobSchema" OutputPath="$(MSBuildThisFileDirectory)$(_JsonSchemaFile)" />
+    <ItemGroup>
+      <FileWrites Include="$(_JsonSchemaFile)" />
+    </ItemGroup>
+  </Target>
 </Project>

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using Azure.Storage.Blobs;
 
 namespace Umbraco.StorageProviders.AzureBlob.IO;
@@ -61,6 +62,7 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     /// <value>
     /// The Azure Blob Container client factory.
     /// </value>
+    [JsonIgnore] // Set in code, not bound from configuration; excluded from the generated appsettings schema.
     internal Func<AzureBlobFileSystemOptions, BlobContainerClient> BlobContainerClientFactory { get; set; } = DefaultBlobContainerClientFactory;
 
     /// <summary>
