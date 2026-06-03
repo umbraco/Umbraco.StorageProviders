@@ -1,0 +1,51 @@
+---
+# SBOM Generation Template
+#
+# Generates Software Bill of Materials (SBOM) using CycloneDX cdxgen and uploads to Dependency Track for security vulnerability tracking.
+
+parameters:
+  - name: productGroup
+    type: string
+  - name: productName
+    type: string
+  - name: baseUrl
+    type: string
+  - name: apiKey
+    type: string
+  - name: majorVersion
+    type: string
+
+steps:
+  - script: |
+      # Verify Dependency Track configuration
+      MISSING=""
+      if [ -z "${{ parameters.baseUrl }}" ]; then
+        echo "##vso[task.logissue type=error]Dependency Track base URL is not configured"
+        MISSING="true"
+      fi
+      if [ -z "${{ parameters.apiKey }}" ]; then
+        echo "##vso[task.logissue type=error]Dependency Track API key is not configured"
+        MISSING="true"
+      fi
+      if [ -n "$MISSING" ]; then
+        echo "##vso[task.complete result=Skipped;]Skipping SBOM generation - missing required configuration variables"
+        exit 0
+      fi
+      # Generate and upload SBOM
+      mkdir -p $(Build.ArtifactStagingDirectory)/sbom
+      npx @cyclonedx/cdxgen --recurse \
+        --output $(Build.ArtifactStagingDirectory)/sbom/sbom.json \
+        --spec-version 1.6 \
+        --json-pretty \
+        --project-group "${{ parameters.productGroup }}" \
+        --project-name "${{ parameters.productName }}" \
+        --project-version "v${{ parameters.majorVersion }}" \
+        --server-url "${{ parameters.baseUrl }}" \
+        --api-key "${{ parameters.apiKey }}"
+    displayName: 'Generate and upload SBOM'
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish SBOM artifact'
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)/sbom
+      artifactName: sbom

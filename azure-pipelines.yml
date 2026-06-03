@@ -10,10 +10,36 @@ parameters:
   - name: cache_nuget
     displayName: Cache NuGet packages
     type: boolean
-    default: false
+    default: false # Disabled by default due to MyGet allowing version overwrite, which can cause issues with cached packages from previous runs
+  - name: release_myget
+    displayName: Release to MyGet
+    type: string
+    default: auto
+    values:
+      - auto # Only release to MyGet on public releases, otherwise skip
+      - prerelease # Release to MyGet pre-release feed, regardless of release type
+      - nightly # Release to MyGet nightly feed, regardless of release type
+      - skip # Skip releasing to MyGet, regardless of release type
+  - name: release
+    displayName: Release
+    type: string
+    default: auto
+    values:
+      - auto # Only release to NuGet on public releases, otherwise skip
+      - public # Release to NuGet, regardless of release type
+      - skip # Skip releasing to NuGet, regardless of release type
+  - name: sbom
+    displayName: SBOM
+    type: string
+    default: auto
+    values:
+      - auto # Only generate SBOM for develop and support/* branches, otherwise skip
+      - force # Generate SBOM, regardless of branch
+      - skip # Skip generating SBOM, regardless of branch
 
 variables:
   solution: Umbraco.StorageProviders.sln
+  vmImage: 'ubuntu-latest'
   buildConfiguration: Release
   DOTNET_NOLOGO: true
   DOTNET_GENERATE_ASPNET_CERTIFICATE: false
@@ -27,7 +53,7 @@ stages:
     jobs:
       - job: Build
         pool:
-          vmImage: 'ubuntu-latest'
+          vmImage: $(vmImage)
         steps:
           # Checkout source (avoid shallow clone to calculate version height)
           - checkout: self
@@ -56,14 +82,109 @@ stages:
           # Build
           - script: dotnet build $(solution) --configuration $(buildConfiguration) --no-restore -p:ContinuousIntegrationBuild=true
             displayName: Run dotnet build
+            name: build
 
           # Pack
           - script: dotnet pack $(solution) --configuration $(buildConfiguration) --no-build --output $(Build.ArtifactStagingDirectory)/nupkg
             displayName: Run dotnet pack
 
           # Publish
-          - task: PublishPipelineArtifact@1
+          - publish: $(Build.ArtifactStagingDirectory)/nupkg
+            artifact: nupkg
             displayName: Publish NuGet packages
+
+  - stage: ReleaseMyGet
+    displayName: Release to MyGet
+    dependsOn:
+      - Build
+    condition: |
+      and(
+        succeeded('Build'),
+        ne('${{ parameters.release_myget }}', 'skip'),
+        or(
+          ne('${{ parameters.release_myget }}', 'auto'),
+          eq(dependencies.Build.outputs['Build.build.NBGV_PublicRelease'], true)
+        )
+      )
+    jobs:
+      - job: NuGet
+        pool:
+          vmImage: 'windows-latest' # NuGetCommand@2 requires Mono and is no longer supported on Ubuntu 24.04+
+        steps:
+          - checkout: none
+
+          - download: current
+            artifact: nupkg
+            displayName: Download nupkg artifact
+
+          - task: NuGetCommand@2
+            displayName: NuGet push
             inputs:
-              targetPath: $(Build.ArtifactStagingDirectory)/nupkg
-              artifactName: nupkg
+              command: push
+              packagesToPush: '$(Pipeline.Workspace)/nupkg/*.nupkg'
+              nuGetFeedType: external
+              ${{ if eq(parameters.release_myget, 'nightly') }}:
+                publishFeedCredentials: 'MyGet - Nightly'
+              ${{ else }}:
+                publishFeedCredentials: 'MyGet - Pre-releases'
+
+  - stage: Release
+    dependsOn:
+      - Build
+      - ReleaseMyGet
+    condition: |
+      and(
+        succeeded('Build'),
+        ne('${{ parameters.release }}', 'skip'),
+        or(
+          ne('${{ parameters.release }}', 'auto'),
+          eq(dependencies.Build.outputs['Build.build.NBGV_PublicRelease'], true)
+        )
+      )
+    jobs:
+      - job: NuGet
+        pool:
+          vmImage: 'windows-latest' # NuGetCommand@2 requires Mono and is no longer supported on Ubuntu 24.04+
+        steps:
+          - checkout: none
+
+          - download: current
+            artifact: nupkg
+            displayName: Download nupkg artifact
+
+          - task: NuGetCommand@2
+            displayName: NuGet push
+            inputs:
+              command: push
+              packagesToPush: '$(Pipeline.Workspace)/nupkg/*.nupkg'
+              nuGetFeedType: external
+              publishFeedCredentials: 'NuGet'
+
+  # Generate SBOM on development branches
+  - stage: SBOM
+    dependsOn: Build
+    condition: |
+      and(
+        succeeded(),
+        ne('${{ parameters.sbom }}', 'skip'),
+        or(
+          ne('${{ parameters.sbom }}', 'auto'),
+          eq(variables['Build.SourceBranch'], 'refs/heads/develop'),
+          startsWith(variables['Build.SourceBranch'], 'refs/heads/support/')
+        )
+      )
+    variables:
+      majorVersion: $[ stageDependencies.Build.Build.outputs['build.NBGV_VersionMajor'] ]
+    jobs:
+      - job: GenerateSBOM
+        displayName: Generate SBOM
+        pool:
+          vmImage: $(vmImage)
+        steps:
+          - template: generate-sbom.yml
+            parameters:
+              productGroup: 'Umbraco'
+              productName: 'Umbraco.StorageProviders'
+              baseUrl: $(DT_BASE_URL)
+              apiKey: $(DT_API_KEY)
+              majorVersion: $(majorVersion)
