@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using Microsoft.Extensions.FileProviders;
 
 namespace Umbraco.StorageProviders.AzureBlob.IO;
@@ -14,13 +16,19 @@ namespace Umbraco.StorageProviders.AzureBlob.IO;
 /// </remarks>
 public sealed class AzureBlobFileSystemCacheOptions : IValidatableObject
 {
+    private const bool DefaultEnabled = true;
+    private const string DefaultHitDuration = "00:00:30";
+    private const string DefaultMissDuration = "00:00:05";
+    private const long DefaultSizeLimit = 10_000;
+
     /// <summary>
     /// Gets or sets a value indicating whether blob metadata caching is enabled.
     /// </summary>
     /// <value>
     /// <c>true</c> if caching is enabled; otherwise, <c>false</c>.
     /// </value>
-    public bool Enabled { get; set; } = true;
+    [DefaultValue(DefaultEnabled)]
+    public bool Enabled { get; set; } = DefaultEnabled;
 
     /// <summary>
     /// Gets or sets how long a successful metadata lookup is cached.
@@ -34,7 +42,8 @@ public sealed class AzureBlobFileSystemCacheOptions : IValidatableObject
     /// invalidate the affected cache entries immediately. Only writes performed outside this instance (another process,
     /// another instance, or directly via the Azure SDK) can leave metadata stale for up to this duration. Defaults to 30 seconds.
     /// </remarks>
-    public TimeSpan HitDuration { get; set; } = TimeSpan.FromSeconds(30);
+    [DefaultValue(typeof(TimeSpan), DefaultHitDuration)]
+    public TimeSpan HitDuration { get; set; } = TimeSpan.Parse(DefaultHitDuration, CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Gets or sets how long a not-found metadata result is cached.
@@ -46,7 +55,8 @@ public sealed class AzureBlobFileSystemCacheOptions : IValidatableObject
     /// Kept shorter than <see cref="HitDuration" /> so newly-uploaded blobs become visible quickly.
     /// Defaults to 5 seconds.
     /// </remarks>
-    public TimeSpan MissDuration { get; set; } = TimeSpan.FromSeconds(5);
+    [DefaultValue(typeof(TimeSpan), DefaultMissDuration)]
+    public TimeSpan MissDuration { get; set; } = TimeSpan.Parse(DefaultMissDuration, CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Gets or sets the maximum number of cached <see cref="IFileInfo" /> entries.
@@ -57,7 +67,9 @@ public sealed class AzureBlobFileSystemCacheOptions : IValidatableObject
     /// <remarks>
     /// Each cache entry counts as a single unit. Defaults to 10,000 entries.
     /// </remarks>
-    public long SizeLimit { get; set; } = 10_000;
+    [DefaultValue(DefaultSizeLimit)]
+    [Range(0, long.MaxValue, ErrorMessage = "{0} must be a non-negative integer.")]
+    public long SizeLimit { get; set; } = DefaultSizeLimit;
 
     /// <inheritdoc />
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -70,11 +82,6 @@ public sealed class AzureBlobFileSystemCacheOptions : IValidatableObject
         if (MissDuration <= TimeSpan.Zero)
         {
             yield return new ValidationResult($"{nameof(MissDuration)} must be a positive duration; got {MissDuration}.", [nameof(MissDuration)]);
-        }
-
-        if (SizeLimit < 0)
-        {
-            yield return new ValidationResult($"{nameof(SizeLimit)} must be a non-negative integer; got {SizeLimit}.", [nameof(SizeLimit)]);
         }
     }
 }

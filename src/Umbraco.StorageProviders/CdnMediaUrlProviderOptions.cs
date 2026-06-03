@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Umbraco.StorageProviders;
@@ -7,6 +8,8 @@ namespace Umbraco.StorageProviders;
 /// </summary>
 public sealed class CdnMediaUrlProviderOptions
 {
+    private const bool DefaultRemoveMediaFromPath = true;
+
     /// <summary>
     /// Gets or sets the CDN media root URL.
     /// </summary>
@@ -22,5 +25,6 @@ public sealed class CdnMediaUrlProviderOptions
     /// <value>
     ///   <c>true</c> if the media path needs to be removed from the path; otherwise, <c>false</c>.
     /// </value>
-    public bool RemoveMediaFromPath { get; set; } = true;
+    [DefaultValue(DefaultRemoveMediaFromPath)]
+    public bool RemoveMediaFromPath { get; set; } = DefaultRemoveMediaFromPath;
 }
