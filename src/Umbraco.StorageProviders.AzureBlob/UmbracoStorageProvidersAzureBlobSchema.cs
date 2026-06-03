@@ -27,19 +27,8 @@ internal sealed class UmbracoStorageProvidersAzureBlobSchema
     public sealed class StorageDefinition
     {
         /// <summary>
-        /// Configuration of Umbraco Storage Providers - Azure Blob Storage.
+        /// Configuration of Umbraco Storage Providers - Azure Blob Storage, keyed by file system name (e.g. "Media").
         /// </summary>
-        public required AzureBlobDefinition AzureBlob { get; set; }
-    }
-
-    /// <summary>
-    /// Represents the configuration of Umbraco Storage Providers - Azure Blob Storage.
-    /// </summary>
-    public sealed class AzureBlobDefinition
-    {
-        /// <summary>
-        /// The Azure Blob File System options for the media file system.
-        /// </summary>
-        public required AzureBlobFileSystemOptions Media { get; set; }
+        public required Dictionary<string, AzureBlobFileSystemOptions> AzureBlob { get; set; }
     }
 }
