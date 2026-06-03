@@ -13,6 +13,7 @@
     "^refs/tags/release-"
   ],
   "cloudBuild": {
+    "setAllVariables": true,
     "buildNumber": {
       "enabled": true
     }
