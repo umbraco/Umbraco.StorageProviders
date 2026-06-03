@@ -7,7 +7,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO;
 /// In-memory cache settings applied to blob metadata lookups performed by the read-only file provider.
 /// </summary>
 /// <remarks>
-/// Caching blob metadata (size, last modified, content type) avoids a network round-trip to Azure Blob Storage
+/// Caching blob metadata (size, last modified) avoids a network round-trip to Azure Blob Storage
 /// on every media request. Under load the default Azure SDK retry policy can hold a thread for many seconds
 /// per call, so eliminating the round-trip for the steady-state hot path significantly reduces both latency
 /// and thread-pool pressure. Metadata is cached per blob path with a short absolute expiration.
@@ -29,7 +29,10 @@ public sealed class AzureBlobFileSystemCacheOptions : IValidatableObject
     /// The cache duration for found blobs.
     /// </value>
     /// <remarks>
-    /// Same-process writes to a blob will see stale metadata for up to this duration. Defaults to 30 seconds.
+    /// Writes through this filesystem instance (<see cref="AzureBlobFileSystem.AddFile(string, System.IO.Stream)" />,
+    /// <see cref="AzureBlobFileSystem.DeleteFile(string)" />, <see cref="AzureBlobFileSystem.DeleteDirectory(string)" />)
+    /// invalidate the affected cache entries immediately. Only writes performed outside this instance (another process,
+    /// another instance, or directly via the Azure SDK) can leave metadata stale for up to this duration. Defaults to 30 seconds.
     /// </remarks>
     public TimeSpan HitDuration { get; set; } = TimeSpan.FromSeconds(30);
 
