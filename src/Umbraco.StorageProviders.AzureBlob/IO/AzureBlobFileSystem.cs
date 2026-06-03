@@ -479,7 +479,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         string? delimiter = recursive ? null : "/";
         string prefix = GetFullPath(path).EnsureEndsWith('/');
 
-        return _container.GetBlobsByHierarchy(delimiter: delimiter, prefix: prefix);
+        return _container.GetBlobsByHierarchy(BlobTraits.None, BlobStates.None, delimiter: delimiter, prefix: prefix);
     }
 
     private string GetBlobName(string path)

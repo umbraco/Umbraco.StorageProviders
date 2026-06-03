@@ -16,6 +16,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AnalysisMode>All</AnalysisMode>
     <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
+    <NuGetAuditMode>direct</NuGetAuditMode>
   </PropertyGroup>
 
   <!-- SourceLink -->
@@ -28,7 +29,7 @@
   <!-- Package Validation -->
   <PropertyGroup>
     <GenerateCompatibilitySuppressionFile>false</GenerateCompatibilitySuppressionFile>
-    <!--<EnablePackageValidation>true</EnablePackageValidation>-->
+    <EnablePackageValidation>true</EnablePackageValidation>
     <PackageValidationBaselineVersion>17.0.0</PackageValidationBaselineVersion>
     <EnableStrictModeForCompatibleFrameworksInPackage>true</EnableStrictModeForCompatibleFrameworksInPackage>
     <EnableStrictModeForCompatibleTfms>true</EnableStrictModeForCompatibleTfms>

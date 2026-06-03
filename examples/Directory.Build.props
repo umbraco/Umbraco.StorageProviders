@@ -3,5 +3,6 @@
     <IsPackable>false</IsPackable>
     <EnablePackageValidation>false</EnablePackageValidation>
     <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
+    <NuGetAuditMode>direct</NuGetAuditMode>
   </PropertyGroup>
 </Project>
