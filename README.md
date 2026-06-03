@@ -101,7 +101,7 @@ UMBRACO__STORAGE__AZUREBLOB__MEDIA__CONTAINERNAME=sample-container
 > You still have to add the provider in the `Program.cs` file when not configuring the options in code.
 
 ### Blob metadata caching
-The read-only file provider serving media performs a synchronous metadata lookup (`GetProperties()`) against Azure Blob Storage on every request. Under load the default Azure SDK retry policy can hold a thread for many seconds per call, so the provider caches blob metadata (size and last modified) in-memory per blob path to avoid the round-trip on the steady-state hot path, reducing both latency and thread-pool pressure.
+The read-only file provider serving media performs a synchronous metadata lookup (`GetProperties()`) against Azure Blob Storage on every request. Under load the default Azure SDK retry policy can hold a thread for many seconds per call, so the provider caches blob metadata (size and last modified) per blob path to avoid the round-trip on the steady-state hot path, reducing both latency and thread-pool pressure. Caching is backed by the shared `HybridCache` registered by Umbraco, which provides built-in stampede protection so concurrent requests for the same cold key share a single fetch.
 
 Writes through the file system (`AddFile`/`DeleteFile`/`DeleteDirectory`) invalidate the affected cache entries immediately, so only writes performed outside this instance (another process, another instance, or directly via the Azure SDK) can leave metadata stale for up to the configured hit duration.
 
@@ -111,7 +111,6 @@ Caching is enabled by default. It can be configured in code:
     options.Cache.Enabled = true;
     options.Cache.HitDuration = TimeSpan.FromSeconds(30);
     options.Cache.MissDuration = TimeSpan.FromSeconds(5);
-    options.Cache.SizeLimit = 10_000;
 })
 ```
 
@@ -125,8 +124,7 @@ In `appsettings.json` (durations use the `hh:mm:ss[.fff]` format):
           "Cache": {
             "Enabled": true,
             "HitDuration": "00:00:30",
-            "MissDuration": "00:00:05",
-            "SizeLimit": 10000
+            "MissDuration": "00:00:05"
           }
         }
       }
@@ -140,14 +138,12 @@ Or by environment variables:
 UMBRACO__STORAGE__AZUREBLOB__MEDIA__CACHE__ENABLED=true
 UMBRACO__STORAGE__AZUREBLOB__MEDIA__CACHE__HITDURATION=00:00:30
 UMBRACO__STORAGE__AZUREBLOB__MEDIA__CACHE__MISSDURATION=00:00:05
-UMBRACO__STORAGE__AZUREBLOB__MEDIA__CACHE__SIZELIMIT=10000
 ```
 
 The available options are:
 - `Enabled` - whether blob metadata caching is enabled (default `true`).
 - `HitDuration` - how long a successful metadata lookup is cached (default 30 seconds).
 - `MissDuration` - how long a not-found result is cached; kept shorter than `HitDuration` so newly-uploaded blobs become visible quickly (default 5 seconds).
-- `SizeLimit` - the maximum number of cached entries, each counting as a single unit (default 10,000).
 
 ### Retry and timeout options
 The Azure SDK's default retry policy is tuned for background jobs, not request-serving: it allows 3 retries with a 100-second network timeout each, so a single failing blob call can tie up a thread for several minutes. To bound the worst-case time a blob operation spends waiting on blob storage, the provider applies more conservative retry and timeout defaults to the default `BlobContainerClient`.
