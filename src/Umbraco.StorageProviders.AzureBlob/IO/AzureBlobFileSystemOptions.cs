@@ -6,7 +6,7 @@ namespace Umbraco.StorageProviders.AzureBlob.IO;
 /// <summary>
 /// The Azure Blob File System options.
 /// </summary>
-public sealed class AzureBlobFileSystemOptions
+public sealed class AzureBlobFileSystemOptions : IValidatableObject
 {
     /// <summary>
     /// The media filesystem name.
@@ -37,6 +37,14 @@ public sealed class AzureBlobFileSystemOptions
     public required string VirtualPath { get; set; }
 
     /// <summary>
+    /// Gets or sets the in-memory cache settings applied to blob metadata lookups by the read-only file provider.
+    /// </summary>
+    /// <value>
+    /// The in-memory cache settings.
+    /// </value>
+    public AzureBlobFileSystemCacheOptions Cache { get; set; } = new();
+
+    /// <summary>
     /// Gets or sets the Azure Blob Container client factory.
     /// </summary>
     /// <value>
@@ -51,4 +59,26 @@ public sealed class AzureBlobFileSystemOptions
     /// The default Azure Blob Container client factory.
     /// </value>
     internal static Func<AzureBlobFileSystemOptions, BlobContainerClient> DefaultBlobContainerClientFactory => options => new BlobContainerClient(options.ConnectionString, options.ContainerName);
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Recurses into the nested <see cref="Cache" /> options so its <see cref="IValidatableObject" /> implementation is honored by <c>ValidateDataAnnotations()</c>.
+    /// </remarks>
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (Cache is null)
+        {
+            yield break;
+        }
+
+        var nestedResults = new List<ValidationResult>();
+        Validator.TryValidateObject(Cache, new ValidationContext(Cache), nestedResults, validateAllProperties: true);
+
+        foreach (ValidationResult result in nestedResults)
+        {
+            yield return new ValidationResult(
+                result.ErrorMessage,
+                result.MemberNames.Select(member => $"{nameof(Cache)}.{member}"));
+        }
+    }
 }
