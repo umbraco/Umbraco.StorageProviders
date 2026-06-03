@@ -122,7 +122,7 @@ Caching is enabled by default. It can be configured in code:
 })
 ```
 
-In `appsettings.json` (durations use the `hh:mm:ss` format):
+In `appsettings.json` (durations use the `hh:mm:ss[.fff]` format):
 ```json
 {
   "Umbraco": {
@@ -172,7 +172,7 @@ using Azure.Core;
 })
 ```
 
-In `appsettings.json` (durations use the `hh:mm:ss` format):
+In `appsettings.json` (durations use the `hh:mm:ss[.fff]` format):
 ```json
 {
   "Umbraco": {

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
 using Azure.Storage.Blobs;
 
 namespace Umbraco.StorageProviders.AzureBlob.IO;
@@ -79,39 +80,10 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="blobClientOptions" /> is <c>null</c>.</exception>
     /// <remarks>
-    /// Use this when supplying a custom <see cref="BlobClientOptions" /> (e.g. via
-    /// <see cref="AzureBlobFileSystemOptionsExtensions.CreateBlobContainerClientUsingOptions" />) to ensure the same retry policy is applied.
+    /// Use this when supplying a custom <see cref="BlobClientOptions" /> (e.g. via <see cref="AzureBlobFileSystemOptionsExtensions.CreateBlobContainerClientUsingOptions" />) to ensure the same retry policy is applied.
     /// </remarks>
     public BlobClientOptions ConfigureRetry(BlobClientOptions blobClientOptions)
-        => ConfigureRetry(blobClientOptions, Retry);
-
-    /// <summary>
-    /// Applies the configured retry and timeout settings to the supplied <see cref="BlobClientOptions" />.
-    /// </summary>
-    /// <param name="blobClientOptions">The Blob client options to configure.</param>
-    /// <param name="retry">The retry and timeout settings to apply.</param>
-    /// <returns>
-    /// The same <paramref name="blobClientOptions" /> instance, to allow fluent chaining.
-    /// </returns>
-    /// <exception cref="ArgumentNullException"><paramref name="blobClientOptions" /> is <c>null</c>.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="retry" /> is <c>null</c>.</exception>
-    /// <remarks>
-    /// Use this when supplying a custom <see cref="BlobClientOptions" /> (e.g. via
-    /// <see cref="AzureBlobFileSystemOptionsExtensions.CreateBlobContainerClientUsingOptions" />) to ensure the same retry policy is applied.
-    /// </remarks>
-    public static BlobClientOptions ConfigureRetry(BlobClientOptions blobClientOptions, AzureBlobFileSystemRetryOptions retry)
-    {
-        ArgumentNullException.ThrowIfNull(blobClientOptions);
-        ArgumentNullException.ThrowIfNull(retry);
-
-        blobClientOptions.Retry.MaxRetries = retry.MaxRetries;
-        blobClientOptions.Retry.NetworkTimeout = retry.NetworkTimeout;
-        blobClientOptions.Retry.Mode = retry.Mode;
-        blobClientOptions.Retry.Delay = retry.Delay;
-        blobClientOptions.Retry.MaxDelay = retry.MaxDelay;
-
-        return blobClientOptions;
-    }
+        => Retry.Configure(blobClientOptions);
 
     /// <inheritdoc />
     /// <remarks>
@@ -120,11 +92,22 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     /// </remarks>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        var results = new List<ValidationResult>();
+        return [..ValidateObject(Cache), ..ValidateObject(Retry)];
 
-        Validator.TryValidateObject(Cache, new ValidationContext(Cache), results, validateAllProperties: true);
-        Validator.TryValidateObject(Retry, new ValidationContext(Retry), results, validateAllProperties: true);
+        static IEnumerable<ValidationResult> ValidateObject(object? instance, [CallerArgumentExpression(nameof(instance))] string? prefix = null)
+        {
+            if (instance is null)
+            {
+                yield break;
+            }
 
-        return results;
+            var validationResults = new List<ValidationResult>();
+            Validator.TryValidateObject(instance, new ValidationContext(instance), validationResults, validateAllProperties: true);
+
+            foreach (ValidationResult validationResult in validationResults)
+            {
+                yield return new ValidationResult(validationResult.ErrorMessage, validationResult.MemberNames.Select(member => $"{prefix}.{member}"));
+            }
+        }
     }
 }

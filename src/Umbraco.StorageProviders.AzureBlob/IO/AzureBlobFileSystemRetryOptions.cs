@@ -71,6 +71,30 @@ public sealed class AzureBlobFileSystemRetryOptions : IValidatableObject
     [DefaultValue(typeof(TimeSpan), DefaultMaxDelay)]
     public TimeSpan MaxDelay { get; set; } = TimeSpan.Parse(DefaultMaxDelay, CultureInfo.InvariantCulture);
 
+    /// <summary>
+    /// Configures the supplied <see cref="BlobClientOptions" /> with these retry and timeout settings.
+    /// </summary>
+    /// <param name="blobClientOptions">The Blob client options to configure.</param>
+    /// <returns>
+    /// The same <paramref name="blobClientOptions" /> instance, to allow fluent chaining.
+    /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="blobClientOptions" /> is <c>null</c>.</exception>
+    /// <remarks>
+    /// Use this when supplying a custom <see cref="BlobClientOptions" /> (e.g. via <see cref="AzureBlobFileSystemOptionsExtensions.CreateBlobContainerClientUsingOptions" />) to ensure the same retry policy is applied.
+    /// </remarks>
+    public BlobClientOptions Configure(BlobClientOptions blobClientOptions)
+    {
+        ArgumentNullException.ThrowIfNull(blobClientOptions);
+
+        blobClientOptions.Retry.MaxRetries = MaxRetries;
+        blobClientOptions.Retry.NetworkTimeout = NetworkTimeout;
+        blobClientOptions.Retry.Mode = Mode;
+        blobClientOptions.Retry.Delay = Delay;
+        blobClientOptions.Retry.MaxDelay = MaxDelay;
+
+        return blobClientOptions;
+    }
+
     /// <inheritdoc />
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
