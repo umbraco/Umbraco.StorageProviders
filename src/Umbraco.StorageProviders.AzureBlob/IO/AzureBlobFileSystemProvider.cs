@@ -7,13 +7,14 @@ using Umbraco.Cms.Core.IO;
 namespace Umbraco.StorageProviders.AzureBlob.IO;
 
 /// <inheritdoc />
-public sealed class AzureBlobFileSystemProvider : IAzureBlobFileSystemProvider
+public sealed class AzureBlobFileSystemProvider : IAzureBlobFileSystemProvider, IDisposable
 {
     private readonly ConcurrentDictionary<string, IAzureBlobFileSystem> _fileSystems = new();
     private readonly IOptionsMonitor<AzureBlobFileSystemOptions> _optionsMonitor;
     private readonly IHostingEnvironment _hostingEnvironment;
     private readonly IIOHelper _ioHelper;
     private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider;
+    private readonly IDisposable? _onChangeRegistration;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureBlobFileSystemProvider"/> class.
@@ -31,7 +32,13 @@ public sealed class AzureBlobFileSystemProvider : IAzureBlobFileSystemProvider
         _ioHelper = ioHelper ?? throw new ArgumentNullException(nameof(ioHelper));
         _fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider();
 
-        _optionsMonitor.OnChange((options, name) => _fileSystems.TryRemove(name ?? Options.DefaultName, out _));
+        _onChangeRegistration = _optionsMonitor.OnChange((options, name) =>
+        {
+            if (_fileSystems.TryRemove(name ?? Options.DefaultName, out IAzureBlobFileSystem? removed) && removed is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        });
     }
 
     /// <inheritdoc />
@@ -46,5 +53,21 @@ public sealed class AzureBlobFileSystemProvider : IAzureBlobFileSystemProvider
 
             return new AzureBlobFileSystem(options, _hostingEnvironment, _ioHelper, _fileExtensionContentTypeProvider);
         });
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        _onChangeRegistration?.Dispose();
+
+        foreach (IAzureBlobFileSystem fileSystem in _fileSystems.Values)
+        {
+            if (fileSystem is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
+
+        _fileSystems.Clear();
     }
 }

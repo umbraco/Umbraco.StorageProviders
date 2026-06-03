@@ -1,16 +1,6 @@
 # Umbraco storage providers
 This repository contains Umbraco storage providers that can replace the default physical file storage.
 
-> **Note**
-> Use the following documentation for previous Umbraco CMS versions:
-> * [Umbraco CMS 15](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/15.x/README.md)
-> * [Umbraco CMS 14](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/14.x/README.md)
-> * [Umbraco CMS 13](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/13.x/README.md)
-> * [Umbraco CMS 12](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/12.0.x/README.md)
-> * [Umbraco CMS 11](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/11.0.x/README.md)
-> * [Umbraco CMS 10 - v10 (aligned with CMS major version from now on)](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/10.0.x/README.md)
-> * [Umbraco CMS 9 - v1](https://github.com/umbraco/Umbraco.StorageProviders/blob/support/1.1.x/README.md)
-
 ## Umbraco.StorageProviders
 Contains shared storage providers infrastructure, like a CDN media URL provider.
 
@@ -110,15 +100,120 @@ UMBRACO__STORAGE__AZUREBLOB__MEDIA__CONTAINERNAME=sample-container
 > **Note**
 > You still have to add the provider in the `Program.cs` file when not configuring the options in code.
 
+### Blob metadata caching
+The read-only file provider serving media performs a synchronous metadata lookup (`GetProperties()`) against Azure Blob Storage on every request. Under load the default Azure SDK retry policy can hold a thread for many seconds per call, so the provider caches blob metadata (size and last modified) in-memory per blob path to avoid the round-trip on the steady-state hot path, reducing both latency and thread-pool pressure.
+
+Writes through the file system (`AddFile`/`DeleteFile`/`DeleteDirectory`) invalidate the affected cache entries immediately, so only writes performed outside this instance (another process, another instance, or directly via the Azure SDK) can leave metadata stale for up to the configured hit duration.
+
+Caching is enabled by default. It can be configured in code:
+```csharp
+.AddAzureBlobMediaFileSystem(options => {
+    options.Cache.Enabled = true;
+    options.Cache.HitDuration = TimeSpan.FromSeconds(30);
+    options.Cache.MissDuration = TimeSpan.FromSeconds(5);
+    options.Cache.SizeLimit = 10_000;
+})
+```
+
+In `appsettings.json` (durations use the `hh:mm:ss[.fff]` format):
+```json
+{
+  "Umbraco": {
+    "Storage": {
+      "AzureBlob": {
+        "Media": {
+          "Cache": {
+            "Enabled": true,
+            "HitDuration": "00:00:30",
+            "MissDuration": "00:00:05",
+            "SizeLimit": 10000
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Or by environment variables:
+```sh
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__CACHE__ENABLED=true
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__CACHE__HITDURATION=00:00:30
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__CACHE__MISSDURATION=00:00:05
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__CACHE__SIZELIMIT=10000
+```
+
+The available options are:
+- `Enabled` - whether blob metadata caching is enabled (default `true`).
+- `HitDuration` - how long a successful metadata lookup is cached (default 30 seconds).
+- `MissDuration` - how long a not-found result is cached; kept shorter than `HitDuration` so newly-uploaded blobs become visible quickly (default 5 seconds).
+- `SizeLimit` - the maximum number of cached entries, each counting as a single unit (default 10,000).
+
+### Retry and timeout options
+The Azure SDK's default retry policy is tuned for background jobs, not request-serving: it allows 3 retries with a 100-second network timeout each, so a single failing blob call can tie up a thread for several minutes. To bound the worst-case time a blob operation spends waiting on blob storage, the provider applies more conservative retry and timeout defaults to the default `BlobContainerClient`.
+
+These can be configured in code:
+```csharp
+using Azure.Core;
+
+.AddAzureBlobMediaFileSystem(options => {
+    options.Retry.MaxRetries = 2;
+    options.Retry.NetworkTimeout = TimeSpan.FromSeconds(30);
+    options.Retry.Mode = RetryMode.Exponential;
+    options.Retry.Delay = TimeSpan.FromMilliseconds(800);
+    options.Retry.MaxDelay = TimeSpan.FromSeconds(5);
+})
+```
+
+In `appsettings.json` (durations use the `hh:mm:ss[.fff]` format):
+```json
+{
+  "Umbraco": {
+    "Storage": {
+      "AzureBlob": {
+        "Media": {
+          "Retry": {
+            "MaxRetries": 2,
+            "NetworkTimeout": "00:00:30",
+            "Mode": "Exponential",
+            "Delay": "00:00:00.800",
+            "MaxDelay": "00:00:05"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Or by environment variables:
+```sh
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__RETRY__MAXRETRIES=2
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__RETRY__NETWORKTIMEOUT=00:00:30
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__RETRY__MODE=Exponential
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__RETRY__DELAY=00:00:00.800
+UMBRACO__STORAGE__AZUREBLOB__MEDIA__RETRY__MAXDELAY=00:00:05
+```
+
+The available options are:
+- `MaxRetries` - the maximum number of retry attempts before giving up (default 2).
+- `NetworkTimeout` - the timeout applied to an individual network operation (default 30 seconds). This also bounds uploads, so keep it high enough to transfer your largest media files in a single operation.
+- `Mode` - the approach used to calculate retry delays, `Exponential` or `Fixed` (default `Exponential`).
+- `Delay` - the delay between retries for `Fixed` mode, or the base delay for backoff calculations in `Exponential` mode (default 800 milliseconds).
+- `MaxDelay` - the maximum permissible delay between retries when using a backoff approach (default 5 seconds).
+
+> **Note**
+> These settings are only honored by the default `BlobContainerClient` factory. If you supply a custom `BlobClientOptions` (see [Custom blob container options](#custom-blob-container-options) below), call `options.ConfigureRetry(blobClientOptions)` to apply the retry policy.
+
 ### Custom blob container options
 To override the default blob container options, you can use the following extension methods on `AzureBlobFileSystemOptions`:
 ```csharp
 // Add using default options (overly verbose, but shows how to revert back to the default)
 .AddAzureBlobMediaFileSystem(options => options.CreateBlobContainerClientUsingDefault())
-// Add using options
-.AddAzureBlobMediaFileSystem(options => options.CreateBlobContainerClientUsingOptions(_blobClientOptions))
+// Add using options (call ConfigureRetry to keep applying the configured retry policy)
+.AddAzureBlobMediaFileSystem(options => options.CreateBlobContainerClientUsingOptions(options.ConfigureRetry(_blobClientOptions)))
 // If the connection string is parsed to a URI, use the delegate to create a BlobContainerClient
-.AddAzureBlobMediaFileSystem(options => options.TryCreateBlobContainerClientUsingUri(uri => new BlobContainerClient(uri, _blobClientOptions)))
+.AddAzureBlobMediaFileSystem(options => options.TryCreateBlobContainerClientUsingUri(uri => new BlobContainerClient(uri, options.ConfigureRetry(_blobClientOptions))))
 ```
 
 This can also be used together with the `Azure.Identity` package to authenticate with Azure AD (using managed identities):
@@ -135,7 +230,7 @@ internal sealed class AzureBlobFileSystemComposer : IComposer
         {
             options.ConnectionString = "https://[storage-account].blob.core.windows.net";
             options.ContainerName = "media";
-            options.TryCreateBlobContainerClientUsingUri(uri => new BlobContainerClient(uri, new DefaultAzureCredential()));
+            options.TryCreateBlobContainerClientUsingUri(uri => new BlobContainerClient(uri, new DefaultAzureCredential(), options.ConfigureRetry(new BlobClientOptions())));
         });
 }
 ```
@@ -172,7 +267,7 @@ The container name is expected to exist and uses the following folder structure:
 > This is different than the behavior of other file system providers, i.e. [UmbracoFileSystemProviders.Azure](https://github.com/umbraco-community/UmbracoFileSystemProviders.Azure) that expect the media contents to be at the root level.
 
 ## Using the file system providers
-Please refer to our documentation on [using custom file systems](https://docs.umbraco.com/umbraco-cms/extending/filesystemproviders).
+Please refer to our documentation on [using custom file systems](https://docs.umbraco.com/umbraco-cms/17.latest/extending/filesystemproviders).
 
 ## Bugs, issues and Pull Requests
 If you encounter a bug when using this client library you are welcome to open an issue in the issue tracker of this repository. We always welcome Pull Request and please feel free to open an issue before submitting a Pull Request to discuss what you want to submit.

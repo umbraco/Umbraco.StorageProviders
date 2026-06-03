@@ -452,3 +452,7 @@ $RECYCLE.BIN/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Auto-generated appsettings JSON schema (generated at build time)
+/src/Umbraco.StorageProviders/appsettings-schema.*.json
+/src/Umbraco.StorageProviders.AzureBlob/appsettings-schema.*.json
