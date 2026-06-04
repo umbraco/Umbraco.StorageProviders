@@ -202,16 +202,13 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// <inheritdoc />
     /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="stream" /> is <c>null</c>.</exception>
+    /// <exception cref="System.IO.IOException">A file already exists at <paramref name="path" /> and <paramref name="overrideIfExists" /> is <c>false</c>.</exception>
     public void AddFile(string path, Stream stream, bool overrideIfExists)
     {
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(stream);
 
         BlobClient blob = GetBlobClient(path);
-        if (!overrideIfExists && blob.Exists())
-        {
-            throw new InvalidOperationException($"A file at path '{path}' already exists.");
-        }
 
         var headers = new BlobHttpHeaders();
         if (_contentTypeProvider.TryGetContentType(path, out var contentType))
@@ -219,6 +216,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
             headers.ContentType = contentType;
         }
 
+        // Enforce no-overwrite atomically via a precondition to avoid a check-then-write race
         BlobRequestConditions? conditions = overrideIfExists ? null : new BlobRequestConditions
         {
             IfNoneMatch = ETag.All
@@ -232,6 +230,10 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
                 Conditions = conditions
             });
         }
+        catch (RequestFailedException ex) when (!overrideIfExists && ex.Status is (int)HttpStatusCode.Conflict or (int)HttpStatusCode.PreconditionFailed)
+        {
+            throw new IOException($"A file at path '{path}' already exists.", ex);
+        }
         finally
         {
             InvalidateCacheEntry(blob.Name);
@@ -241,18 +243,16 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// <inheritdoc />
     /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="physicalPath" /> is <c>null</c>.</exception>
+    /// <exception cref="System.IO.IOException">A file already exists at <paramref name="path" /> and <paramref name="overrideIfExists" /> is <c>false</c>.</exception>
     public void AddFile(string path, string physicalPath, bool overrideIfExists = true, bool copy = false)
     {
         ArgumentNullException.ThrowIfNull(path);
         ArgumentNullException.ThrowIfNull(physicalPath);
 
         BlobClient destinationBlob = GetBlobClient(path);
-        if (!overrideIfExists && destinationBlob.Exists())
-        {
-            throw new InvalidOperationException($"A file at path '{path}' already exists.");
-        }
-
         BlobClient sourceBlob = GetBlobClient(physicalPath);
+
+        // Enforce no-overwrite atomically via a precondition to avoid a check-then-copy race
         BlobRequestConditions? destinationConditions = overrideIfExists ? null : new BlobRequestConditions
         {
             IfNoneMatch = ETag.All
@@ -265,7 +265,7 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
                 DestinationConditions = destinationConditions
             });
 
-            if (copyFromUriOperation?.HasCompleted == false)
+            if (!copyFromUriOperation.HasCompleted)
             {
                 copyFromUriOperation.WaitForCompletion();
             }
@@ -275,6 +275,10 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
                 sourceBlob.DeleteIfExists();
             }
         }
+        catch (RequestFailedException ex) when (!overrideIfExists && ex.Status is (int)HttpStatusCode.Conflict or (int)HttpStatusCode.PreconditionFailed)
+        {
+            throw new IOException($"A file at path '{path}' already exists.", ex);
+        }
         finally
         {
             InvalidateCacheEntry(destinationBlob.Name);
@@ -282,6 +286,58 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
             {
                 InvalidateCacheEntry(sourceBlob.Name);
             }
+        }
+    }
+
+    /// <inheritdoc />
+    /// <exception cref="System.ArgumentNullException"><paramref name="source" /> is <c>null</c>.</exception>
+    /// <exception cref="System.ArgumentNullException"><paramref name="target" /> is <c>null</c>.</exception>
+    /// <exception cref="System.IO.FileNotFoundException">No file exists at <paramref name="source" />.</exception>
+    /// <exception cref="System.IO.IOException">A file already exists at <paramref name="target" /> and <paramref name="overrideIfExists" /> is <c>false</c>.</exception>
+    /// <remarks>
+    /// Moves the blob using a server-side copy followed by deleting the source, avoiding downloading and re-uploading the content.
+    /// </remarks>
+    public void MoveFile(string source, string target, bool overrideIfExists = true)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(target);
+
+        BlobClient sourceBlob = GetBlobClient(source);
+        if (!sourceBlob.Exists())
+        {
+            throw new FileNotFoundException($"File at path '{source}' could not be found.");
+        }
+
+        BlobClient destinationBlob = GetBlobClient(target);
+
+        // Enforce no-overwrite atomically via a precondition to avoid a check-then-copy race
+        BlobRequestConditions? destinationConditions = overrideIfExists ? null : new BlobRequestConditions
+        {
+            IfNoneMatch = ETag.All
+        };
+
+        try
+        {
+            CopyFromUriOperation copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri, new BlobCopyFromUriOptions()
+            {
+                DestinationConditions = destinationConditions
+            });
+
+            if (!copyFromUriOperation.HasCompleted)
+            {
+                copyFromUriOperation.WaitForCompletion();
+            }
+
+            sourceBlob.DeleteIfExists();
+        }
+        catch (RequestFailedException ex) when (!overrideIfExists && ex.Status is (int)HttpStatusCode.Conflict or (int)HttpStatusCode.PreconditionFailed)
+        {
+            throw new IOException($"A file at path '{target}' already exists.", ex);
+        }
+        finally
+        {
+            InvalidateCacheEntry(destinationBlob.Name);
+            InvalidateCacheEntry(sourceBlob.Name);
         }
     }
 
