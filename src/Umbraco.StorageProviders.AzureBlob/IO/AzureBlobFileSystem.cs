@@ -286,6 +286,49 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     }
 
     /// <inheritdoc />
+    /// <exception cref="System.ArgumentNullException"><paramref name="source" /> is <c>null</c>.</exception>
+    /// <exception cref="System.ArgumentNullException"><paramref name="target" /> is <c>null</c>.</exception>
+    /// <exception cref="System.IO.FileNotFoundException">No file exists at <paramref name="source" />.</exception>
+    /// <exception cref="System.IO.IOException">A file already exists at <paramref name="target" /> and <paramref name="overrideIfExists" /> is <c>false</c>.</exception>
+    /// <remarks>
+    /// Moves the blob using a server-side copy followed by deleting the source, avoiding downloading and re-uploading the content.
+    /// </remarks>
+    public void MoveFile(string source, string target, bool overrideIfExists = true)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(target);
+
+        BlobClient sourceBlob = GetBlobClient(source);
+        if (!sourceBlob.Exists())
+        {
+            throw new FileNotFoundException($"File at path '{source}' could not be found.");
+        }
+
+        BlobClient destinationBlob = GetBlobClient(target);
+        if (!overrideIfExists && destinationBlob.Exists())
+        {
+            throw new IOException($"A file at path '{target}' already exists.");
+        }
+
+        try
+        {
+            CopyFromUriOperation copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri);
+
+            if (copyFromUriOperation?.HasCompleted == false)
+            {
+                copyFromUriOperation.WaitForCompletion();
+            }
+
+            sourceBlob.DeleteIfExists();
+        }
+        finally
+        {
+            InvalidateCacheEntry(destinationBlob.Name);
+            InvalidateCacheEntry(sourceBlob.Name);
+        }
+    }
+
+    /// <inheritdoc />
     /// <exception cref="System.ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
     public IEnumerable<string> GetFiles(string path)
     {
