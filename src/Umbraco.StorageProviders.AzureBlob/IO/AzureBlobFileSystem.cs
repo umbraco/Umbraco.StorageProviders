@@ -305,14 +305,21 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
         }
 
         BlobClient destinationBlob = GetBlobClient(target);
-        if (!overrideIfExists && destinationBlob.Exists())
+
+        // Enforce the no-overwrite behavior atomically using a precondition (instead of a separate
+        // existence check that is subject to a race) so a concurrent writer can't have the target
+        // created between the check and the copy.
+        BlobRequestConditions? destinationConditions = overrideIfExists ? null : new BlobRequestConditions
         {
-            throw new IOException($"A file at path '{target}' already exists.");
-        }
+            IfNoneMatch = ETag.All
+        };
 
         try
         {
-            CopyFromUriOperation copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri);
+            CopyFromUriOperation copyFromUriOperation = destinationBlob.StartCopyFromUri(sourceBlob.Uri, new BlobCopyFromUriOptions()
+            {
+                DestinationConditions = destinationConditions
+            });
 
             if (copyFromUriOperation?.HasCompleted == false)
             {
@@ -320,6 +327,10 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
             }
 
             sourceBlob.DeleteIfExists();
+        }
+        catch (RequestFailedException ex) when (!overrideIfExists && ex.Status is (int)HttpStatusCode.Conflict or (int)HttpStatusCode.PreconditionFailed)
+        {
+            throw new IOException($"A file at path '{target}' already exists.", ex);
         }
         finally
         {
