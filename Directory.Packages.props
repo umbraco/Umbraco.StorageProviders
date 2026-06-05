@@ -9,10 +9,10 @@
     <GlobalPackageReference Include="Umbraco.JsonSchema.Extensions" Version="0.4.1" />
   </ItemGroup>
   <PropertyGroup>
-    <UmbracoCmsPackageVersion>[18.0.0-rc1, 19)</UmbracoCmsPackageVersion>
+    <UmbracoCmsPackageVersion>[18.0.0-rc2, 19)</UmbracoCmsPackageVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Azure.Storage.Blobs" Version="12.28.0" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.0" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.6.0" />
     <PackageVersion Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="3.2.0" />
     <PackageVersion Include="System.IO.Hashing" Version="10.0.8" />
