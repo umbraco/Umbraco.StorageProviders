@@ -3,19 +3,19 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.9.50" />
+    <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.10.85" />
     <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
     <GlobalPackageReference Include="Umbraco.GitVersioning.Extensions" Version="0.2.0" />
-    <GlobalPackageReference Include="Umbraco.JsonSchema.Extensions" Version="0.4.1" />
+    <GlobalPackageReference Include="Umbraco.JsonSchema.Extensions" Version="0.4.3" />
   </ItemGroup>
   <PropertyGroup>
-    <UmbracoCmsPackageVersion>[18.0.0-rc2, 19)</UmbracoCmsPackageVersion>
+    <UmbracoCmsPackageVersion>[18.0.0-rc3, 19)</UmbracoCmsPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.0" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.6.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.7.0" />
     <PackageVersion Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="3.2.0" />
-    <PackageVersion Include="System.IO.Hashing" Version="10.0.8" />
+    <PackageVersion Include="System.IO.Hashing" Version="10.0.9" />
     <PackageVersion Include="Umbraco.Cms.Imaging.ImageSharp" Version="$(UmbracoCmsPackageVersion)" />
     <PackageVersion Include="Umbraco.Cms.Web.Common" Version="$(UmbracoCmsPackageVersion)" />
   </ItemGroup>
