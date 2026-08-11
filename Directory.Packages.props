@@ -12,7 +12,13 @@
     <UmbracoCmsPackageVersion>[13.0.0, 14)</UmbracoCmsPackageVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.1" />
+    <!-- Pinned to 12.27.0: keeps the whole Azure.Core -> System.ClientModel chain on Microsoft.Extensions 8.x
+         (12.27.0 -> Azure.Core 1.50.0 -> System.ClientModel 1.8.0 -> Microsoft.Extensions.Logging.Abstractions 8.0.3).
+         Blobs 12.28.0+ pull Azure.Core 1.51.1+ -> System.ClientModel 1.9.0, which requires
+         Microsoft.Extensions.*.Abstractions 10.0.2/10.0.3 even for net8 consumers and breaks Umbraco 13 (net8)
+         restores against packages that cap Microsoft.Extensions below 9.0.0 (Umbraco.Commerce) or below 10.0.0
+         (Umbraco.Deploy/Rebus). Do not bump on the 13.x line. -->
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.27.0" />
     <PackageVersion Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="3.2.0" />
     <PackageVersion Include="Umbraco.Cms.Imaging.ImageSharp" Version="$(UmbracoCmsPackageVersion)" />
     <PackageVersion Include="Umbraco.Cms.Web.Common" Version="$(UmbracoCmsPackageVersion)" />
