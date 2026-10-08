@@ -54,3 +54,4 @@ extends:
     prerelease: ${{ parameters.prerelease }}
     release: ${{ parameters.release }}
     sbom_generate: ${{ parameters.sbom_generate }}
+    sbom_dt_variable_group: 'dependency-track'
