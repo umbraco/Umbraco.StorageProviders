@@ -263,7 +263,7 @@ The container name is expected to exist and uses the following folder structure:
 > This is different than the behavior of other file system providers, i.e. [UmbracoFileSystemProviders.Azure](https://github.com/umbraco-community/UmbracoFileSystemProviders.Azure) that expect the media contents to be at the root level.
 
 ## Using the file system providers
-Please refer to our documentation on [using custom file systems](https://docs.umbraco.com/umbraco-cms/17.latest/extending/filesystemproviders).
+Please refer to our documentation on [using custom file systems](https://docs.umbraco.com/umbraco-cms/19.latest/extend-your-project/server-side-extensions/filesystemproviders).
 
 ## Bugs, issues and Pull Requests
 If you encounter a bug when using this client library you are welcome to open an issue in the issue tracker of this repository. We always welcome Pull Request and please feel free to open an issue before submitting a Pull Request to discuss what you want to submit.
