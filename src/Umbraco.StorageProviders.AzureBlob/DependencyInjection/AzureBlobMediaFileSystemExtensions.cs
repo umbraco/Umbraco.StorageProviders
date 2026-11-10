@@ -63,21 +63,6 @@ public static class AzureBlobMediaFileSystemExtensions
     /// <summary>
     /// Registers a <see cref="IAzureBlobFileSystem" /> and it's dependencies configured for media.
     /// </summary>
-    /// <typeparam name="TDep">A dependency used by the configure action.</typeparam>
-    /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
-    /// <param name="configure">An action used to configure the <see cref="AzureBlobFileSystemOptions" />.</param>
-    /// <returns>
-    /// The <see cref="IUmbracoBuilder" />.
-    /// </returns>
-    /// <exception cref="System.ArgumentNullException"><paramref name="builder" /> is <c>null</c>.</exception>
-    [Obsolete("Use AddAzureBlobMediaFileSystem<TDep> instead.")]
-    public static IUmbracoBuilder AddAzureBlobFileSystem<TDep>(this IUmbracoBuilder builder, Action<AzureBlobFileSystemOptions, TDep> configure)
-        where TDep : class
-        => builder.AddAzureBlobMediaFileSystem(configure);
-
-    /// <summary>
-    /// Registers a <see cref="IAzureBlobFileSystem" /> and it's dependencies configured for media.
-    /// </summary>
     /// <param name="builder">The <see cref="IUmbracoBuilder" />.</param>
     /// <param name="configure">An action used to configure the <see cref="AzureBlobFileSystemOptions" />.</param>
     /// <returns>
