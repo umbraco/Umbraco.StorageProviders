@@ -22,7 +22,7 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     /// Required when the file system creates its own Blob Container client (the default). Not used when a client is supplied via
     /// <see cref="AzureBlobFileSystemOptionsExtensions.UseBlobContainerClient" /> or <see cref="AzureBlobFileSystemOptionsExtensions.UseBlobServiceClient" />.
     /// </remarks>
-    public string ConnectionString { get; set; } = null!;
+    public string? ConnectionString { get; set; }
 
     /// <summary>
     /// Gets or sets the container name.
@@ -31,7 +31,7 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     /// Required unless a Blob Container client is supplied via <see cref="AzureBlobFileSystemOptionsExtensions.UseBlobContainerClient" />,
     /// in which case it is optional, but must match the name of the supplied container when set.
     /// </remarks>
-    public string ContainerName { get; set; } = null!;
+    public string? ContainerName { get; set; }
 
     /// <summary>
     /// Gets or sets the root path of the container.
@@ -91,7 +91,10 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     /// <value>
     /// The default Azure Blob Container client factory.
     /// </value>
-    internal static Func<AzureBlobFileSystemOptions, BlobContainerClient> DefaultBlobContainerClientFactory => options => new BlobContainerClient(options.ConnectionString, options.ContainerName, options.ConfigureRetry(new BlobClientOptions()));
+    /// <remarks>
+    /// <see cref="ConnectionString" /> and <see cref="ContainerName" /> are validated as required for this factory, so they're never <c>null</c> when it runs.
+    /// </remarks>
+    internal static Func<AzureBlobFileSystemOptions, BlobContainerClient> DefaultBlobContainerClientFactory => options => new BlobContainerClient(options.ConnectionString!, options.ContainerName!, options.ConfigureRetry(new BlobClientOptions()));
 
     /// <summary>
     /// Applies the <see cref="Retry" /> settings from this options instance to the supplied <see cref="BlobClientOptions" />.

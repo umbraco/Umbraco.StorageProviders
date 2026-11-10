@@ -31,7 +31,7 @@ public static class AzureBlobFileSystemOptionsExtensions
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        options.SetBlobContainerClientFactory(options => new BlobContainerClient(options.ConnectionString, options.ContainerName, blobClientOptions), ConnectionStringAndContainerName);
+        options.SetBlobContainerClientFactory(options => new BlobContainerClient(options.ConnectionString!, options.ContainerName!, blobClientOptions), ConnectionStringAndContainerName);
     }
 
     /// <summary>
@@ -55,7 +55,7 @@ public static class AzureBlobFileSystemOptionsExtensions
                 {
                     var blobUriBuilder = new BlobUriBuilder(blobContainerUri)
                     {
-                        BlobContainerName = options.ContainerName
+                        BlobContainerName = options.ContainerName!
                     };
 
                     return create(blobUriBuilder.ToUri());
@@ -102,7 +102,7 @@ public static class AzureBlobFileSystemOptionsExtensions
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(blobServiceClient);
 
-        options.SetBlobContainerClientFactory(options => blobServiceClient.GetBlobContainerClient(options.ContainerName), BlobContainerClientRequirements.ContainerName);
+        options.SetBlobContainerClientFactory(options => blobServiceClient.GetBlobContainerClient(options.ContainerName!), BlobContainerClientRequirements.ContainerName);
     }
 
     /// <summary>
