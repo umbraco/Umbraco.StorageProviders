@@ -94,7 +94,7 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     /// </remarks>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        return [..ValidateObject(Cache), ..ValidateObject(Retry)];
+        return [.. ValidateObject(Cache), .. ValidateObject(Retry)];
 
         static IEnumerable<ValidationResult> ValidateObject(object? instance, [CallerArgumentExpression(nameof(instance))] string? prefix = null)
         {
