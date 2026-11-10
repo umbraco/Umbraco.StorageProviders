@@ -2,9 +2,9 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp.Web;
+using SixLabors.ImageSharp.Web.Azure.Resolvers;
 using SixLabors.ImageSharp.Web.Caching;
 using SixLabors.ImageSharp.Web.Resolvers;
-using SixLabors.ImageSharp.Web.Resolvers.Azure;
 using Umbraco.Extensions;
 using Umbraco.StorageProviders.AzureBlob.IO;
 

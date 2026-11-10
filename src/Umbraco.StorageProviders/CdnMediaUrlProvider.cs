@@ -68,7 +68,7 @@ public sealed class CdnMediaUrlProvider : DefaultMediaUrlProvider
             {
                 startIndex = _mediaPath.Length;
             }
-            else if (path.StartsWith('/'))
+            else if (path.StartsWith('/', StringComparison.Ordinal))
             {
                 startIndex = 1;
             }

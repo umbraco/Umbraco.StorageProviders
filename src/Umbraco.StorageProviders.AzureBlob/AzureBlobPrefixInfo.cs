@@ -45,6 +45,6 @@ public sealed class AzureBlobPrefixInfo : IFileInfo
     {
         var name = prefix.TrimEnd('/');
 
-        return name[(name.LastIndexOf('/') + 1)..];
+        return name[(name.LastIndexOf('/', StringComparison.Ordinal) + 1)..];
     }
 }
