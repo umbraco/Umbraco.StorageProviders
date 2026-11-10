@@ -33,22 +33,6 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// <param name="hostingEnvironment">The hosting environment.</param>
     /// <param name="ioHelper">The I/O helper.</param>
     /// <param name="contentTypeProvider">The content type provider.</param>
-    /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
-    /// <exception cref="System.ArgumentNullException"><paramref name="hostingEnvironment" /> is <c>null</c>.</exception>
-    /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
-    /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
-    [Obsolete("Use the overload that accepts a HybridCache to enable blob metadata caching.")]
-    public AzureBlobFileSystem(AzureBlobFileSystemOptions options, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider)
-        : this(GetRequestRootPath(options, hostingEnvironment), options.CreateBlobContainerClient(), ioHelper, contentTypeProvider, options.ContainerRootPath)
-    { }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AzureBlobFileSystem"/> class with blob metadata caching backed by the supplied <see cref="HybridCache" />.
-    /// </summary>
-    /// <param name="options">The Azure Blob File System options.</param>
-    /// <param name="hostingEnvironment">The hosting environment.</param>
-    /// <param name="ioHelper">The I/O helper.</param>
-    /// <param name="contentTypeProvider">The content type provider.</param>
     /// <param name="hybridCache">The shared <see cref="HybridCache" /> used for blob metadata, or <c>null</c> to disable caching. Caching is also only active when <see cref="AzureBlobFileSystemOptions.Cache" /> has <see cref="AzureBlobFileSystemCacheOptions.Enabled" /> set to <c>true</c>.</param>
     /// <exception cref="System.ArgumentNullException"><paramref name="options" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="hostingEnvironment" /> is <c>null</c>.</exception>
@@ -65,26 +49,9 @@ public sealed class AzureBlobFileSystem : IAzureBlobFileSystem, IFileProviderFac
     /// <param name="blobContainerClient">The blob container client.</param>
     /// <param name="ioHelper">The I/O helper.</param>
     /// <param name="contentTypeProvider">The content type provider.</param>
-    /// <param name="containerRootPath">The container root path (uses the request/URL root path if not set).</param>
-    /// <exception cref="System.ArgumentNullException"><paramref name="requestRootPath" /> is <c>null</c>.</exception>
-    /// <exception cref="System.ArgumentNullException"><paramref name="blobContainerClient" /> is <c>null</c>.</exception>
-    /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>
-    /// <exception cref="System.ArgumentNullException"><paramref name="contentTypeProvider" /> is <c>null</c>.</exception>
-    [Obsolete("Use the overload that accepts a HybridCache to enable blob metadata caching.")]
-    public AzureBlobFileSystem(string requestRootPath, BlobContainerClient blobContainerClient, IIOHelper ioHelper, IContentTypeProvider contentTypeProvider, string? containerRootPath = null)
-        : this(requestRootPath, blobContainerClient, ioHelper, contentTypeProvider, containerRootPath, null, null)
-    { }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AzureBlobFileSystem"/> class with blob metadata caching backed by the supplied <see cref="HybridCache" />.
-    /// </summary>
-    /// <param name="requestRootPath">The request/URL root path.</param>
-    /// <param name="blobContainerClient">The blob container client.</param>
-    /// <param name="ioHelper">The I/O helper.</param>
-    /// <param name="contentTypeProvider">The content type provider.</param>
-    /// <param name="containerRootPath">The container root path (uses the request/URL root path if not set).</param>
-    /// <param name="hybridCache">The shared <see cref="HybridCache" /> used for blob metadata.</param>
-    /// <param name="cacheOptions">The blob metadata cache options. Caching is only active when <see cref="AzureBlobFileSystemCacheOptions.Enabled" /> is <c>true</c>.</param>
+    /// <param name="containerRootPath">The container root path, or <c>null</c> to use the request/URL root path.</param>
+    /// <param name="hybridCache">The shared <see cref="HybridCache" /> used for blob metadata, or <c>null</c> to disable caching.</param>
+    /// <param name="cacheOptions">The blob metadata cache options, or <c>null</c> to disable caching. Caching is only active when <paramref name="hybridCache" /> is not <c>null</c> and <see cref="AzureBlobFileSystemCacheOptions.Enabled" /> is <c>true</c>.</param>
     /// <exception cref="System.ArgumentNullException"><paramref name="requestRootPath" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="blobContainerClient" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="ioHelper" /> is <c>null</c>.</exception>

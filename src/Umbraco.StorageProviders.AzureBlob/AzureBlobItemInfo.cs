@@ -84,5 +84,5 @@ public sealed class AzureBlobItemInfo : IFileInfo
     /// <returns>
     /// The name.
     /// </returns>
-    internal static string ParseName(string path) => path[(path.LastIndexOf('/') + 1)..];
+    internal static string ParseName(string path) => path[(path.LastIndexOf('/', StringComparison.Ordinal) + 1)..];
 }
