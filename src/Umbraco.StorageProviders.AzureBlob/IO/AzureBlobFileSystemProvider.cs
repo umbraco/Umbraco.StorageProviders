@@ -24,20 +24,6 @@ public sealed class AzureBlobFileSystemProvider : IAzureBlobFileSystemProvider, 
     /// <param name="optionsMonitor">The options monitor.</param>
     /// <param name="hostingEnvironment">The hosting environment.</param>
     /// <param name="ioHelper">The IO helper.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="optionsMonitor"/> is <c>null</c>.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="hostingEnvironment"/> is <c>null</c>.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="ioHelper"/> is <c>null</c>.</exception>
-    [Obsolete("Use the overload that accepts a HybridCache to enable blob metadata caching.")]
-    public AzureBlobFileSystemProvider(IOptionsMonitor<AzureBlobFileSystemOptions> optionsMonitor, IHostingEnvironment hostingEnvironment, IIOHelper ioHelper)
-        : this(optionsMonitor, hostingEnvironment, ioHelper, null)
-    { }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AzureBlobFileSystemProvider"/> class with blob metadata caching backed by the supplied <see cref="HybridCache" />.
-    /// </summary>
-    /// <param name="optionsMonitor">The options monitor.</param>
-    /// <param name="hostingEnvironment">The hosting environment.</param>
-    /// <param name="ioHelper">The IO helper.</param>
     /// <param name="hybridCache">The shared <see cref="HybridCache" /> used by all file systems for blob metadata. When <c>null</c>, caching is disabled.</param>
     /// <exception cref="ArgumentNullException"><paramref name="optionsMonitor"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="hostingEnvironment"/> is <c>null</c>.</exception>
