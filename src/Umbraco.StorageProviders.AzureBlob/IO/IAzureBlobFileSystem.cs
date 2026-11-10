@@ -15,5 +15,5 @@ public interface IAzureBlobFileSystem : IFileSystem
     /// <returns>
     /// A <see cref="BlobClient" />.
     /// </returns>
-    BlobClient GetBlobClient(string path);
+    public BlobClient GetBlobClient(string path);
 }

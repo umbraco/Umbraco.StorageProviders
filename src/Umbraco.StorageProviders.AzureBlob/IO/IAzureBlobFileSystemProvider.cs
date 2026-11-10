@@ -12,5 +12,5 @@ public interface IAzureBlobFileSystemProvider
     /// <returns>
     /// The <see cref="IAzureBlobFileSystem" />.
     /// </returns>
-    IAzureBlobFileSystem GetFileSystem(string name);
+    public IAzureBlobFileSystem GetFileSystem(string name);
 }

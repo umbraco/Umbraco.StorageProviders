@@ -10,7 +10,7 @@ namespace Umbraco.StorageProviders.AzureBlob.TestSite;
 
 internal sealed class AzureBlobFileSystemComposer : IComposer
 {
-    private static readonly BlobClientOptions _blobClientOptions = new BlobClientOptions
+    private static readonly BlobClientOptions _blobClientOptions = new()
     {
         Retry = {
             Mode = RetryMode.Exponential,
@@ -26,6 +26,8 @@ internal sealed class AzureBlobFileSystemComposer : IComposer
         .AddAzureBlobMediaFileSystem(options => options.CreateBlobContainerClientUsingOptions(_blobClientOptions))
         // If the connection string is parsed to a URI, use the delegate to create a BlobContainerClient
         .AddAzureBlobMediaFileSystem(options => options.TryCreateBlobContainerClientUsingUri(uri => new BlobContainerClient(uri, _blobClientOptions)))
+        // Use a BlobContainerClient registered in dependency injection (e.g. by .NET Aspire), instead of creating one from the connection string
+        //.AddAzureBlobMediaFileSystem<BlobContainerClient>((options, blobContainerClient) => options.UseBlobContainerClient(blobContainerClient))
         // Add the ImageSharp IImageCache implementation using the default media file system and "cache" container root path
         .AddAzureBlobImageSharpCache()
         // Add notification handler to create the media file system on install if it doesn't exist
