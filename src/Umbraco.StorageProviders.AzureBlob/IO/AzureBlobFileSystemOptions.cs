@@ -18,14 +18,20 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     /// <summary>
     /// Gets or sets the storage account connection string.
     /// </summary>
-    [Required]
-    public required string ConnectionString { get; set; }
+    /// <remarks>
+    /// Required when the file system creates its own Blob Container client (the default). Not used when a client is supplied via
+    /// <see cref="AzureBlobFileSystemOptionsExtensions.UseBlobContainerClient" /> or <see cref="AzureBlobFileSystemOptionsExtensions.UseBlobServiceClient" />.
+    /// </remarks>
+    public string ConnectionString { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the container name.
     /// </summary>
-    [Required]
-    public required string ContainerName { get; set; }
+    /// <remarks>
+    /// Required unless a Blob Container client is supplied via <see cref="AzureBlobFileSystemOptionsExtensions.UseBlobContainerClient" />,
+    /// in which case it is optional, but must match the name of the supplied container when set.
+    /// </remarks>
+    public string ContainerName { get; set; } = null!;
 
     /// <summary>
     /// Gets or sets the root path of the container.
@@ -52,7 +58,9 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     /// <remarks>
     /// Only honored by the default factory. If a custom <see cref="BlobClientOptions" /> is supplied via
     /// <see cref="AzureBlobFileSystemOptionsExtensions.CreateBlobContainerClientUsingOptions" /> or another override,
-    /// these values are ignored and the supplied options are used as-is.
+    /// these values are ignored and the supplied options are used as-is. A client supplied via
+    /// <see cref="AzureBlobFileSystemOptionsExtensions.UseBlobContainerClient" /> or <see cref="AzureBlobFileSystemOptionsExtensions.UseBlobServiceClient" />
+    /// is also used as-is.
     /// </remarks>
     public AzureBlobFileSystemRetryOptions Retry { get; set; } = new();
 
@@ -63,7 +71,19 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     /// The Azure Blob Container client factory.
     /// </value>
     [JsonIgnore] // Set in code, not bound from configuration; excluded from the generated appsettings schema.
-    internal Func<AzureBlobFileSystemOptions, BlobContainerClient> BlobContainerClientFactory { get; set; } = DefaultBlobContainerClientFactory;
+    internal Func<AzureBlobFileSystemOptions, BlobContainerClient> BlobContainerClientFactory { get; private set; } = DefaultBlobContainerClientFactory;
+
+    /// <summary>
+    /// Gets the settings the current <see cref="BlobContainerClientFactory" /> needs, used to validate this options instance.
+    /// </summary>
+    [JsonIgnore]
+    internal BlobContainerClientRequirements BlobContainerClientRequirements { get; private set; } = BlobContainerClientRequirements.ConnectionString | BlobContainerClientRequirements.ContainerName;
+
+    /// <summary>
+    /// Gets the Blob Container client supplied via <see cref="AzureBlobFileSystemOptionsExtensions.UseBlobContainerClient" />, used to validate <see cref="ContainerName" />.
+    /// </summary>
+    [JsonIgnore]
+    internal BlobContainerClient? SuppliedBlobContainerClient { get; private set; }
 
     /// <summary>
     /// Gets the default Azure Blob Container client factory.
@@ -87,14 +107,46 @@ public sealed class AzureBlobFileSystemOptions : IValidatableObject
     public BlobClientOptions ConfigureRetry(BlobClientOptions blobClientOptions)
         => Retry.Configure(blobClientOptions);
 
+    /// <summary>
+    /// Sets the Blob Container client factory, together with the settings it needs and the client it supplies (if any).
+    /// </summary>
+    /// <param name="factory">The Blob Container client factory.</param>
+    /// <param name="requirements">The settings the factory needs.</param>
+    /// <param name="suppliedBlobContainerClient">The Blob Container client the factory always returns, or <c>null</c> if it creates or resolves one.</param>
+    internal void SetBlobContainerClientFactory(Func<AzureBlobFileSystemOptions, BlobContainerClient> factory, BlobContainerClientRequirements requirements, BlobContainerClient? suppliedBlobContainerClient = null)
+    {
+        BlobContainerClientFactory = factory;
+        BlobContainerClientRequirements = requirements;
+        SuppliedBlobContainerClient = suppliedBlobContainerClient;
+    }
+
     /// <inheritdoc />
     /// <remarks>
-    /// Recurses into the nested <see cref="Cache" /> and <see cref="Retry" /> options so their validation attributes and
+    /// Validates <see cref="ConnectionString" /> and <see cref="ContainerName" /> against what the configured Blob Container client factory needs,
+    /// and recurses into the nested <see cref="Cache" /> and <see cref="Retry" /> options so their validation attributes and
     /// <see cref="IValidatableObject" /> implementations are honored by <c>ValidateDataAnnotations()</c>.
     /// </remarks>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        return [.. ValidateObject(Cache), .. ValidateObject(Retry)];
+        return [.. ValidateBlobContainerClient(), .. ValidateObject(Cache), .. ValidateObject(Retry)];
+
+        IEnumerable<ValidationResult> ValidateBlobContainerClient()
+        {
+            if (BlobContainerClientRequirements.HasFlag(BlobContainerClientRequirements.ConnectionString) && string.IsNullOrWhiteSpace(ConnectionString))
+            {
+                yield return new ValidationResult($"The {nameof(ConnectionString)} field is required.", [nameof(ConnectionString)]);
+            }
+
+            if (BlobContainerClientRequirements.HasFlag(BlobContainerClientRequirements.ContainerName) && string.IsNullOrWhiteSpace(ContainerName))
+            {
+                yield return new ValidationResult($"The {nameof(ContainerName)} field is required.", [nameof(ContainerName)]);
+            }
+
+            if (SuppliedBlobContainerClient is not null && !string.IsNullOrWhiteSpace(ContainerName) && !string.Equals(ContainerName, SuppliedBlobContainerClient.Name, StringComparison.Ordinal))
+            {
+                yield return new ValidationResult($"The {nameof(ContainerName)} field ('{ContainerName}') does not match the name of the supplied Blob Container client ('{SuppliedBlobContainerClient.Name}'). Remove the {nameof(ContainerName)} setting or make it match.", [nameof(ContainerName)]);
+            }
+        }
 
         static IEnumerable<ValidationResult> ValidateObject(object? instance, [CallerArgumentExpression(nameof(instance))] string? prefix = null)
         {
