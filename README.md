@@ -199,7 +199,7 @@ The available options are:
 - `MaxDelay` - the maximum permissible delay between retries when using a backoff approach (default 5 seconds).
 
 > **Note**
-> These settings are only honored by the default `BlobContainerClient` factory. If you supply a custom `BlobClientOptions` (see [Custom blob container options](#custom-blob-container-options) below), call `options.ConfigureRetry(blobClientOptions)` to apply the retry policy.
+> These settings are only honored by the default `BlobContainerClient` factory. If you supply a custom `BlobClientOptions` (see [Custom blob container options](#custom-blob-container-options) below), call `options.ConfigureRetry(blobClientOptions)` to apply the retry policy. A client you supply yourself (see [Using a client from dependency injection](#using-a-client-from-dependency-injection-eg-net-aspire) below) is used as-is, so these settings don't apply to it.
 
 ### Custom blob container options
 To override the default blob container options, you can use the following extension methods on `AzureBlobFileSystemOptions`:
@@ -210,6 +210,8 @@ To override the default blob container options, you can use the following extens
 .AddAzureBlobMediaFileSystem(options => options.CreateBlobContainerClientUsingOptions(options.ConfigureRetry(_blobClientOptions)))
 // If the connection string is parsed to a URI, use the delegate to create a BlobContainerClient
 .AddAzureBlobMediaFileSystem(options => options.TryCreateBlobContainerClientUsingUri(uri => new BlobContainerClient(uri, options.ConfigureRetry(_blobClientOptions))))
+// Use your own delegate to create a BlobContainerClient (ConnectionString and ContainerName aren't validated, so check what your delegate needs)
+.AddAzureBlobMediaFileSystem(options => options.CreateBlobContainerClientUsing(options => new BlobContainerClient(options.ConnectionString, options.ContainerName, options.ConfigureRetry(_blobClientOptions))))
 ```
 
 This can also be used together with the `Azure.Identity` package to authenticate with Azure AD (using managed identities):
@@ -230,6 +232,19 @@ internal sealed class AzureBlobFileSystemComposer : IComposer
         });
 }
 ```
+
+### Using a client from dependency injection (e.g. .NET Aspire)
+If your application already registers a `BlobContainerClient` or `BlobServiceClient` in dependency injection (for example using the .NET Aspire Azure Blob Storage integration, which adds telemetry and health checks), you can let the file system use that client instead of creating its own:
+```csharp
+// Use a registered BlobContainerClient (ConnectionString isn't needed and ContainerName is optional, but must match the container when set)
+.AddAzureBlobMediaFileSystem<BlobContainerClient>((options, blobContainerClient) => options.UseBlobContainerClient(blobContainerClient))
+// Use a registered BlobServiceClient (ConnectionString isn't needed, but ContainerName is still required)
+.AddAzureBlobMediaFileSystem<BlobServiceClient>((options, blobServiceClient) => options.UseBlobServiceClient(blobServiceClient))
+// Use a keyed BlobContainerClient
+.AddAzureBlobMediaFileSystem((options, serviceProvider) => options.UseBlobContainerClient(serviceProvider.GetRequiredKeyedService<BlobContainerClient>("media")))
+```
+
+The file system never picks up a registered client by itself: it only uses one you pass to `UseBlobContainerClient` or `UseBlobServiceClient`. A supplied client is used as-is, so the `Retry` settings don't apply to it. The same methods work for other file systems added with `AddAzureBlobFileSystem(name, ...)`, and the ImageSharp image cache uses the same client as the file system it's configured for.
 
 ## Umbraco.StorageProviders.AzureBlob.ImageSharp
 Adds ImageSharp support for storing the image cache to a pre-configured Azure Blob Storage provider.
