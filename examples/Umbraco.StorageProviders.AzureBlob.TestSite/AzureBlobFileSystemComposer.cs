@@ -10,7 +10,7 @@ namespace Umbraco.StorageProviders.AzureBlob.TestSite;
 
 internal sealed class AzureBlobFileSystemComposer : IComposer
 {
-    private static readonly BlobClientOptions _blobClientOptions = new BlobClientOptions
+    private static readonly BlobClientOptions _blobClientOptions = new()
     {
         Retry = {
             Mode = RetryMode.Exponential,
