@@ -67,15 +67,11 @@ jobs:
             exit 1
           fi
 
-          # The highest major that has ever shipped a stable release owns the unprefixed 'main'
+          # main only follows the highest major that has ever shipped a stable release. An older
+          # major has no released branch: its release tags already point at what shipped.
           if ! highestMajor=$(git tag --list 'release-*' | sed 's/^release-//' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | cut -d. -f1 | sort -n | tail -1) || [ -z "$highestMajor" ]; then
             echo "::error::Found no stable release tags. Check that the checkout fetched tags. No refs were changed."
             exit 1
-          fi
-          if [ "$major" = "$highestMajor" ]; then
-            mainBranch=main
-          else
-            mainBranch="v$major/main"
           fi
 
           if ! developVersion=$(git show origin/develop:version.json | jq -r '.version // empty') || [ -z "$developVersion" ]; then
@@ -93,33 +89,31 @@ jobs:
 
           # main is set to the released commit rather than merged into, so it only ever holds a
           # commit that was built, tagged and published, and never a merge commit of its own.
-          if ! git show-ref --verify --quiet "refs/remotes/origin/$mainBranch"; then
-            pushRefs="$pushRefs $branchCommit:refs/heads/$mainBranch"
-            echo "Will create $mainBranch at $TAG"
+          if [ "$major" != "$highestMajor" ]; then
+            echo "Will leave main alone, because $major is not the newest major ($highestMajor)"
+          elif ! git show-ref --verify --quiet refs/remotes/origin/main; then
+            pushRefs="$pushRefs $branchCommit:refs/heads/main"
+            echo "Will create main at $TAG"
           else
-            mainCommit=$(git rev-parse "refs/remotes/origin/$mainBranch^{commit}")
-            mainVersion=$(git show "origin/$mainBranch:version.json" | jq -r '.version // empty')
+            mainCommit=$(git rev-parse "refs/remotes/origin/main^{commit}")
+            mainVersion=$(git show origin/main:version.json | jq -r '.version // empty')
             mainMajor=${mainVersion%%.*}
             if ! printf '%s' "$mainMajor" | grep -qE '^[0-9]+$'; then
-              echo "::error::origin/$mainBranch:version.json has version '${mainVersion:-<missing>}', which has no numeric major. Fix it there and re-run. No refs were changed."
+              echo "::error::origin/main:version.json has version '${mainVersion:-<missing>}', which has no numeric major. Fix it there and re-run. No refs were changed."
               exit 1
             fi
 
             if [ "$mainMajor" -lt "$major" ]; then
-              # A new major takes over main, so the outgoing line is preserved as v{previous}/main
-              previous="v$mainMajor/main"
-              if git show-ref --verify --quiet "refs/remotes/origin/$previous"; then
-                echo "::error::$previous already exists, so main cannot be rolled over to $major. No refs were changed."
-                exit 1
-              fi
-              pushRefs="$pushRefs $mainCommit:refs/heads/$previous +$branchCommit:refs/heads/main"
+              # A new major takes over main. Nothing of the outgoing line is lost, because its
+              # release tags still point at what shipped and its patches are branched from those.
+              pushRefs="$pushRefs +$branchCommit:refs/heads/main"
               leases="$leases --force-with-lease=refs/heads/main:$mainCommit"
-              echo "Will preserve the $mainMajor line as $previous and move main to $TAG"
+              echo "Will move main from the $mainMajor line to $TAG"
             elif git merge-base --is-ancestor "$mainCommit" "$branchCommit"; then
-              pushRefs="$pushRefs $branchCommit:refs/heads/$mainBranch"
-              echo "Will fast-forward $mainBranch to $TAG"
+              pushRefs="$pushRefs $branchCommit:refs/heads/main"
+              echo "Will fast-forward main to $TAG"
             else
-              echo "::error::$mainBranch is at $mainCommit, which $TAG does not contain, so it cannot be fast-forwarded. Merge $mainBranch forward into $releaseBranch, then re-run this workflow with $TAG. No refs were changed."
+              echo "::error::main is at $mainCommit, which $TAG does not contain, so it cannot be fast-forwarded. Merge main forward into $releaseBranch, then re-run this workflow with $TAG. No refs were changed."
               exit 1
             fi
           fi
