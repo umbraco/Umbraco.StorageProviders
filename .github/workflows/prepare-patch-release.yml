@@ -1,0 +1,79 @@
+name: Prepare patch release
+run-name: Prepare patch release on ${{ github.ref_name }}
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prepare-release-${{ github.ref }}
+
+jobs:
+  prepare-patch-release:
+    name: Prepare patch release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check branch
+        run: |
+          case "$GITHUB_REF_NAME" in
+            main | v*/main)
+              ;;
+            *)
+              echo "::error::Run this on a released branch (main, v*/main), not $GITHUB_REF_NAME. Use 'Prepare release' to cut a minor release from a development branch."
+              exit 1
+              ;;
+          esac
+
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # Avoid a shallow clone so nbgv can calculate the version height
+
+      - name: Set up Nerdbank.GitVersioning
+        uses: dotnet/nbgv@v0.5.2
+
+      - name: Prepare patch release
+        id: prepare
+        run: |
+          set -euo pipefail
+
+          currentVersion=$(jq -r '.version // empty' version.json)
+
+          # A released branch holds a plain <major>.<minor>.<patch>, and the branch this creates
+          # is named from it, so validate before anything is pushed rather than after.
+          if ! printf '%s' "$currentVersion" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::$GITHUB_REF_NAME is at version '${currentVersion:-<missing>}', but a patch release needs a released '<major>.<minor>.<patch>' version."
+            exit 1
+          fi
+
+          major=${currentVersion%%.*}
+          minorAndPatch=${currentVersion#*.}
+          minor=${minorAndPatch%%.*}
+          patch=${minorAndPatch#*.}
+          nextVersion="$major.$minor.$(( patch + 1 ))"
+          releaseBranch="release/$nextVersion"
+
+          echo "release-branch=$releaseBranch" >> "$GITHUB_OUTPUT"
+
+          echo "Released version: $currentVersion"
+          echo "Patch version:    $nextVersion"
+          echo "Release branch:   $releaseBranch"
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          # Patches ship straight to a stable version, so no prerelease tag is applied here.
+          # Run 'Prepare release' on the new branch if this one does need stabilising first.
+          git checkout -b "$releaseBranch"
+          nbgv set-version "$nextVersion"
+          git commit version.json --message "Set version to '$nextVersion'"
+
+          git push origin "$releaseBranch"
+
+      - name: Draft release
+        uses: ./.github/actions/draft-release
+        with:
+          release-branch: ${{ steps.prepare.outputs.release-branch }}
