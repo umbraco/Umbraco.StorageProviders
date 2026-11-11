@@ -47,7 +47,7 @@ jobs:
           fetch-depth: 0 # Avoid a shallow clone so nbgv can calculate the version height
 
       - name: Set up Nerdbank.GitVersioning
-        uses: dotnet/nbgv@v0.5.2
+        uses: dotnet/nbgv@705dad19ab067f12f4e9eeaa60812e01edef5d25 # v0.5.2
 
       - name: Prepare release
         id: prepare
