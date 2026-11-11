@@ -16,13 +16,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check branch
+      - name: Check ref
         run: |
-          case "$GITHUB_REF_NAME" in
-            main | v*/main)
+          # An older major has no released branch of its own: its stable release tags already
+          # point at exactly what shipped, so a patch is branched from one of those instead.
+          case "$GITHUB_REF" in
+            refs/heads/main | refs/tags/release-*)
               ;;
             *)
-              echo "::error::Run this on a released branch (main, v*/main), not $GITHUB_REF_NAME. Use 'Prepare release' to cut a minor release from a development branch."
+              echo "::error::Run this on main or on a stable release tag (release-<major>.<minor>.<patch>), not $GITHUB_REF_NAME. Use 'Prepare release' to cut a minor release from a development branch."
               exit 1
               ;;
           esac
@@ -42,10 +44,14 @@ jobs:
 
           currentVersion=$(jq -r '.version // empty' version.json)
 
-          # A released branch holds a plain <major>.<minor>.<patch>, and the branch this creates
+          # A released commit holds a plain <major>.<minor>.<patch>, and the branch this creates
           # is named from it, so validate before anything is pushed rather than after.
           if ! printf '%s' "$currentVersion" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "::error::$GITHUB_REF_NAME is at version '${currentVersion:-<missing>}', but a patch release needs a released '<major>.<minor>.<patch>' version."
+            exit 1
+          fi
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "release-$currentVersion" ]; then
+            echo "::error::$GITHUB_REF_NAME holds version '$currentVersion' instead of the version in its name, so it is not a stable release tag."
             exit 1
           fi
 
@@ -55,6 +61,17 @@ jobs:
           patch=${minorAndPatch#*.}
           nextVersion="$major.$minor.$(( patch + 1 ))"
           releaseBranch="release/$nextVersion"
+
+          # Patching anything but the latest patch of a minor would cut a version that already
+          # shipped, so point at the newer tag rather than fail later at the draft release.
+          if git show-ref --verify --quiet "refs/tags/release-$nextVersion"; then
+            echo "::error::release-$nextVersion already exists. Run this on the latest release tag of $major.$minor instead."
+            exit 1
+          fi
+          if git show-ref --verify --quiet "refs/remotes/origin/$releaseBranch"; then
+            echo "::error::$releaseBranch already exists. Continue on it, or delete it first if it was abandoned."
+            exit 1
+          fi
 
           echo "release-branch=$releaseBranch" >> "$GITHUB_OUTPUT"
 

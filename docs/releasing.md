@@ -5,22 +5,28 @@ Versions are calculated by [Nerdbank.GitVersioning](https://github.com/dotnet/Ne
 ## Branches
 
 - `develop` is the development branch for the newest major and the default branch of the repository. `support/X.x` is the development branch for an older, still supported major.
-- `main` holds the released code of the newest major, and `vX/main` holds it for an older one. They exist so a patch can be branched from what was actually released rather than from whatever has since landed on a development branch. `main` is moved by **Merge release** each time a stable release of the newest major is published, a `vX/main` is created the first time an older major is released through this process, and the outgoing line is preserved as `vX/main` when a new major takes over `main`.
+- `main` holds the released code of the newest major. **Merge release** moves it each time a stable release of the newest major is published, and moves it on to the new major when that one ships its first stable release.
 - `release/X.Y.Z` is cut when preparing a release and is deleted once it has been merged back. The `release-X.Y.Z` tag still points at its final commit, so it can be restored with `git branch release/X.Y.Z release-X.Y.Z && git push origin release/X.Y.Z`.
+
+An older major has no released branch of its own. Its stable `release-X.Y.Z` tags already point at exactly what shipped, so a patch is branched from the tag rather than from whatever has since landed on its development branch. This differs from GitFlow, where `support/X.x` is the released branch of an older major: here it is the development branch, because older majors still get minor releases.
 
 A development branch holds the next minor version with an `alpha` label, for example `17.2.0-alpha`, so its builds always sort below the release they lead to.
 
-A `main` branch only ever points at a commit that was built, tagged and published. It is never a merge commit, and nothing is committed to it directly.
+`main` only ever points at a commit that was built, tagged and published. It is never a merge commit, and nothing is committed to it directly.
 
 Fixes that apply to several majors are made on the oldest affected branch and merged forward, ending in `develop`.
 
+## Contributing a change
+
+Branch from the branch the change belongs on (`develop`, `support/X.x`, or `release/X.Y.Z` while stabilising) and open the pull request against that same branch. The base branch is what puts a change in a major, so topic branches are named for what they do, for example `bugfix/blob-cache-headers`, and never start with a major such as `v17/`.
+
 ## Cutting a release
 
-Both of these are GitHub Actions, run from the **Actions** tab. Each one refuses to run on a branch it does not belong on.
+Both of these are GitHub Actions, run from the **Actions** tab. Each one refuses to run on a branch or tag it does not belong on.
 
 **Minor release:** run **Prepare release** on `develop` or `support/X.x` and choose `rc`, `beta` or `stable`. It creates `release/X.Y.0`, moves the development branch on to the next minor version (keeping its `alpha` label), and merges the release branch back so that the `version.json` conflict is resolved once rather than at every later merge.
 
-**Patch release:** run **Prepare patch release** on `main` or `vX/main`. It takes no options: it creates `release/X.Y.Z+1` at the stable version, because patches ship without stabilisation. Nothing on a development branch is touched. If a patch does need stabilising, run **Prepare release** with `rc` on the new release branch afterwards.
+**Patch release:** run **Prepare patch release** on `main` for the newest major, or on the latest stable `release-X.Y.Z` tag of the minor to patch (pick the tag under **Use workflow from**). It takes no options: it creates `release/X.Y.Z+1` at the stable version, because patches ship without stabilisation. Nothing on a development branch is touched. If a patch does need stabilising, run **Prepare release** with `rc` on the new release branch afterwards.
 
 Both also create a draft GitHub Release for the new release branch, ready to be published (see [Publishing](#publishing)).
 
@@ -50,9 +56,9 @@ Building and publishing is Azure Pipelines (`azure-pipelines.yml`), not GitHub A
 
 ## After publishing
 
-Publishing a stable release runs **Merge release**, which sets the major's `main` branch to the released commit, merges the release branch into its development branch, and deletes the release branch. A new major additionally takes over `main`, with the outgoing line preserved as `v{previous}/main`.
+Publishing a stable release runs **Merge release**, which merges the release branch into its development branch and deletes the release branch. For the newest major it also sets `main` to the released commit, and a new major's first stable release moves `main` on from the previous major, whose tags still mark what it shipped.
 
-It stops without changing anything if the tag is not the tip of its release branch, if `main` is not contained in the tag, or if anything other than `version.json` conflicts. The push is atomic and happens last, so a failed run leaves nothing half-done and can simply be re-run once the cause is fixed. Re-run it from the Actions tab, or start it manually with **Run workflow** and the tag name.
+It stops without changing anything if the tag is not the tip of its release branch, if `main` is on the same major but not contained in the tag, or if anything other than `version.json` conflicts. The push is atomic and happens last, so a failed run leaves nothing half-done and can simply be re-run once the cause is fixed. Re-run it from the Actions tab, or start it manually with **Run workflow** and the tag name.
 
 A prerelease is a no-op that says so in the log, whether or not the pre-release box was ticked.
 
@@ -62,12 +68,12 @@ A prerelease is a no-op that says so in the log, whether or not the pre-release 
 - Deleting the draft GitHub Release of a release branch that is abandoned.
 - Merging between majors, both `release/X.Y.Z` into the next major's release branch and `support/X.x` into the next `support/Y.x` or `develop`. These are judgement calls about timing and they conflict often, so they are deliberately not automated.
 - Branching `support/X.x` from `develop` when development moves to a new major while the previous one is still supported, and setting `develop` to the new major's first `alpha` version. This happens before that major is released, so there is no release event to hang it on.
-- The first patch release of a major. **Prepare patch release** runs on `main` or `vX/main`, and that branch only holds the major once **Merge release** has run for one of its releases, so until then create `release/X.Y.Z+1` by hand from the `release-X.Y.Z` tag.
+- Patching a release made before these workflows existed (see [Notes](#notes)): create `release/X.Y.Z+1` by hand from the `release-X.Y.Z` tag.
 
 ## Notes
 
-These workflows run from the commit a tag points at, not from the default branch, so **Merge release** only runs for releases cut from branches that carry these files. Releases up to and including 17.1.0 and 18.0.0 were made before they existed, and `support/13.x` does not have them, so its releases are still prepared and merged back by hand.
+These workflows run from the commit a tag or branch points at, not from the default branch, so they only work on releases cut from branches that carry these files. That covers both **Merge release** and running **Prepare patch release** on a tag, or on `main` while it points at such a release. Releases up to and including 17.1.0 and 18.0.0 were made before they existed, and `support/13.x` does not have them, so those are still prepared and merged back by hand.
 
-They push to `develop`, `support/X.x`, `main` and `vX/main` and create or update the draft releases as `github-actions[bot]` using `GITHUB_TOKEN`, so any branch protection on those refs has to permit it.
+They push to `develop`, `support/X.x` and `main` and create or update the draft releases as `github-actions[bot]` using `GITHUB_TOKEN`, so any branch protection on those refs has to permit it.
 
 Creating the draft with `GITHUB_TOKEN` is fine, because a person publishes it. If publishing is ever automated, it must not use `GITHUB_TOKEN`: releases published with it trigger no workflow at all, so the merge-back would silently never run. Use a personal access token or a GitHub App.
