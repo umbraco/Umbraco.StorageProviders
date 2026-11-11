@@ -34,6 +34,13 @@ jobs:
         with:
           fetch-depth: 0 # Avoid a shallow clone so nbgv can calculate the version height
 
+      - name: Set up .NET
+        # The nbgv action runs dotnet from the repository root, so it needs the SDK that global.json
+        # asks for, which may be a prerelease that the runner image does not have.
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
       - name: Set up Nerdbank.GitVersioning
         uses: dotnet/nbgv@705dad19ab067f12f4e9eeaa60812e01edef5d25 # v0.5.2
 
