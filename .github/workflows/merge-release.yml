@@ -1,0 +1,166 @@
+name: Merge release
+run-name: Merge ${{ inputs.tag || github.event.release.tag_name }} back
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The release tag to merge back, for example 'release-17.2.0'.
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: merge-release-${{ inputs.tag || github.event.release.tag_name }}
+
+jobs:
+  merge-release:
+    name: Merge release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # Avoid a shallow clone so the whole branch and tag graph is available
+
+      - name: Merge release branch back
+        env:
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+
+          # Decided from the tag alone: 'Set as a pre-release' is ticked by hand and can be wrong
+          # in either direction, while the tag itself always says what was published.
+          version=${TAG#release-}
+          if printf '%s' "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+-'; then
+            echo "::notice::$TAG is a prerelease, so there is nothing to merge back."
+            exit 0
+          fi
+          if ! printf '%s' "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::$TAG is not a release tag of the form 'release-<major>.<minor>.<patch>'."
+            exit 1
+          fi
+          major=${version%%.*}
+          releaseBranch="release/$version"
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          if ! tagCommit=$(git rev-parse --verify --quiet "refs/tags/$TAG^{commit}"); then
+            echo "::error::$TAG does not exist. No refs were changed."
+            exit 1
+          fi
+          if ! branchCommit=$(git rev-parse --verify --quiet "refs/remotes/origin/$releaseBranch^{commit}"); then
+            echo "::error::$releaseBranch does not exist. Restore it from $TAG and push it, then re-run. No refs were changed."
+            exit 1
+          fi
+
+          # Commits past the tag were never built or published, and main must hold released code
+          # only. They would also be deleted below, so stop rather than half-resolve it here.
+          if [ "$tagCommit" != "$branchCommit" ]; then
+            echo "::error::$TAG is at $tagCommit but $releaseBranch is at $branchCommit. Reconcile them before merging back. No refs were changed."
+            exit 1
+          fi
+
+          # The highest major that has ever shipped a stable release owns the unprefixed 'main'
+          if ! highestMajor=$(git tag --list 'release-*' | sed 's/^release-//' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | cut -d. -f1 | sort -n | tail -1) || [ -z "$highestMajor" ]; then
+            echo "::error::Found no stable release tags. Check that the checkout fetched tags. No refs were changed."
+            exit 1
+          fi
+          if [ "$major" = "$highestMajor" ]; then
+            mainBranch=main
+          else
+            mainBranch="v$major/main"
+          fi
+
+          if ! developVersion=$(git show origin/develop:version.json | jq -r '.version // empty') || [ -z "$developVersion" ]; then
+            echo "::error::Could not read a version from origin/develop:version.json. No refs were changed."
+            exit 1
+          fi
+          if [ "${developVersion%%.*}" = "$major" ]; then
+            devBranch=develop
+          else
+            devBranch="support/$major.x"
+          fi
+
+          pushRefs=''
+          leases="--force-with-lease=refs/heads/$releaseBranch:$branchCommit"
+
+          # main is set to the released commit rather than merged into, so it only ever holds a
+          # commit that was built, tagged and published, and never a merge commit of its own.
+          if ! git show-ref --verify --quiet "refs/remotes/origin/$mainBranch"; then
+            pushRefs="$pushRefs $branchCommit:refs/heads/$mainBranch"
+            echo "Will create $mainBranch at $TAG"
+          else
+            mainCommit=$(git rev-parse "refs/remotes/origin/$mainBranch^{commit}")
+            mainVersion=$(git show "origin/$mainBranch:version.json" | jq -r '.version // empty')
+            mainMajor=${mainVersion%%.*}
+            if ! printf '%s' "$mainMajor" | grep -qE '^[0-9]+$'; then
+              echo "::error::origin/$mainBranch:version.json has version '${mainVersion:-<missing>}', which has no numeric major. Fix it there and re-run. No refs were changed."
+              exit 1
+            fi
+
+            if [ "$mainMajor" -lt "$major" ]; then
+              # A new major takes over main, so the outgoing line is preserved as v{previous}/main
+              previous="v$mainMajor/main"
+              if git show-ref --verify --quiet "refs/remotes/origin/$previous"; then
+                echo "::error::$previous already exists, so main cannot be rolled over to $major. No refs were changed."
+                exit 1
+              fi
+              pushRefs="$pushRefs $mainCommit:refs/heads/$previous +$branchCommit:refs/heads/main"
+              leases="$leases --force-with-lease=refs/heads/main:$mainCommit"
+              echo "Will preserve the $mainMajor line as $previous and move main to $TAG"
+            elif git merge-base --is-ancestor "$mainCommit" "$branchCommit"; then
+              pushRefs="$pushRefs $branchCommit:refs/heads/$mainBranch"
+              echo "Will fast-forward $mainBranch to $TAG"
+            else
+              echo "::error::$mainBranch is at $mainCommit, which $TAG does not contain, so it cannot be fast-forwarded. Merge $mainBranch forward into $releaseBranch, then re-run this workflow with $TAG. No refs were changed."
+              exit 1
+            fi
+          fi
+
+          if ! git show-ref --verify --quiet "refs/remotes/origin/$devBranch"; then
+            echo "::error::$devBranch does not exist. Create it, then re-run this workflow with $TAG. No refs were changed."
+            exit 1
+          fi
+
+          message="Merge branch '$releaseBranch' into $devBranch"
+          expected=$(git show "origin/$devBranch:version.json" | jq -r '.version // empty')
+          git checkout -B "$devBranch" "origin/$devBranch"
+          if ! git merge --no-ff --message "$message" "origin/$releaseBranch"; then
+            conflicts=$(git diff --name-only --diff-filter=U | tr '\n' ' ')
+            if [ "$conflicts" != "version.json " ]; then
+              echo "::error::Merging $releaseBranch into $devBranch failed. Conflicting paths: ${conflicts:-none, see the git output above}. Resolve it by hand, or re-run this workflow with $TAG once fixed. No refs were changed."
+              git merge --abort || true
+              exit 1
+            fi
+            git checkout --ours version.json
+            git add version.json
+            git commit --message "$message"
+          fi
+
+          # A clean auto-merge takes the released version when only the release side touched the
+          # file, which would move the development branch backwards, so check rather than assume.
+          actual=$(jq -r '.version // empty' version.json)
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::After merging $releaseBranch, version.json on $devBranch is '$actual' but should still be '$expected'. Merge it by hand. No refs were changed."
+            exit 1
+          fi
+          pushRefs="$pushRefs $devBranch:refs/heads/$devBranch"
+          echo "Merged $releaseBranch into $devBranch"
+
+          if [ -z "$pushRefs" ]; then
+            echo "::error::Nothing to push, so refusing to delete $releaseBranch."
+            exit 1
+          fi
+
+          # One atomic push, deletion included, so a failure leaves nothing half-done. The leases
+          # make it fail rather than discard anything that moved since it was read above.
+          # shellcheck disable=SC2086
+          git push --atomic $leases origin $pushRefs ":refs/heads/$releaseBranch"
+          echo "Pushed$pushRefs and deleted $releaseBranch ($TAG still points at its final commit)"

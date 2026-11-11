@@ -1,0 +1,116 @@
+name: Prepare release
+run-name: Prepare ${{ inputs.type }} release on ${{ github.ref_name }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: The kind of version to give the release branch.
+        required: true
+        default: rc
+        type: choice
+        options:
+          - rc
+          - beta
+          - stable
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prepare-release-${{ github.ref }}
+
+jobs:
+  prepare-release:
+    name: Prepare release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check branch
+        run: |
+          case "$GITHUB_REF_NAME" in
+            develop | support/*.x | release/*)
+              ;;
+            main | v*/main)
+              echo "::error::Use 'Prepare patch release' on $GITHUB_REF_NAME."
+              exit 1
+              ;;
+            *)
+              echo "::error::Run this on a development branch (develop, support/*.x) or a release branch (release/*), not $GITHUB_REF_NAME."
+              exit 1
+              ;;
+          esac
+
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # Avoid a shallow clone so nbgv can calculate the version height
+
+      - name: Set up Nerdbank.GitVersioning
+        uses: dotnet/nbgv@705dad19ab067f12f4e9eeaa60812e01edef5d25 # v0.5.2
+
+      - name: Prepare release
+        id: prepare
+        env:
+          TYPE: ${{ inputs.type }}
+        run: |
+          set -euo pipefail
+
+          currentVersion=$(jq -r .version version.json)
+          currentTag=${currentVersion#*-}
+          if [ "$currentTag" = "$currentVersion" ]; then
+            currentTag=''
+          fi
+
+          if [ "$TYPE" = stable ]; then
+            releaseTag=''
+          elif [ "${currentTag%%[0-9]*}" = "$TYPE" ]; then
+            # Same label as the current one, so continue its numbering ('rc' counts as 'rc1')
+            number=${currentTag#"$TYPE"}
+            # 10# so a padded counter such as rc008 is not read as octal
+            releaseTag="$TYPE$(( 10#${number:-1} + 1 ))"
+          else
+            releaseTag="${TYPE}1"
+          fi
+
+          # nbgv names the release branch after the version without its prerelease tag
+          releaseBranch="release/${currentVersion%%-*}"
+
+          # On a release branch nbgv only replaces the prerelease tag when the branch is the one
+          # belonging to its own version. If it is not, nbgv would instead cut a new release branch
+          # from this one and bump this branch to the next version, which is never what is wanted.
+          case "$GITHUB_REF_NAME" in
+            release/*)
+              if [ "$GITHUB_REF_NAME" != "$releaseBranch" ]; then
+                echo "::error::$GITHUB_REF_NAME is at version $currentVersion, which belongs to $releaseBranch."
+                exit 1
+              fi
+              ;;
+          esac
+
+          echo "release-branch=$releaseBranch" >> "$GITHUB_OUTPUT"
+
+          echo "Current version: $currentVersion"
+          echo "Release branch:  $releaseBranch"
+          echo "Prerelease tag:  ${releaseTag:-none}"
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          # On a development branch this creates the release branch, increments the version here
+          # and merges back. On the release branch itself it only replaces the prerelease tag.
+          # Unquoted on purpose: a stable release must pass no argument at all
+          # shellcheck disable=SC2086
+          nbgv prepare-release $releaseTag
+
+          # Atomically, so a half-prepared release cannot be left behind
+          if [ "$GITHUB_REF_NAME" = "$releaseBranch" ]; then
+            git push origin "$GITHUB_REF_NAME"
+          else
+            git push --atomic origin "$GITHUB_REF_NAME" "$releaseBranch"
+          fi
+
+      - name: Draft release
+        uses: ./.github/actions/draft-release
+        with:
+          release-branch: ${{ steps.prepare.outputs.release-branch }}
