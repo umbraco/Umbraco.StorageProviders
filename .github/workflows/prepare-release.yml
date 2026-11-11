@@ -28,10 +28,10 @@ jobs:
     steps:
       - name: Check branch
         run: |
-          case "$GITHUB_REF_NAME" in
-            develop | support/*.x | release/*)
+          case "$GITHUB_REF" in
+            refs/heads/develop | refs/heads/support/*.x | refs/heads/release/*)
               ;;
-            main | v*/main)
+            refs/heads/main | refs/tags/release-*)
               echo "::error::Use 'Prepare patch release' on $GITHUB_REF_NAME."
               exit 1
               ;;
