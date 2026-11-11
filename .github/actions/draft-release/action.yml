@@ -1,0 +1,59 @@
+name: Draft release
+description: Creates or updates the draft GitHub Release of a release branch, so publishing it only needs release notes.
+
+inputs:
+  release-branch:
+    description: The release branch (release/X.Y.Z) to draft the release for. It must be available locally, with Nerdbank.GitVersioning (nbgv) set up.
+    required: true
+  github-token:
+    description: The token used to create or update the release.
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Create or update draft release
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        RELEASE_BRANCH: ${{ inputs.release-branch }}
+      run: |
+        set -euo pipefail
+
+        # The version the release branch builds as once it's tagged (a public release), without the commit suffix of a branch build
+        version=$(nbgv get-version "$RELEASE_BRANCH" --public-release -v NuGetPackageVersion)
+        if ! printf '%s' "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+          echo "::error::$RELEASE_BRANCH is at version '${version:-<missing>}', which is not a '<major>.<minor>.<patch>[-<label>]' version."
+          exit 1
+        fi
+        tag="release-$version"
+
+        # Decided from the version, like 'Merge release' does from the tag. Drafts can't be set as the latest release:
+        # leaving that unticked when publishing assigns it by semantic version, so a patch to an older major never takes over
+        if printf '%s' "$version" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+-'; then
+          prerelease=true
+        else
+          prerelease=false
+        fi
+
+        releases=$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases" | jq -s 'add // []')
+        if [ "$(jq --arg tag "$tag" '[.[] | select(.draft | not) | select(.tag_name == $tag)] | length' <<< "$releases")" != 0 ]; then
+          echo "::error::$tag has already been published. No release was drafted."
+          exit 1
+        fi
+
+        # Update the existing draft of this release branch (e.g. after moving from rc1 to rc2), keeping its release notes
+        draftId=$(jq -r --arg branch "$RELEASE_BRANCH" '[.[] | select(.draft) | select(.target_commitish == $branch)] | .[0].id // empty' <<< "$releases")
+        if [ -n "$draftId" ]; then
+          gh api --silent --method PATCH "repos/$GITHUB_REPOSITORY/releases/$draftId" \
+            -f tag_name="$tag" -f target_commitish="$RELEASE_BRANCH" -f name="$version" \
+            -F draft=true -F prerelease="$prerelease"
+          echo "Updated the draft release of $RELEASE_BRANCH to $tag (pre-release: $prerelease)"
+        else
+          gh api --silent --method POST "repos/$GITHUB_REPOSITORY/releases" \
+            -f tag_name="$tag" -f target_commitish="$RELEASE_BRANCH" -f name="$version" \
+            -F draft=true -F prerelease="$prerelease"
+          echo "Drafted release $tag for $RELEASE_BRANCH (pre-release: $prerelease)"
+        fi
+
+        echo "::notice::Publish the draft release $version from the Releases page once release notes are added."
