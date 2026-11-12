@@ -123,8 +123,8 @@ public sealed class AzureBlobFileProvider : IFileProvider
         // serializing — IFileInfo is an interface which System.Text.Json cannot deserialize.
         ValueTask<CachedFileInfo> getTask = cache.GetOrCreateAsync(
             cacheKey,
-            (Provider: this, Path: path),
-            static (state, ct) => state.Provider.FetchAsync(state.Path, ct),
+            (Provider: this, Path: path, CacheKey: cacheKey),
+            static (state, ct) => state.Provider.FetchAsync(state.Path, state.CacheKey, ct),
             hitEntryOptions);
 
         CachedFileInfo cached = getTask.IsCompletedSuccessfully
@@ -185,18 +185,35 @@ public sealed class AzureBlobFileProvider : IFileProvider
         }
     }
 
-    private async ValueTask<CachedFileInfo> FetchAsync(string path, CancellationToken cancellationToken)
+    private async ValueTask<CachedFileInfo> FetchAsync(string path, string cacheKey, CancellationToken cancellationToken)
     {
         BlobClient blobClient = _containerClient.GetBlobClient(path);
         try
         {
             Response<BlobProperties> response = await blobClient.GetPropertiesAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            return new CachedFileInfo(new AzureBlobItemInfo(blobClient, response.Value));
+            // When reading the content finds the blob was replaced (412) or deleted (404), evict the stale entry so the
+            // next request fetches fresh metadata, instead of failing until the entry expires.
+            return new CachedFileInfo(new AzureBlobItemInfo(blobClient, response.Value, () => RemoveCacheEntry(cacheKey)));
         }
         catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.NotFound)
         {
             return new CachedFileInfo(new NotFoundFileInfo(AzureBlobItemInfo.ParseName(path)));
+        }
+    }
+
+    private void RemoveCacheEntry(string cacheKey)
+    {
+        if (_cache is not (var cache, _, _))
+        {
+            return;
+        }
+
+        // HybridCache.RemoveAsync is async; this is called from the stream's sync and async reads, so block here.
+        ValueTask removeTask = cache.RemoveAsync(cacheKey);
+        if (!removeTask.IsCompletedSuccessfully)
+        {
+            removeTask.AsTask().GetAwaiter().GetResult();
         }
     }
 

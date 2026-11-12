@@ -1,3 +1,4 @@
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.FileProviders;
@@ -11,6 +12,8 @@ namespace Umbraco.StorageProviders.AzureBlob;
 public sealed class AzureBlobItemInfo : IFileInfo
 {
     private readonly BlobClient _blobClient;
+    private readonly ETag? _etag;
+    private readonly Action? _onStale;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureBlobItemInfo" /> class.
@@ -20,12 +23,26 @@ public sealed class AzureBlobItemInfo : IFileInfo
     /// <exception cref="System.ArgumentNullException"><paramref name="blobClient" /> is <c>null</c>.</exception>
     /// <exception cref="System.ArgumentNullException"><paramref name="properties" /> is <c>null</c>.</exception>
     public AzureBlobItemInfo(BlobClient blobClient, BlobProperties properties)
+        : this(blobClient, properties, null)
+    { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AzureBlobItemInfo" /> class.
+    /// </summary>
+    /// <param name="blobClient">The blob client.</param>
+    /// <param name="properties">The properties.</param>
+    /// <param name="onStale">Called when reading the content finds the blob was replaced or deleted since <paramref name="properties" /> were read, so cached metadata can be evicted.</param>
+    /// <exception cref="System.ArgumentNullException"><paramref name="blobClient" /> is <c>null</c>.</exception>
+    /// <exception cref="System.ArgumentNullException"><paramref name="properties" /> is <c>null</c>.</exception>
+    internal AzureBlobItemInfo(BlobClient blobClient, BlobProperties properties, Action? onStale)
         : this(blobClient)
     {
         ArgumentNullException.ThrowIfNull(properties);
 
         LastModified = properties.LastModified;
         Length = properties.ContentLength;
+        _etag = NormalizeETag(properties.ETag);
+        _onStale = onStale;
     }
 
     /// <summary>
@@ -42,6 +59,7 @@ public sealed class AzureBlobItemInfo : IFileInfo
 
         LastModified = properties.LastModified.GetValueOrDefault();
         Length = properties.ContentLength.GetValueOrDefault(-1);
+        _etag = NormalizeETag(properties.ETag);
     }
 
     /// <summary>
@@ -75,7 +93,12 @@ public sealed class AzureBlobItemInfo : IFileInfo
     public string? PhysicalPath => null;
 
     /// <inheritdoc />
-    public Stream CreateReadStream() => _blobClient.OpenRead();
+    /// <remarks>
+    /// Creating the stream doesn't make a request: the download starts on the first read, pinned to the
+    /// ETag this item was created with. <c>BlobClient.OpenRead()</c> would first make a synchronous
+    /// GetProperties request, fetching the properties this item already holds.
+    /// </remarks>
+    public Stream CreateReadStream() => new AzureBlobReadStream(_blobClient, Length, _etag, _onStale);
 
     /// <summary>
     /// Parses the name from the file path.
@@ -85,4 +108,7 @@ public sealed class AzureBlobItemInfo : IFileInfo
     /// The name.
     /// </returns>
     internal static string ParseName(string path) => path[(path.LastIndexOf('/') + 1)..];
+
+    // A default ETag (for example from BlobsModelFactory) would otherwise be sent as an empty If-Match header.
+    private static ETag? NormalizeETag(ETag? etag) => etag == default(ETag) ? null : etag;
 }
