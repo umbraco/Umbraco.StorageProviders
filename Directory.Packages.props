@@ -17,6 +17,7 @@
     <PackageVersion Include="SixLabors.ImageSharp.Web.Providers.Azure" Version="4.0.2" />
     <PackageVersion Include="System.IO.Hashing" Version="11.0.0-rc.3.26522.148" />
     <PackageVersion Include="Umbraco.Cms.Imaging.ImageSharp" Version="$(UmbracoCmsPackageVersion)" />
+    <PackageVersion Include="Umbraco.Cms.Imaging.ImageSharp2" Version="$(UmbracoCmsPackageVersion)" />
     <PackageVersion Include="Umbraco.Cms.Web.Common" Version="$(UmbracoCmsPackageVersion)" />
   </ItemGroup>
 </Project>
