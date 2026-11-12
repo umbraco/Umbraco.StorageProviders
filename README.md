@@ -105,6 +105,8 @@ The read-only file provider serving media performs a synchronous metadata lookup
 
 Writes through the file system (`AddFile`/`DeleteFile`/`DeleteDirectory`) invalidate the affected cache entries immediately, so only writes performed outside this instance (another process, another instance, or directly via the Azure SDK) can leave metadata stale for up to the configured hit duration.
 
+Serving a file's content doesn't repeat the metadata lookup. The read stream makes no request until the first read, then downloads the content asynchronously, pinned to the ETag in the metadata. If the blob was replaced outside this instance and the metadata is still stale, Blob Storage rejects the download (`412 Precondition Failed`) and the request fails, rather than sending content that doesn't match the cached size and validators.
+
 Caching is enabled by default. It can be configured in code:
 ```csharp
 .AddAzureBlobMediaFileSystem(options => {

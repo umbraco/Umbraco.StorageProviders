@@ -1,3 +1,4 @@
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.FileProviders;
@@ -11,6 +12,7 @@ namespace Umbraco.StorageProviders.AzureBlob;
 public sealed class AzureBlobItemInfo : IFileInfo
 {
     private readonly BlobClient _blobClient;
+    private readonly ETag? _etag;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AzureBlobItemInfo" /> class.
@@ -26,6 +28,7 @@ public sealed class AzureBlobItemInfo : IFileInfo
 
         LastModified = properties.LastModified;
         Length = properties.ContentLength;
+        _etag = properties.ETag;
     }
 
     /// <summary>
@@ -42,6 +45,7 @@ public sealed class AzureBlobItemInfo : IFileInfo
 
         LastModified = properties.LastModified.GetValueOrDefault();
         Length = properties.ContentLength.GetValueOrDefault(-1);
+        _etag = properties.ETag;
     }
 
     /// <summary>
@@ -75,7 +79,12 @@ public sealed class AzureBlobItemInfo : IFileInfo
     public string? PhysicalPath => null;
 
     /// <inheritdoc />
-    public Stream CreateReadStream() => _blobClient.OpenRead();
+    /// <remarks>
+    /// Creating the stream doesn't make a request: the download starts on the first read, pinned to the
+    /// ETag this item was created with. <c>BlobClient.OpenRead()</c> would first make a synchronous
+    /// GetProperties request, fetching the properties this item already holds.
+    /// </remarks>
+    public Stream CreateReadStream() => new AzureBlobReadStream(_blobClient, Length, _etag);
 
     /// <summary>
     /// Parses the name from the file path.
