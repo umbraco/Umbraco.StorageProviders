@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Title>Umbraco Storage Providers - Azure Blob Storage - ImageSharp 2</Title>
+    <Description>Adds ImageSharp version 2 support using the Azure Blob Storage provider for Umbraco CMS.</Description>
+    <PackageTags>umbraco storage azure blob imagesharp</PackageTags>
+    <!-- TODO: Enable when final version is shipped (because there's currently no previous version) -->
+    <EnablePackageValidation>false</EnablePackageValidation>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp.Web.Providers.Azure" VersionOverride="2.0.2" />
+    <PackageReference Include="Umbraco.Cms.Imaging.ImageSharp2" />
+    <ProjectReference Include="..\Umbraco.StorageProviders.AzureBlob\Umbraco.StorageProviders.AzureBlob.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Umbraco.StorageProviders.AzureBlob.ImageSharp\DependencyInjection\AddAzureBlobImageSharpCacheExtensions.cs" />
+    <Compile Include="..\Umbraco.StorageProviders.AzureBlob.ImageSharp\AzureBlobFileSystemImageCache.cs" />
+  </ItemGroup>
+</Project>
