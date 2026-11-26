@@ -9,7 +9,7 @@
     <GlobalPackageReference Include="Umbraco.JsonSchema.Extensions" Version="0.6.0" />
   </ItemGroup>
   <PropertyGroup>
-    <UmbracoCmsPackageVersion>[19.0.0-rc1, 20)</UmbracoCmsPackageVersion>
+    <UmbracoCmsPackageVersion>[19.0.0-rc2, 20)</UmbracoCmsPackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.30.2" />
